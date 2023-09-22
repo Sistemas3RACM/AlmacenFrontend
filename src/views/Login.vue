@@ -87,6 +87,7 @@ img {
 </style>
 
 <script>
+import { API_URL, ENDPOINT_INICIO_SESION } from '../keys'
 
 export default {
     name: "Login",
@@ -96,8 +97,6 @@ export default {
             password: "",
             error: false,
             error_message: "",
-            GetUrl: process.env.VUE_APP_API_URL,
-            GetEndpoint: process.env.VUE_APP_ENDPOINT_INICIO_SESION,
         };
     },
     methods: {
@@ -107,7 +106,7 @@ export default {
                 contraseña: this.password,
             };
 
-            const url = `${this.GetUrl}/${this.GetEndpoint}`;
+            const url = `${API_URL}/${ENDPOINT_INICIO_SESION}`;
 
             console.log(url);
 
