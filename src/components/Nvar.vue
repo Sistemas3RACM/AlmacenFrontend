@@ -19,11 +19,10 @@
                         <font-awesome-icon :icon="['fas', 'store']" />
                         Productos</a>
                 </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'user-tie']" />
-                        Proveedores</a>
-                </li>
+                <router-link to="/principalProveedor" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'user-tie']" />
+                    Proveedores
+                </router-link>
                 <li class="nav-item opciones">
                     <a class="nav-link" href="#">
                         <font-awesome-icon :icon="['fas', 'th-large']" />

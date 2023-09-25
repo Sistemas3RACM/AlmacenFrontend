@@ -19,8 +19,14 @@ export default {
     Nvar
   },
   methods: {
-    handleLogout() {
-      this.$router.push("/");
+    async handleLogout() {
+      // Lógica para cerrar sesión en el servidor, si es necesario
+      try {
+        this.$store.dispatch('auth/logout');
+        this.$router.push("/");
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+      }
     },
   },
 }
