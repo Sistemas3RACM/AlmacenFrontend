@@ -1,37 +1,37 @@
 <template>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Primero</th>
-                <th scope="col">Último</th>
-                <th scope="col">Handle</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td colspan="2">Larry the Bird</td>
-                <td>@twitter</td>
-            </tr>
-        </tbody>
-    </table>
+  <table class="table" v-if="data && data.length">
+    <thead>
+      <tr>
+        <th v-for="field in fields" :key="field">{{ field }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="item in data" :key="item.id">
+        <td v-for="field in fields" :key="field">{{ item[field] }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <p v-if="data.length === 0">No hay datos disponibles.</p>
 </template>
+
 <script>
+import { reactive } from 'vue';
+
 export default {
-    components: {
+  name: 'Tabla',
+  props: {
+    type: {
+      type: String,
+      required: true,
     },
+    data: {
+      type: Object,
+      required: true,
+    },
+    fields: {
+      type: Array,
+      required: true,
+    },
+  },
 };
 </script>

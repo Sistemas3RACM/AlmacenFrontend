@@ -2,7 +2,7 @@
   <div class="container m-0 p-0">
     <div class="row">
       <div class="col col-lg-2 ">
-        <Nvar @logoutClicked="handleLogout" />
+        <Nvar/>
       </div>
       <div class="col col-lg-8">
 
