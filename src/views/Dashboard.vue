@@ -1,15 +1,18 @@
 <template>
-  <div class="container m-0 p-0">
-    <div class="row">
-      <div class="col col-lg-2 ">
-        <Nvar/>
-      </div>
-      <div class="col col-lg-8">
+  <section class="container-fluid">
+    <div>
+      <div class="row">
+        <div class="col-2 m-0 p-0" v-flex="fill">
+          <Nvar/>
+        </div>
+        <div class="col-10 m-0 p-0 bg-success">
 
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
+
 <script>
 import Nvar from '@/components/Nvar.vue';
 

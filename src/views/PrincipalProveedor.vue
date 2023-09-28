@@ -1,18 +1,28 @@
 <template>
-  <div class="container m-0 p-0">
-    <div class="row">
-      <div class="col col-lg-2 ">
-        <Nvar />
-      </div>
-      <div class="col col-lg-6">
-        <h1 class="h1 m-3">Proveedores</h1>
-        <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['nombre', 'status']" />
-      </div>
-      <div class="col col-lg-4 formulario">
-        <h3>Agregar Proveedor</h3>
-        <!-- Utiliza el formulario para agregar proveedores -->
-        <FormularioGeneral :campos="camposProveedor" :textoBoton="textoBotonProveedor"
-          @formulario-enviado="agregarProveedor" />
+  <section class="container-fluid">
+    <div>
+      <div class="row">
+        <div class="col-2 m-0 p-0" v-flex="fill">
+          <Nvar />
+        </div>
+        <div class="col-10 m-0 p-0 bg-danger">
+          <section class="container-fluid">
+            <div class="row">
+              <div class="col-8 tablaP">
+                <h1 class="h1 m-3">Proveedores</h1>
+                <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['nombre', 'status']" />
+              </div>
+              <div class="col-4 mt-5">
+                <div class="formulario">
+                  <h3>Agregar Proveedor</h3>
+                  <!-- Utiliza el formulario para agregar proveedores -->
+                  <FormularioGeneral :campos="camposProveedor" :textoBoton="textoBotonProveedor"
+                    @formulario-enviado="agregarProveedor" />
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
     <!-- Modal de Éxito -->
@@ -20,18 +30,23 @@
 
     <!-- Modal de Error -->
     <ModalError :message="errorMessage" ref="modalError" />
-  </div>
+  </section>
 </template>
 <style scoped>
-  .formulario{
-    background: white;
+.formulario {
+  background: white;
   padding: 20px;
-  text-align: center;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
   height: 50vh;
   border-radius: 10px;
   margin-top: 18%;
-  }
+  width: 100%;
+
+}
+
+.tablaP {
+  background-color: aqua;
+}
 </style>
   
 <script>
