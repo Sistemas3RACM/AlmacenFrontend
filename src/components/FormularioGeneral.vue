@@ -12,10 +12,12 @@
                     <div v-if="campo.ayuda" class="form-text">{{ campo.ayuda }}</div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">{{ textoBoton }}</button>
+            <button type="submit" class="btn m-1 btn-primary">{{ modo === 'agregar' ? textoBoton : 'Editar' }}</button>
+            <button type="button" class="btn m-1 btn-secondary" @click="cambiarModo" v-if="modo === 'editar'">Cancelar</button>
         </form>
     </div>
 </template>
+  
 <script>
 export default {
     props: {
@@ -27,12 +29,45 @@ export default {
             type: String,
             default: 'Agregar',
         },
+        modoInicial: {
+            type: String,
+            default: 'agregar',
+        },
+    },
+    data() {
+        return {
+            modo: this.modoInicial,
+        };
     },
     methods: {
         enviar() {
             // Aquí puedes emitir un evento personalizado para manejar el envío del formulario
-            this.$emit('formulario-enviado', this.campos);
+            this.$emit('formulario-enviado', this.campos, this.modo);
         },
+        cambiarModo() {
+            // Cambia el modo entre 'agregar' y 'editar'
+            this.modo = this.modo === 'agregar' ? 'editar' : 'agregar';
+            // Inicializa los campos según el nuevo modo
+            this.inicializarCampos();
+        },
+        inicializarCampos() {
+            // Inicializa los campos según el modo actual
+            if (this.modo === 'agregar') {
+                for (const campo of this.campos) {
+                    campo.valor = campo.type === 'checkbox' ? false : '';
+                }
+            } else {
+                // Aquí debes asignar los valores del objeto que deseas editar a los campos correspondientes
+                // Por ejemplo, si tienes un objeto `objetoAEditar`, puedes hacer algo como:
+                // for (const campo of this.campos) {
+                //   campo.valor = objetoAEditar[campo.id];
+                // }
+            }
+        },
+    },
+    mounted() {
+        // Inicializa los campos según el modo inicial
+        this.inicializarCampos();
     },
 };
 </script>

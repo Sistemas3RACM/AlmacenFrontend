@@ -46,6 +46,10 @@ export default {
       type: Function,
       required: true,
     },
+    editar: {
+      type: Function,
+      required: true,
+    },
   },
 };
 </script>

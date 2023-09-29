@@ -10,20 +10,22 @@
             <div class="row">
               <div class="col-7 mt-5 tablaP">
                 <h1 class="h1 m-3">Proveedores</h1>
-                <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['idProveedor', 'nombre']"
+                <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['nombre']"
                   :eliminar="eliminar">
                   <template #default="{ item }">
-                    <button @click="eliminar(item.idProveedor)" class="btn btn-danger"><font-awesome-icon
+                    <button @click="eliminar(item.idProveedor)" class="btn m-1 btn-danger"><font-awesome-icon
                         :icon="['fas', 'trash']" /></button>
+                    <button @click="editar(item)" class="btn m-1 btn-warning"><font-awesome-icon
+                        :icon="['fas', 'edit']" /></button>
                   </template>
                 </tabla>
               </div>
               <div class="col-4 mt-5">
                 <div class="formulario">
-                  <h3>Agregar Proveedor</h3>
+                  <h3>Configuración Proveedor</h3>
                   <!-- Utiliza el formulario para agregar proveedores -->
-                  <FormularioGeneral :campos="camposProveedor" :textoBoton="textoBotonProveedor"
-                    @formulario-enviado="agregarProveedor" />
+                  <FormularioGeneral ref="formularioGeneral" :campos="camposProveedor" :textoBoton="textoBotonProveedor"
+                    @formulario-enviado="manejarFormulario" />
                 </div>
               </div>
             </div>
@@ -59,7 +61,10 @@
 <script>
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
-import { API_URL, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_PROVEEDOR } from '../keys';
+import {
+  API_URL, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_PROVEEDOR,
+  ENDPOINT_ELIMINAR_PROVEEDOR
+} from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
 import ModalError from '@/components/ModalError.vue';
@@ -94,6 +99,15 @@ export default {
     this.mostrar();
   },
   methods: {
+    manejarFormulario(campos, modo) {
+      if (modo === 'agregar') {
+        // Llamar al método para agregar
+        this.agregarProveedor(campos);
+      } else if (modo === 'editar') {
+        // Llamar al método para editar
+        this.editarProveedor(campos);
+      }
+    },
     mostrar() {
       const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
 
@@ -105,6 +119,20 @@ export default {
         })
         .catch(error => console.log(error));
     },
+    editar(objeto) {
+
+      console.log(objeto);
+
+      for (const key in objeto) {
+        if (this.camposProveedor.find(campo => campo.id === key)) {
+          const campo = this.camposProveedor.find(campo => campo.id === key);
+          campo.valor = objeto[key];
+        }
+      }
+
+      this.$refs.formularioGeneral.cambiarModo();
+      console.log(this.camposProveedor);
+    },
     eliminar(id) {
       if (!id) {
         this.errorMessage = 'Surgio un problema con el ID';
@@ -112,9 +140,37 @@ export default {
         return;
       }
 
-      console.log(`Eliminar proveedor con ID: ${id}`);
-      this.successMessage = 'El ID eliminado sera '+ id;
-      this.$refs.modalSuccess.openModal();
+      const url = `${API_URL}/${ENDPOINT_ELIMINAR_PROVEEDOR}/${id}`;
+
+      console.log(url);
+
+      fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (response.status === 200) {
+            this.successMessage = 'Proveedor eliminado con éxito';
+            this.$refs.modalSuccess.openModal();
+            this.mostrar();
+          } else if (response.status === 404) {
+            this.errorMessage = 'Proveedor no encontrado';
+            this.$refs.modalError.openModal();
+          } else {
+            this.errorMessage = 'Error al eliminar el proveedor';
+            this.$refs.modalError.openModal();
+          }
+        })
+        .catch(error => {
+          console.error('Error en la solicitud:', error);
+          this.errorMessage = 'Error en la solicitud';
+          this.$refs.modalError.openModal();
+        });
+    },
+    editarProveedor(datos) {
+      console.log(datos);
     },
     agregarProveedor(datos) {
       const url = `${API_URL}/${ENDPOINT_AGREGAR_PROVEEDOR}`;
