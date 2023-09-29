@@ -5,12 +5,18 @@
         <div class="col-2 m-0 p-0" v-flex="fill">
           <Nvar />
         </div>
-        <div class="col-10 m-0 p-0 bg-danger">
+        <div class="col-10 m-0 p-0">
           <section class="container-fluid">
             <div class="row">
-              <div class="col-8 tablaP">
+              <div class="col-7 mt-5 tablaP">
                 <h1 class="h1 m-3">Proveedores</h1>
-                <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['nombre', 'status']" />
+                <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['idProveedor', 'nombre']"
+                  :eliminar="eliminar">
+                  <template #default="{ item }">
+                    <button @click="eliminar(item.idProveedor)" class="btn btn-danger"><font-awesome-icon
+                        :icon="['fas', 'trash']" /></button>
+                  </template>
+                </tabla>
               </div>
               <div class="col-4 mt-5">
                 <div class="formulario">
@@ -45,7 +51,8 @@
 }
 
 .tablaP {
-  background-color: aqua;
+  margin-left: 10px;
+  margin-right: 40px;
 }
 </style>
   
@@ -75,11 +82,11 @@ export default {
       camposProveedor: [
         { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor' },
         { id: 'status', label: 'Estado', nombre: 'status', type: 'checkbox', valor: false },
-        // Agrega más campos según sea necesario
+
       ],
       textoBotonProveedor: 'Agregar Proveedor',
-      successMessage: '', // Mensaje de éxito
-      errorMessage: '', // Mensaje de error
+      successMessage: '',
+      errorMessage: '',
 
     };
   },
@@ -97,6 +104,17 @@ export default {
           console.log(this.proveedores);
         })
         .catch(error => console.log(error));
+    },
+    eliminar(id) {
+      if (!id) {
+        this.errorMessage = 'Surgio un problema con el ID';
+        this.$refs.modalError.openModal();
+        return;
+      }
+
+      console.log(`Eliminar proveedor con ID: ${id}`);
+      this.successMessage = 'El ID eliminado sera '+ id;
+      this.$refs.modalSuccess.openModal();
     },
     agregarProveedor(datos) {
       const url = `${API_URL}/${ENDPOINT_AGREGAR_PROVEEDOR}`;
@@ -124,23 +142,18 @@ export default {
       })
         .then(response => {
           if (response.status === 201) {
-            // El proveedor se agregó con éxito, puedes realizar alguna acción aquí si es necesario
-            console.log('Proveedor agregado con éxito');
             this.successMessage = 'Proveedor agregado con éxito';
             this.$refs.modalSuccess.openModal();
-            this.mostrar(); // Actualiza la lista de proveedores después de agregar uno nuevo
+            this.mostrar();
           }
           else {
             if (response.status === 409) {
-              console.log("ya existe ese proveedor");
               this.errorMessage = 'El proveedor ya existe';
               this.$refs.modalError.openModal();
             } else {
-              console.error('Error al agregar el proveedor');
               this.errorMessage = 'Error al agregar el proveedor';
               this.$refs.modalError.openModal();
             }
-            // Hubo un problema al agregar el proveedor
           }
         })
         .catch(error => {

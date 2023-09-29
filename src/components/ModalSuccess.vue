@@ -1,7 +1,7 @@
 <template>
     <div v-if="show" class="modal-success">
       <div class="modal-content">
-        <h3 class="modal-title">Agregado Correctamente</h3>
+        <h3 class="modal-title">Correcto</h3>
         <p>{{ message }}</p>
         <button @click="closeModal" class="btn btn-primary">Cerrar</button>
       </div>
