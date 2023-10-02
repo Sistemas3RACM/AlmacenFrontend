@@ -12,8 +12,7 @@
                     <div v-if="campo.ayuda" class="form-text">{{ campo.ayuda }}</div>
                 </div>
             </div>
-            <button type="submit" class="btn m-1 btn-primary">{{ modo === 'agregar' ? textoBoton : 'Editar' }}</button>
-            <button type="button" class="btn m-1 btn-secondary" @click="cambiarModo" v-if="modo === 'editar'">Cancelar</button>
+            <button type="submit" class="btn m-1 btn-primary">{{ textoBoton }}</button>
         </form>
     </div>
 </template>
@@ -41,14 +40,7 @@ export default {
     },
     methods: {
         enviar() {
-            // Aquí puedes emitir un evento personalizado para manejar el envío del formulario
             this.$emit('formulario-enviado', this.campos, this.modo);
-        },
-        cambiarModo() {
-            // Cambia el modo entre 'agregar' y 'editar'
-            this.modo = this.modo === 'agregar' ? 'editar' : 'agregar';
-            // Inicializa los campos según el nuevo modo
-            this.inicializarCampos();
         },
         inicializarCampos() {
             // Inicializa los campos según el modo actual
@@ -56,12 +48,6 @@ export default {
                 for (const campo of this.campos) {
                     campo.valor = campo.type === 'checkbox' ? false : '';
                 }
-            } else {
-                // Aquí debes asignar los valores del objeto que deseas editar a los campos correspondientes
-                // Por ejemplo, si tienes un objeto `objetoAEditar`, puedes hacer algo como:
-                // for (const campo of this.campos) {
-                //   campo.valor = objetoAEditar[campo.id];
-                // }
             }
         },
     },

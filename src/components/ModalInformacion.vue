@@ -2,7 +2,7 @@
     <div v-if="show" class="modal-success">
         <div class="modal-content">
             <h3 class="modal-title">{{ titulo }}</h3>
-            <form @submit.prevent="enviarCambios">
+            <form>
 
 
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
@@ -21,8 +21,6 @@
                 </div>
 
 
-
-                <button type="submit" class="btn m-1 btn-primary">Guardar Cambios</button>
                 <button @click="closeModal" class="btn m-1 btn-primary">Cerrar</button>
             </form>
         </div>
@@ -50,10 +48,6 @@ export default {
         },
         closeModal() {
             this.show = false;
-        },
-        enviarCambios() {
-            this.$emit('guardar-cambios', this.objeto);
-            this.closeModal();
         },
     },
 
