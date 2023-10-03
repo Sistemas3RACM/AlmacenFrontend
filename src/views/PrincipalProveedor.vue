@@ -14,22 +14,33 @@
                     <h1 class="h1 m-3">Proveedores</h1>
                   </div>
                   <div class="col-2 mt-4">
-                    <button @click="mostrar()" class="btn m-1 btn-warning"><font-awesome-icon
-                        :icon="['fas', 'sync-alt']" /></button>
+                    <button @click="mostrar()" class="btn m-1 btn-warning">
+                      <font-awesome-icon :icon="['fas', 'sync-alt']" />
+                    </button>
+                  </div>
+                  <div class="col-4 mt-4">
+                    <BusquedaGeneral @busqueda="buscarProveedor" />
                   </div>
                 </div>
-                <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['nombre']"
+                <tabla v-if="paginatedProveedores" :type="type" :data="paginatedProveedores" :fields="['nombre']"
                   :eliminar="eliminar">
                   <template #default="{ item }">
-                    <button @click="eliminarProveedor(item.idProveedor)" class="btn m-1 btn-danger"><font-awesome-icon
-                        :icon="['fas', 'trash']" /></button>
-                    <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning"><font-awesome-icon
-                        :icon="['fas', 'edit']" /></button>
-                    <button @click="mostrarInformacion(item)" class="btn m-1 btn-primary"><font-awesome-icon
-                        :icon="['fas', 'eye']" /></button>
-
+                    <button @click="eliminarProveedor(item.idProveedor)" class="btn m-1 btn-danger">
+                      <font-awesome-icon :icon="['fas', 'trash']" />
+                    </button>
+                    <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
+                      <font-awesome-icon :icon="['fas', 'edit']" />
+                    </button>
+                    <button @click="mostrarInformacion(item)" class="btn m-1 btn-primary">
+                      <font-awesome-icon :icon="['fas', 'eye']" />
+                    </button>
                   </template>
                 </tabla>
+                <!-- Botones de navegación -->
+                <div class="pagination-buttons boton-container">
+                  <button @click="goToPage(currentPage - 1)" class="btn btn-info" :disabled="currentPage === 1">Anterior</button>
+                  <button @click="goToPage(currentPage + 1)" class="btn btn-info" :disabled="currentPage === totalPages">Siguiente</button>
+                </div>
               </div>
               <div class="col-4 mt-4">
                 <div class="formulario">
@@ -57,7 +68,13 @@
     <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
   </section>
 </template>
+
 <style scoped>
+.boton-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
 .formulario {
   background: white;
   padding: 20px;
@@ -66,7 +83,6 @@
   border-radius: 10px;
   margin-top: 18%;
   width: 100%;
-
 }
 
 .tablaP {
@@ -74,24 +90,23 @@
   margin-right: 40px;
 }
 </style>
-  
+
 <script>
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
   API_URL, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_PROVEEDOR,
-  ENDPOINT_ELIMINAR_PROVEEDOR, ENDPOINT_EDITAR_PROVEEDOR
+  ENDPOINT_ELIMINAR_PROVEEDOR, ENDPOINT_EDITAR_PROVEEDOR, ENDPOINT_BUSCAR_PROVEEDOR
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
 import ModalError from '@/components/ModalError.vue';
 import ModalEditar from '@/components/ModalEditar.vue';
 import ModalInformacion from '@/components/ModalInformacion.vue';
-
-
+import BusquedaGeneral from '@/components/BusquedaGeneral.vue';
 
 export default {
-  name: 'Inicio Proveedor',
+  name: 'InicioProveedor',
   components: {
     tabla,
     Nvar,
@@ -100,6 +115,7 @@ export default {
     ModalError,
     ModalEditar,
     ModalInformacion,
+    BusquedaGeneral,
   },
   data() {
     return {
@@ -110,7 +126,6 @@ export default {
         { id: 'status', label: 'Estado', nombre: 'status', type: 'checkbox', valor: false },
         { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
         { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'number', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
-
       ],
       textoBotonProveedor: 'Agregar Proveedor',
       successMessage: '',
@@ -123,12 +138,40 @@ export default {
       },
       id: 'idProveedor',
       TituloVer: 'Información del Proveedor',
+      currentPage: 1, // Página actual
+      pageSize: 6,   // Registros por página
     };
   },
   mounted() {
     this.mostrar();
   },
+  computed: {
+    // Calcular el número total de páginas
+    totalPages() {
+      if (!this.proveedores) return 0;
+      return Math.ceil(this.proveedores.length / this.pageSize);
+    },
+    // Filtrar y ordenar los registros para mostrar en la página actual
+    paginatedProveedores() {
+      if (!this.proveedores) return null;
+
+      // Ordenar los registros del último al primero (puedes ajustar esto)
+      const sortedProveedores = this.proveedores.slice().reverse();
+
+      // Calcular el índice de inicio y fin de la página actual
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+
+      // Devolver los registros para la página actual
+      return sortedProveedores.slice(startIndex, endIndex);
+    },
+  },
   methods: {
+    goToPage(page) {
+      if (page < 1) page = 1;
+      if (page > this.totalPages) page = this.totalPages;
+      this.currentPage = page;
+    },
     mostrar() {
       const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
 
@@ -138,6 +181,26 @@ export default {
           this.proveedores = data;
         })
         .catch(error => console.log(error));
+    },
+    buscarProveedor(termino) {
+      const url = `${API_URL}/${ENDPOINT_BUSCAR_PROVEEDOR}?nombre=${termino}`;
+
+      fetch(url)
+        .then(response => {
+          if (response.ok) {
+            return response.json(); // Convierte la respuesta a JSON si la solicitud es exitosa
+          } else {
+            throw new Error("Error en la solicitud.");
+          }
+        })
+        .then(data => {
+          // Actualiza la lista de proveedores con los resultados de la búsqueda
+          this.proveedores = data; // Suponiendo que 'proveedores' es la lista donde deseas almacenar los resultados
+        })
+        .catch(error => {
+          // Maneja los errores de la solicitud aquí
+          console.error("Error:", error);
+        });
     },
     eliminarProveedor(id) {
       if (!id) {
