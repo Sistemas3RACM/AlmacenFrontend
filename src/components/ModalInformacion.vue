@@ -6,20 +6,24 @@
 
 
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
-                    <div v-if="key != id">
-                        <label :for="key" class="form-label">{{ key }}</label>
-                        <div v-if="typeof campo === 'boolean'" class="form-check">
-                            <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]">
+                    <div v-if="key != id" class="row">
+                        <div class="col-3"> <!-- Define el ancho de la etiqueta -->
+                            <label :for="key" class="form-label label-left">{{ key }}</label>
                         </div>
-                        <div v-else-if="typeof campo === 'number'">
-                            <input type="number" class="form-control" :id="key" v-model="objeto[key]">
+                        <div class="col-9"> <!-- Define el ancho del input -->
+                            <div v-if="typeof campo === 'boolean'" class="form-check">
+                                <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]" :readonly="true">
+                            </div>
+                            <div v-else-if="typeof campo === 'number'">
+                                <input type="number" class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                            </div>
+                            <div v-else>
+                                <input type="text" class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                            </div>
                         </div>
-                        <div v-else>
-                            <input type="text" class="form-control" :id="key" v-model="objeto[key]">
-                        </div>
+
                     </div>
                 </div>
-
 
                 <button @click="closeModal" class="btn m-1 btn-primary">Cerrar</button>
             </form>

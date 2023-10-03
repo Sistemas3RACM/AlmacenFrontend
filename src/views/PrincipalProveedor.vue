@@ -15,7 +15,7 @@
                   </div>
                   <div class="col-2 mt-4">
                     <button @click="mostrar()" class="btn m-1 btn-warning"><font-awesome-icon
-                      :icon="['fas', 'sync-alt']" /></button>
+                        :icon="['fas', 'sync-alt']" /></button>
                   </div>
                 </div>
                 <tabla v-if="this.proveedores" :type="type" :data="this.proveedores" :fields="['nombre']"
@@ -31,7 +31,7 @@
                   </template>
                 </tabla>
               </div>
-              <div class="col-4 mt-5">
+              <div class="col-4 mt-4">
                 <div class="formulario">
                   <h3>Agregar Proveedor</h3>
                   <!-- Utiliza el formulario para agregar proveedores -->
@@ -62,7 +62,7 @@
   background: white;
   padding: 20px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  height: 50vh;
+  height: 80vh;
   border-radius: 10px;
   margin-top: 18%;
   width: 100%;
@@ -108,6 +108,8 @@ export default {
       camposProveedor: [
         { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor' },
         { id: 'status', label: 'Estado', nombre: 'status', type: 'checkbox', valor: false },
+        { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
+        { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'number', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
 
       ],
       textoBotonProveedor: 'Agregar Proveedor',
@@ -189,6 +191,10 @@ export default {
         this.$refs.modalError.openModal();
         this.mostrar();
       } else {
+
+        if (objetoJSON.telefono == "") {
+          objetoJSON.telefono = 0;
+        }
         console.log(objetoJSON);
 
         const url = `${API_URL}/${ENDPOINT_EDITAR_PROVEEDOR}`;
@@ -224,13 +230,15 @@ export default {
 
     },
     agregarProveedor(datos) {
-      console.log(datos);
       const url = `${API_URL}/${ENDPOINT_AGREGAR_PROVEEDOR}`;
 
       const nuevoJSON = {};
 
       for (const campo of datos) {
         nuevoJSON[campo.id] = campo.valor;
+      }
+      if (nuevoJSON.telefono == "") {
+        nuevoJSON.telefono = 0;
       }
 
       console.log(JSON.stringify(nuevoJSON, null, 2));
