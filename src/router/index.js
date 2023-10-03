@@ -24,6 +24,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/principalSubcategoria',
+    name: 'principalSubcategoria',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalSubcategoria.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/',
     name: 'login',
     component: Login

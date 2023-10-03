@@ -4,11 +4,11 @@
             <div v-for="campo in campos" :key="campo.id" class="mb-3">
                 <label :for="campo.id" class="form-label">{{ campo.label }}</label>
                 <div v-if="campo.type === 'checkbox'" class="form-check">
-                    <input :type="campo.type" class="form-check-input" :id="campo.id" v-model="campo.valor">
+                    <input :type="campo.type" class="form-check-input" :id="campo.id" v-model="campo.valor" :required="campo.required">
                     <label :for="campo.id" class="form-check-label">{{ campo.ayuda }}</label>
                 </div>
                 <div v-else>
-                    <input :type="campo.type" class="form-control" :id="campo.id" v-model="campo.valor">
+                    <input :type="campo.type" class="form-control" :id="campo.id" v-model="campo.valor" :required="campo.required">
                     <div v-if="campo.ayuda" class="form-text">{{ campo.ayuda }}</div>
                 </div>
             </div>

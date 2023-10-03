@@ -28,11 +28,10 @@
                         <font-awesome-icon :icon="['fas', 'th-large']" />
                         Categorias</a>
                 </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'th-list']" />
-                        Subcategorias</a>
-                </li>
+                <router-link to="/principalSubcategoria" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'th-list']" />
+                        Subcategorias
+                </router-link>
                 <li class="nav-item opciones">
                     <a class="nav-link" href="#">
                         <font-awesome-icon :icon="['fas', 'users']" />
