@@ -32,11 +32,10 @@
                     <font-awesome-icon :icon="['fas', 'th-list']" />
                         Subcategorias
                 </router-link>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'users']" />
-                        Usuarios</a>
-                </li>
+                <router-link to="/principalUsuario" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'users']" />
+                        Usuarios
+                </router-link>
                 <li class="nav-item opciones">
                     <a class="nav-link" href="#">
                         <font-awesome-icon :icon="['fas', 'book']" />

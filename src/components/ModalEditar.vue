@@ -6,11 +6,12 @@
 
 
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
-                    <div v-if="key != id" class="row">
-                        <div class="col-3"> <!-- Define el ancho de la etiqueta -->
+                    <!-- Verifica si el campo actual debe mostrarse según camposMostrados -->
+                    <div v-if="key !== id && camposMostrados.includes(key)" class="row">
+                        <div class="col-3">
                             <label :for="key" class="form-label label-left">{{ key }}</label>
                         </div>
-                        <div class="col-9"> <!-- Define el ancho del input -->
+                        <div class="col-9">
                             <div v-if="typeof campo === 'boolean'" class="form-check">
                                 <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]">
                             </div>
@@ -21,9 +22,9 @@
                                 <input type="text" class="form-control" :id="key" v-model="objeto[key]">
                             </div>
                         </div>
-
                     </div>
                 </div>
+
 
 
 
@@ -43,6 +44,10 @@ export default {
             required: true,
         },
         id: String,
+        camposMostrados: {
+            type: Array,
+            default: () => [],
+        },
     },
     data() {
         return {

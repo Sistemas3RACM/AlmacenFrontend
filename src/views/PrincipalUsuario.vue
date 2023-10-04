@@ -11,15 +11,15 @@
                             <div class="col-7 mt-5 tablaP">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h1 class="h1 m-3">Subcategorias</h1>
+                                        <h1 class="h1 m-3">Usuarios</h1>
                                     </div>
                                     <div class="col-2 mt-4">
-                                        <button @click="mostrar()" class="btn m-1 btn-warning">
+                                        <!-- <button @click="mostrar()" class="btn m-1 btn-warning">
                                             <font-awesome-icon :icon="['fas', 'sync-alt']" />
-                                        </button>
+                                        </button> -->
                                     </div>
                                     <div class="col-4 mt-4">
-                                        <BusquedaGeneral @busqueda="buscarProveedor" />
+                                        <!-- <BusquedaGeneral @busqueda="buscarProveedor" /> -->
                                     </div>
                                 </div>
                                 <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'nomenclatura']"
@@ -47,11 +47,11 @@
                             </div>
                             <div class="col-4 mt-4">
                                 <div class="formulario">
-                                    <h3>Agregar Subcategoria</h3>
+                                    <h3>Agregar Usuario</h3>
 
-                                    <FormularioGeneral ref="formularioGeneral" :campos="camposSubcategoria"
+                                    <!-- <FormularioGeneral ref="formularioGeneral" :campos="camposSubcategoria"
                                         :textoBoton="textoBotonSubcategoria"
-                                        @formulario-enviado="agregarSubcategoria" />
+                                        @formulario-enviado="agregarSubcategoria" /> -->
                                 </div>
                             </div>
                         </div>
@@ -59,17 +59,14 @@
                 </div>
             </div>
         </div>
-        <!-- Modal de Éxito -->
-        <ModalSuccess :message="successMessage" ref="modalSuccess" />
+        <!-- <ModalSuccess :message="successMessage" ref="modalSuccess" />
 
-        <!-- Modal de Error -->
         <ModalError :message="errorMessage" ref="modalError" />
 
-        <!-- Modal de Error -->
         <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @guardar-cambios="editarSubcategoria"
             ref="modalEditar" />
 
-        <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
+        <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" /> -->
     </section>
 </template>
 
@@ -128,6 +125,7 @@ export default {
             type: 'subcategoria',
             camposSubcategoria: [
                 { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la Subcategoria', required: true  },
+                { id: 'apellidoPaterno', label: 'Primer Apellido', nombre: 'apellidoPaterno', type: 'text', valor: '', ayuda: 'Ingrese el primer apellido', required: true  },
                 { id: 'status', label: 'Estado', nombre: 'status', type: 'checkbox', valor: false},
                 { id: 'nomenclatura', label: 'Nomenclatura', nombre: 'nomenclatura', type: 'number', valor: '0', ayuda: 'Ingrese la Nomenclatura deseada', hidden: true},
             ],

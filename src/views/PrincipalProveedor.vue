@@ -38,8 +38,10 @@
                 </tabla>
                 <!-- Botones de navegación -->
                 <div class="pagination-buttons boton-container">
-                  <button @click="goToPage(currentPage - 1)" class="btn btn-info" :disabled="currentPage === 1">Anterior</button>
-                  <button @click="goToPage(currentPage + 1)" class="btn btn-info" :disabled="currentPage === totalPages">Siguiente</button>
+                  <button @click="goToPage(currentPage - 1)" class="btn btn-info"
+                    :disabled="currentPage === 1">Anterior</button>
+                  <button @click="goToPage(currentPage + 1)" class="btn btn-info"
+                    :disabled="currentPage === totalPages">Siguiente</button>
                 </div>
               </div>
               <div class="col-4 mt-4">
@@ -62,7 +64,7 @@
     <ModalError :message="errorMessage" ref="modalError" />
 
     <!-- Modal de Error -->
-    <ModalEditar :titulo="TituloEditar" :objeto="objetoEditar" :id="id" @guardar-cambios="editarProveedor"
+    <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @guardar-cambios="editarProveedor"
       ref="modalEditar" />
 
     <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
@@ -75,6 +77,7 @@
   justify-content: center;
   gap: 10px;
 }
+
 .formulario {
   background: white;
   padding: 20px;
@@ -122,7 +125,7 @@ export default {
       proveedores: null,
       type: 'proveedores',
       camposProveedor: [
-        { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor' },
+        { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor', required: true },
         { id: 'status', label: 'Estado', nombre: 'status', type: 'checkbox', valor: false },
         { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
         { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'number', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
@@ -136,33 +139,29 @@ export default {
         nombre: '',
         status: false,
       },
+      camposMostrados: ['nombre', 'status', 'direccion', 'telefono'],
       id: 'idProveedor',
       TituloVer: 'Información del Proveedor',
-      currentPage: 1, // Página actual
-      pageSize: 6,   // Registros por página
+      currentPage: 1,
+      pageSize: 6,
     };
   },
   mounted() {
     this.mostrar();
   },
   computed: {
-    // Calcular el número total de páginas
     totalPages() {
       if (!this.proveedores) return 0;
       return Math.ceil(this.proveedores.length / this.pageSize);
     },
-    // Filtrar y ordenar los registros para mostrar en la página actual
     paginatedProveedores() {
       if (!this.proveedores) return null;
 
-      // Ordenar los registros del último al primero (puedes ajustar esto)
       const sortedProveedores = this.proveedores.slice().reverse();
 
-      // Calcular el índice de inicio y fin de la página actual
       const startIndex = (this.currentPage - 1) * this.pageSize;
       const endIndex = startIndex + this.pageSize;
 
-      // Devolver los registros para la página actual
       return sortedProveedores.slice(startIndex, endIndex);
     },
   },
@@ -188,17 +187,17 @@ export default {
       fetch(url)
         .then(response => {
           if (response.ok) {
-            return response.json(); // Convierte la respuesta a JSON si la solicitud es exitosa
+            return response.json();
           } else {
             throw new Error("Error en la solicitud.");
           }
         })
         .then(data => {
-          // Actualiza la lista de proveedores con los resultados de la búsqueda
-          this.proveedores = data; // Suponiendo que 'proveedores' es la lista donde deseas almacenar los resultados
+
+          this.proveedores = data;
         })
         .catch(error => {
-          // Maneja los errores de la solicitud aquí
+
           console.error("Error:", error);
         });
     },
@@ -247,6 +246,9 @@ export default {
     },
     editarProveedor(objetoModificado) {
 
+      if (objetoModificado.telefono === "") {
+        objetoModificado.telefono = "0";
+      }
       const objetoJSON = JSON.stringify(objetoModificado);
 
       if (!objetoModificado.nombre) {
@@ -254,11 +256,6 @@ export default {
         this.$refs.modalError.openModal();
         this.mostrar();
       } else {
-
-        if (objetoJSON.telefono == "") {
-          objetoJSON.telefono = 0;
-        }
-        console.log(objetoJSON);
 
         const url = `${API_URL}/${ENDPOINT_EDITAR_PROVEEDOR}`;
 
@@ -304,14 +301,12 @@ export default {
         nuevoJSON.telefono = 0;
       }
 
-      console.log(JSON.stringify(nuevoJSON, null, 2));
 
       if (!nuevoJSON.nombre) {
         console.error('El campo "nombre" es obligatorio.');
         return;
       }
 
-      // Realiza una solicitud HTTP POST al servidor para agregar el proveedor
       fetch(url, {
         method: 'POST',
         headers: {
