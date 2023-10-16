@@ -15,6 +15,18 @@
                             <div v-if="typeof campo === 'boolean'" class="form-check">
                                 <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]">
                             </div>
+                            <div v-else-if="key === 'idCategoria'" class="form-group">
+                                <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                                    <option v-for="option in categoriaOptions" :value="option.valor">{{ option.etiqueta }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div v-else-if="key === 'puesto'" class="form-group">
+                                <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                                    <option v-for="option in puestoOptions" :value="option.valor">{{ option.etiqueta }}
+                                    </option>
+                                </select>
+                            </div>
                             <div v-else-if="typeof campo === 'number'">
                                 <input type="number" class="form-control" :id="key" v-model="objeto[key]">
                             </div>
@@ -48,12 +60,18 @@ export default {
             type: Array,
             default: () => [],
         },
+        categoriaOptions: Array,
     },
     data() {
         return {
             show: false,
+            puestoOptions: [
+                { valor: '0', etiqueta: 'Administrativo' },
+                { valor: '1', etiqueta: 'Sin permisos' },
+            ],
         };
     },
+    
     methods: {
         openModal() {
             this.show = true;

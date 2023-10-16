@@ -126,7 +126,6 @@ export default {
       type: 'proveedores',
       camposProveedor: [
         { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor', required: true },
-        { id: 'status', label: 'Estado', nombre: 'status', type: 'checkbox', valor: false },
         { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
         { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'number', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
       ],
@@ -137,9 +136,8 @@ export default {
       objetoEditar: {
         idProveedor: '',
         nombre: '',
-        status: false,
       },
-      camposMostrados: ['nombre', 'status', 'direccion', 'telefono'],
+      camposMostrados: ['nombre', 'direccion', 'telefono'],
       id: 'idProveedor',
       TituloVer: 'Información del Proveedor',
       currentPage: 1,

@@ -7,12 +7,24 @@
 
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
                     <div v-if="key != id" class="row">
-                        <div class="col-3"> <!-- Define el ancho de la etiqueta -->
+                        <div class="col-3">
                             <label :for="key" class="form-label label-left">{{ key }}</label>
                         </div>
-                        <div class="col-9"> <!-- Define el ancho del input -->
+                        <div class="col-9">
                             <div v-if="typeof campo === 'boolean'" class="form-check">
-                                <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]" :readonly="true">
+                                <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]"
+                                    :readonly="true">
+                            </div>
+                            <div v-else-if="key === 'idCategoria'" class="form-group">
+                                <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                                    <option v-for="option in categoriaOptions" :value="option.valor">{{ option.etiqueta }}</option>
+                                </select>
+                            </div>
+                            <div v-else-if="key === 'puesto'" class="form-group">
+                                <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                                    <option v-for="option in puestoOptions" :value="option.valor" :readonly="true">{{ option.etiqueta }}
+                                    </option>
+                                </select>
                             </div>
                             <div v-else-if="typeof campo === 'number'">
                                 <input type="number" class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
@@ -40,10 +52,15 @@ export default {
             required: true,
         },
         id: String,
+        categoriaOptions: Array,
     },
     data() {
         return {
             show: false,
+            puestoOptions: [
+            { valor: '0', etiqueta: 'Administrativo' },
+            { valor: '1', etiqueta: 'Sin permisos' },
+        ],
         };
     },
     methods: {

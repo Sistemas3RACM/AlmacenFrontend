@@ -23,11 +23,10 @@
                     <font-awesome-icon :icon="['fas', 'user-tie']" />
                     Proveedores
                 </router-link>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'th-large']" />
-                        Categorias</a>
-                </li>
+                <router-link to="/principalCategorias" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'th-large']" />
+                        Categorias
+                </router-link>
                 <router-link to="/principalSubcategoria" class="nav-link opciones">
                     <font-awesome-icon :icon="['fas', 'th-list']" />
                         Subcategorias

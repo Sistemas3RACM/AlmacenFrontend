@@ -36,6 +36,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/principalCategorias',
+    name: 'principalCategorias',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalCategorias.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/',
     name: 'login',
     component: Login
