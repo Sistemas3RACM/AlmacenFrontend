@@ -14,26 +14,25 @@
                         <font-awesome-icon :icon="['fas', 'home']" />
                         Inicio</a>
                 </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'store']" />
-                        Productos</a>
-                </li>
+                <router-link to="/principalProducto" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'store']" />
+                    Productos
+                </router-link>
                 <router-link to="/principalProveedor" class="nav-link opciones">
                     <font-awesome-icon :icon="['fas', 'user-tie']" />
                     Proveedores
                 </router-link>
                 <router-link to="/principalCategorias" class="nav-link opciones">
                     <font-awesome-icon :icon="['fas', 'th-large']" />
-                        Categorias
+                    Categorias
                 </router-link>
                 <router-link to="/principalSubcategoria" class="nav-link opciones">
                     <font-awesome-icon :icon="['fas', 'th-list']" />
-                        Subcategorias
+                    Subcategorias
                 </router-link>
                 <router-link to="/principalUsuario" class="nav-link opciones">
                     <font-awesome-icon :icon="['fas', 'users']" />
-                        Usuarios
+                    Usuarios
                 </router-link>
                 <li class="nav-item opciones">
                     <a class="nav-link" href="#">
@@ -58,12 +57,12 @@
 
 export default {
     components: {
-    },  
-    methods: {
-    logout() {
-      this.$emit("logoutClicked"); // Emitir un evento cuando se hace clic en "Salida"
     },
-  },
+    methods: {
+        logout() {
+            this.$emit("logoutClicked"); // Emitir un evento cuando se hace clic en "Salida"
+        },
+    },
 };
 </script>
 

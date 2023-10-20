@@ -17,12 +17,14 @@
                             </div>
                             <div v-else-if="key === 'idCategoria'" class="form-group">
                                 <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                    <option v-for="option in categoriaOptions" :value="option.valor">{{ option.etiqueta }}</option>
+                                    <option v-for="option in categoriaOptions" :value="option.idCategoria">{{ option.nombre }}
+                                    </option>
                                 </select>
                             </div>
                             <div v-else-if="key === 'puesto'" class="form-group">
                                 <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                    <option v-for="option in puestoOptions" :value="option.valor" :readonly="true">{{ option.etiqueta }}
+                                    <option v-for="option in puestoOptions" :value="option.valor" :readonly="true">{{
+                                        option.etiqueta }}
                                     </option>
                                 </select>
                             </div>
@@ -58,9 +60,9 @@ export default {
         return {
             show: false,
             puestoOptions: [
-            { valor: '0', etiqueta: 'Administrativo' },
-            { valor: '1', etiqueta: 'Sin permisos' },
-        ],
+                { valor: '0', etiqueta: 'Administrativo' },
+                { valor: '1', etiqueta: 'Sin permisos' },
+            ],
         };
     },
     methods: {

@@ -16,11 +16,12 @@
                                 <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]">
                             </div>
                             <div v-else-if="key === 'idCategoria'" class="form-group">
-                                <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                    <option v-for="option in categoriaOptions" :value="option.valor">{{ option.etiqueta }}
+                                <select class="form-control" :id="key" v-model="objeto[key]">
+                                    <option v-for="option in categoriaOptions" :value="option.idCategoria">{{ option.nombre }}
                                     </option>
                                 </select>
                             </div>
+
                             <div v-else-if="key === 'puesto'" class="form-group">
                                 <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
                                     <option v-for="option in puestoOptions" :value="option.valor">{{ option.etiqueta }}
@@ -71,7 +72,7 @@ export default {
             ],
         };
     },
-    
+
     methods: {
         openModal() {
             this.show = true;

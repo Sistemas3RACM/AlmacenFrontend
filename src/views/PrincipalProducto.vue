@@ -11,22 +11,27 @@
                             <div class="col-7 mt-5 tablaP">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h1 class="h1 m-3">Subcategorias</h1>
+                                        <h1 class="h1 m-3">Productos Y Servicios</h1>
                                     </div>
                                     <div class="col-2 mt-4">
                                         <button @click="mostrar()" class="btn m-1 btn-warning">
                                             <font-awesome-icon :icon="['fas', 'sync-alt']" />
                                         </button>
                                     </div>
+                                    <div class="col-2 mt-4">
+                                        <button @click="mostrarFormulario" class="btn m-1 btn-warning">
+                                            Agregar
+                                        </button>
+
+                                    </div>
                                     <div class="col-4 mt-4">
-                                        <BusquedaGeneral @busqueda="buscarSubcategoria" />
+                                        <BusquedaGeneral @busqueda="buscarProducto" />
                                     </div>
                                 </div>
-                                <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'nomenclatura']"
+                                <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'numeroDeSerie']"
                                     :eliminar="eliminar">
                                     <template #default="{ item }">
-                                        <button @click="eliminarSubcategoria(item.idSubcategoria)"
-                                            class="btn m-1 btn-danger">
+                                        <button @click="eliminarProducto(item.idProducto)" class="btn m-1 btn-danger">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -46,11 +51,11 @@
                                 </div>
                             </div>
                             <div class="col-4 mt-4">
-                                <div class="formulario">
-                                    <h3>Agregar Subcategoria</h3>
+                                <div class="formulario" v-if="formularioVisible">
+                                    <FormularioProducto ref="formularioProducto" :campos="camposProducto"
+                                        :textoBoton="textoBotonSubcategoria" @formulario-enviado="agregarProducto"
+                                        @categoria-cambiada="cargarSubcategorias" :visible="formularioVisible" />
 
-                                    <FormularioGeneral ref="formularioGeneral" :campos="camposSubcategoria"
-                                        :textoBoton="textoBotonSubcategoria" @formulario-enviado="agregarSubcategoria" />
                                 </div>
                             </div>
                         </div>
@@ -65,10 +70,11 @@
         <ModalError :message="errorMessage" ref="modalError" />
 
         <!-- Modal de Error -->
-        <ModalEditar :titulo="TituloEditar" :categoriaOptions="categoriasDisponibles" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
-            @guardar-cambios="editarSubcategoria" ref="modalEditar" />
+        <ModalEditar :titulo="TituloEditar" :categoriaOptions="categoriasDisponibles" :camposMostrados="camposMostrados"
+            :objeto="objetoEditar" :id="id" @guardar-cambios="editarSubcategoria" ref="modalEditar" />
 
-        <ModalInformacion :titulo="TituloVer" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar" :id="id" ref="modalVer" />
+        <ModalInformacion :titulo="TituloVer" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar" :id="id"
+            ref="modalVer" />
     </section>
 </template>
 
@@ -83,10 +89,15 @@
     background: white;
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    height: 60vh;
     border-radius: 10px;
-    margin-top: 24%;
-    width: 100%;
+    width: 80%;
+    /* Ancho del 80% de la pantalla */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    /* Asegura que esté al frente de todo */
 }
 
 .tablaP {
@@ -99,10 +110,11 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_SUBCATEGORIAS, ENDPOINT_AGREGAR_SUBCATEGORIA,
-    ENDPOINT_ELIMINAR_SUBCATEGORIA, ENDPOINT_EDITAR_SUBCATEGORIA, ENDPOINT_BUSCAR_SUBCATEGORIA, ENDPOINT_LISTAR_CATEGORIAS
+    API_URL, ENDPOINT_LISTAR_PRODUCTOS, ENDPOINT_AGREGAR_PRODUCTO,
+    ENDPOINT_ELIMINAR_PRODUCTO, ENDPOINT_EDITAR_PRODUCTO, ENDPOINT_BUSCAR_PRODUCTO, ENDPOINT_LISTAR_CATEGORIAS,
+    ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS, ENDPOINT_LISTAR_PROVEEDORES
 } from '../keys';
-import FormularioGeneral from '@/components/FormularioGeneral.vue';
+import FormularioProducto from '@/components/FormularioProducto.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
 import ModalError from '@/components/ModalError.vue';
 import ModalEditar from '@/components/ModalEditar.vue';
@@ -114,7 +126,7 @@ export default {
     components: {
         tabla,
         Nvar,
-        FormularioGeneral,
+        FormularioProducto,
         ModalSuccess,
         ModalError,
         ModalEditar,
@@ -123,58 +135,109 @@ export default {
     },
     data() {
         return {
-            subcategorias: null,
-            type: 'subcategoria',
-            camposSubcategoria: [
-                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la Subcategoria', required: true },
-                { id: 'nomenclatura', label: 'Nomenclatura', nombre: 'nomenclatura', type: 'number', valor: '0', ayuda: 'Ingrese la Nomenclatura deseada', hidden: true },
+            productos: null,
+            type: 'productos',
+            camposProducto: [
+                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', required: true },
+                { id: 'numeroDeSerie', label: 'Número De Serie', nombre: 'numeroDeSerie', type: 'text', valor: '', hidden: true },
                 {
                     id: 'idCategoria',
                     label: 'Categoria perteneciente',
                     nombre: 'idCategoria',
                     type: 'select',
                     valor: '',
-                    ayuda: 'Seleccione la Categoria correspondiente',
                     required: true,
                     opciones: []
-                }
+                },
+                {
+                    id: 'idSubcategoria',
+                    label: 'Subcategoria perteneciente',
+                    nombre: 'idSubcategoria',
+                    type: 'select',
+                    valor: '',
+                    required: true,
+                    opciones: []
+                },
+                { id: 'descripcion', label: 'Descripcion', nombre: 'descripcion', type: 'text', valor: '' },
+                { id: 'status', nombre: 'status', type: 'checkbox', valor: true, hidden: true },
+                {
+                    id: 'unidadMedida',
+                    label: 'Unidad de Medida',
+                    nombre: 'unidadMedida',
+                    type: 'select',
+                    valor: '',
+                    required: true,
+                    opciones: [
+                        { valor: 'Piezas', etiqueta: 'Piezas' },
+                        { valor: 'Kilogramos', etiqueta: 'Kilogramos' },
+                        { valor: 'Cajas', etiqueta: 'Cajas' },
+                        { valor: 'Pares', etiqueta: 'Pares' },
+                        { valor: 'Metros', etiqueta: 'Metros' },
+                        { valor: 'Docenas', etiqueta: 'Docenas' },
+                        { valor: 'Litros', etiqueta: 'Litros' },
+                        { valor: 'Mililitros', etiqueta: 'Mililitros' },
+                        { valor: 'Gramos', etiqueta: 'Gramos' },
+                        { valor: 'Centímetros', etiqueta: 'Centímetros' },
+                    ],
+                },
+                { id: 'cantidad', label: 'Cantidad', nombre: 'cantidad', type: 'number', valor: '', required: true },
+                { id: 'precioUnitario', label: 'Precio Unitario', nombre: 'precioUnitario', type: 'number', valor: '', required: true },
+                { id: 'consumible', nombre: 'consumible', type: 'checkbox', valor: true, hidden: true },
+                { id: 'servicio', nombre: 'servicio', type: 'checkbox', valor: true, hidden: true },
+                {
+                    id: 'idProveedor',
+                    label: 'Proveedor perteneciente',
+                    nombre: 'idProveedor',
+                    type: 'select',
+                    valor: '',
+                    required: true,
+                    opciones: []
+                },
+                { id: 'localizacion', label: 'Localizacion', nombre: 'localizacion', type: 'text', valor: '' },
+                { id: 'cantidadMin', label: 'Cantidad Minima', nombre: 'cantidadMin', type: 'number', valor: '', required: true },
+
+
             ],
-            textoBotonSubcategoria: 'Agregar Subcategoria',
+            textoBotonSubcategoria: 'Agregar Producto',
             successMessage: '',
             errorMessage: '',
-            TituloEditar: 'Editar Subcategoria',
+            TituloEditar: 'Editar Producto',
             objetoEditar: {
-                idSubcategoria: '',
+                idProducto: '',
                 nombre: '',
                 nomenclatura: 0,
                 idCategoria: 0,
             },
-            camposMostrados: ['nombre','idCategoria'],
-            id: 'idSubcategoria',
+            camposMostrados: ['nombre', 'idCategoria'],
+            id: 'idProducto',
             TituloVer: 'Información de la Subcategoria',
             currentPage: 1,
             pageSize: 6,
             categoriasDisponibles: [],
+            subcategoriasDisponibles: [],
+            proveedoresDisponibles: [],
+            formularioVisible: false,
         };
     },
     mounted() {
         this.mostrar();
         this.obtenerCategoriasDisponibles();
+        this.obtenerProveedoresDisponibles();
     },
     computed: {
         totalPages() {
-            if (!this.subcategorias) return 0;
-            return Math.ceil(this.subcategorias.length / this.pageSize);
+            if (!this.productos) return 0;
+            return Math.ceil(this.productos.length / this.pageSize);
         },
         paginated() {
-            if (!this.subcategorias) return null;
+            if (!this.productos) return null;
 
-            const sortedSubcategorias = this.subcategorias.slice().reverse();
+            const sortedproductos = this.productos.slice().reverse();
 
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = startIndex + this.pageSize;
 
-            return sortedSubcategorias.slice(startIndex, endIndex);
+            return sortedproductos.slice(startIndex, endIndex);
         },
     },
     methods: {
@@ -184,14 +247,29 @@ export default {
             this.currentPage = page;
         },
         mostrar() {
-            const url = `${API_URL}/${ENDPOINT_LISTAR_SUBCATEGORIAS}`;
+            const url = `${API_URL}/${ENDPOINT_LISTAR_PRODUCTOS}`;
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    this.subcategorias = data;
+                    this.productos = data;
+                    console.log(this.productos);
                 })
                 .catch(error => console.log(error));
+        },
+        obtenerProveedoresDisponibles() {
+            const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    this.proveedoresDisponibles = data;
+                    const campoProveedor = this.camposProducto.find(campo => campo.id === 'idProveedor');
+                    campoProveedor.opciones = data.map(proveedor => ({ valor: proveedor.idProveedor, etiqueta: proveedor.nombre }));
+                })
+                .catch(error => {
+                    console.error('Error al obtener proveedores: ', error);
+                });
         },
         obtenerCategoriasDisponibles() {
             const url = `${API_URL}/${ENDPOINT_LISTAR_CATEGORIAS}`;
@@ -200,40 +278,55 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     this.categoriasDisponibles = data;
-                    const campoCategoria = this.camposSubcategoria.find(campo => campo.id === 'idCategoria');
-                    console.log(this.categoriasDisponibles);
+                    const campoCategoria = this.camposProducto.find(campo => campo.id === 'idCategoria');
                     campoCategoria.opciones = data.map(categoria => ({ valor: categoria.idCategoria, etiqueta: categoria.nombre }));
                 })
                 .catch(error => {
                     console.error('Error al obtener categorías:', error);
                 });
         },
-        buscarSubcategoria(termino) {
-            const url = `${API_URL}/${ENDPOINT_BUSCAR_SUBCATEGORIA}?nombre=${termino}`;
+        cargarSubcategorias(categoriaId) {
+
+            const url = `${API_URL}/${ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS}/${categoriaId}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    this.subcategoriasDisponibles = data;
+                    console.log(this.subcategoriasDisponibles);
+                    const campoSubcategoria = this.camposProducto.find(campo => campo.id === 'idSubcategoria');
+                    campoSubcategoria.opciones = data.map(subcategoria => ({ valor: subcategoria.idSubcategoria, etiqueta: subcategoria.nombre }));
+                })
+                .catch(error => {
+                    console.error('Error al obtener subcategorías:', error);
+                });
+        },
+        buscarProducto(termino) {
+            const url = `${API_URL}/${ENDPOINT_BUSCAR_PRODUCTO}?nombre=${termino}`;
 
             fetch(url)
                 .then(response => {
                     if (response.ok) {
-                        return response.json(); 
+                        return response.json();
                     } else {
                         throw new Error("Error en la solicitud.");
                     }
                 })
                 .then(data => {
-                    this.subcategorias = data; 
+                    this.productos = data;
                 })
                 .catch(error => {
                     console.error("Error:", error);
                 });
         },
-        eliminarSubcategoria(id) {
+        eliminarProducto(id) {
             if (!id) {
                 this.errorMessage = 'Surgio un problema con el ID';
                 this.$refs.modalError.openModal();
                 return;
             }
 
-            const url = `${API_URL}/${ENDPOINT_ELIMINAR_SUBCATEGORIA}/${id}`;
+            const url = `${API_URL}/${ENDPOINT_ELIMINAR_PRODUCTO}/${id}`;
 
 
             fetch(url, {
@@ -261,6 +354,13 @@ export default {
                     this.$refs.modalError.openModal();
                 });
         },
+        mostrarFormulario() {
+            this.formularioVisible = true;
+        },
+        ocultarFormulario() {
+            this.formularioVisible = false;
+        },
+
         mostrarInformacion(datos) {
             this.$refs.modalVer.openModal();
         },
@@ -283,7 +383,7 @@ export default {
                 this.mostrar();
             } else {
 
-                const url = `${API_URL}/${ENDPOINT_EDITAR_SUBCATEGORIA}`;
+                const url = `${API_URL}/${ENDPOINT_EDITAR_PRODUCTO}`;
 
                 fetch(url, {
                     method: 'PUT',
@@ -316,10 +416,10 @@ export default {
 
         },
 
-        agregarSubcategoria(datos) {
+        agregarProducto(datos) {
 
 
-            const url = `${API_URL}/${ENDPOINT_AGREGAR_SUBCATEGORIA}`;
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_PRODUCTO}`;
 
             const nuevoJSON = {};
 
@@ -342,6 +442,7 @@ export default {
                 .then(response => {
                     if (response.status === 201) {
                         this.successMessage = 'Subcategoria agregada con éxito';
+                        this.ocultarFormulario();
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     }

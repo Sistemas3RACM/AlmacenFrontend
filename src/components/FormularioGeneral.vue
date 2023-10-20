@@ -13,7 +13,8 @@
                             <label :for="campo.id" class="form-check-label">{{ campo.ayuda }}</label>
                         </div>
                         <div v-else-if="campo.type === 'select'" class="form-group">
-                            <select class="form-control" :id="campo.id" v-model="campo.valor" :required="campo.required">
+                            <select class="form-control" :id="campo.id" v-model="campo.valor" :required="campo.required"
+                                @change="categoriaCambiada(campo.valor)">
                                 <option value="" disabled>Seleccione una opción</option>
                                 <option v-for="opcion in campo.opciones" :key="opcion.valor" :value="opcion.valor">{{
                                     opcion.etiqueta }}</option>
@@ -75,6 +76,10 @@ export default {
                 }
             }
         },
+        categoriaCambiada(valor) {
+            // Emitir el evento cuando cambia la categoría seleccionada
+            this.$emit('categoria-cambiada', valor);
+        }
     },
     mounted() {
         // Inicializa los campos según el modo inicial

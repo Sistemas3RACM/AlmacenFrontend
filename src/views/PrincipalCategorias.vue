@@ -84,7 +84,7 @@
     background: white;
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    height: 50vh;
+    height: 40vh;
     border-radius: 10px;
     margin-top: 24%;
     width: 100%;
@@ -100,8 +100,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_categorias, ENDPOINT_AGREGAR_categoria,
-    ENDPOINT_ELIMINAR_categoria, ENDPOINT_EDITAR_categoria, ENDPOINT_BUSCAR_categoria
+    API_URL, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_AGREGAR_CATEGORIA,
+    ENDPOINT_ELIMINAR_CATEGORIA, ENDPOINT_EDITAR_CATEGORIA, ENDPOINT_BUSCAR_CATEGORIA
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -128,7 +128,6 @@ export default {
             type: 'categoria',
             camposCategoria: [
                 { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoria', required: true  },
-                { id: 'idSubcategoria', label: 'Subcategoria', nombre: 'nomenclatura', type: 'number', valor: '0', hidden: true},                { id: 'nomenclatura', label: 'Nomenclatura', nombre: 'nomenclatura', type: 'number', valor: '0', ayuda: 'Ingrese la Nomenclatura deseada', hidden: true},
             ],
             textoBotonCategoria: 'Agregar Categoria',
             successMessage: '',
@@ -137,10 +136,8 @@ export default {
             objetoEditar: {
                 idCategoria: '',
                 nombre: '',
-                status: false,
-                nomenclatura: 0,
             },
-            camposMostrados: ['nombre', 'status'],
+            camposMostrados: ['nombre'],
             id: 'idCategoria',
             TituloVer: 'Información de la categoria',
             currentPage: 1,
@@ -151,23 +148,20 @@ export default {
         this.mostrar();
     },
     computed: {
-        // Calcular el número total de páginas
+
         totalPages() {
             if (!this.categorias) return 0;
             return Math.ceil(this.categorias.length / this.pageSize);
         },
-        // Filtrar y ordenar los registros para mostrar en la página actual
+
         paginated() {
             if (!this.categorias) return null;
 
-            // Ordenar los registros del último al primero (puedes ajustar esto)
             const sortedcategorias = this.categorias.slice().reverse();
 
-            // Calcular el índice de inicio y fin de la página actual
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = startIndex + this.pageSize;
 
-            // Devolver los registros para la página actual
             return sortedcategorias.slice(startIndex, endIndex);
         },
     },
@@ -178,7 +172,7 @@ export default {
             this.currentPage = page;
         },
         mostrar() {
-            const url = `${API_URL}/${ENDPOINT_LISTAR_categorias}`;
+            const url = `${API_URL}/${ENDPOINT_LISTAR_CATEGORIAS}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -189,19 +183,18 @@ export default {
                 .catch(error => console.log(error));
         },
         buscarCategoria(termino) {
-            const url = `${API_URL}/${ENDPOINT_BUSCAR_categoria}?nombre=${termino}`;
+            const url = `${API_URL}/${ENDPOINT_BUSCAR_CATEGORIA}?nombre=${termino}`;
 
             fetch(url)
                 .then(response => {
                     if (response.ok) {
-                        return response.json(); // Convierte la respuesta a JSON si la solicitud es exitosa
+                        return response.json(); 
                     } else {
                         throw new Error("Error en la solicitud.");
                     }
                 })
                 .then(data => {
-                    // Actualiza la lista de proveedores con los resultados de la búsqueda
-                    this.categorias = data; // Suponiendo que 'proveedores' es la lista donde deseas almacenar los resultados
+                    this.categorias = data;
                 })
                 .catch(error => {
                     // Maneja los errores de la solicitud aquí
@@ -215,7 +208,7 @@ export default {
                 return;
             }
 
-            const url = `${API_URL}/${ENDPOINT_ELIMINAR_categoria}/${id}`;
+            const url = `${API_URL}/${ENDPOINT_ELIMINAR_CATEGORIA}/${id}`;
 
 
             fetch(url, {
@@ -245,28 +238,13 @@ export default {
         },
         mostrarInformacion(datos) {
             this.objetoEditar = datos;
-            if (this.objetoEditar.status == 1) {
-                this.objetoEditar.status = true;
-            } else {
-                this.objetoEditar.status = false;
-            }
             this.$refs.modalVer.openModal();
         },
         mostrarEdicion(datos) {
             this.objetoEditar = datos;
-            if (this.objetoEditar.status == 1) {
-                this.objetoEditar.status = true;
-            } else {
-                this.objetoEditar.status = false;
-            }
             this.$refs.modalEditar.openModal();
         },
         editarCategoria(objetoModificado) {
-            if (objetoModificado.status) {
-                objetoModificado.status = 1;
-            } else {
-                objetoModificado.status = 0;
-            }
 
             const objetoJSON = JSON.stringify(objetoModificado);
 
@@ -276,7 +254,7 @@ export default {
                 this.mostrar();
             } else {
 
-                const url = `${API_URL}/${ENDPOINT_EDITAR_categoria}`;
+                const url = `${API_URL}/${ENDPOINT_EDITAR_CATEGORIA}`;
 
                 fetch(url, {
                     method: 'PUT',
@@ -310,18 +288,12 @@ export default {
         },
 
         agregarCategoria(datos) {
-            const url = `${API_URL}/${ENDPOINT_AGREGAR_categoria}`;
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_CATEGORIA}`;
 
             const nuevoJSON = {};
 
             for (const campo of datos) {
                 nuevoJSON[campo.id] = campo.valor;
-            }
-
-            if (nuevoJSON.status) {
-                nuevoJSON.status = 1;
-            } else {
-                nuevoJSON.status = 0;
             }
 
             nuevoJSON.nomenclatura=0;
