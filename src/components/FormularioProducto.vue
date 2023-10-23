@@ -87,9 +87,7 @@ export default {
             this.$emit('categoria-cambiada', valor);
         },
         cerrarFormulario() {
-            this.formularioVisible = false;
-            // También puedes restablecer los valores de los campos del formulario si es necesario
-            this.$refs.formularioProducto.inicializarCampos();
+            this.$emit('cerrar-formulario'); // Emitir un evento para indicar al componente principal que cierre el formulario
         },
     },
     mounted() {
