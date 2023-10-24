@@ -1,5 +1,5 @@
 <template>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark m-0">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
             aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -14,31 +14,26 @@
                         <font-awesome-icon :icon="['fas', 'home']" />
                         Inicio</a>
                 </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'store']" />
-                        Productos</a>
-                </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'user-tie']" />
-                        Proveedores</a>
-                </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'th-large']" />
-                        Categorias</a>
-                </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'th-list']" />
-                        Subcategorias</a>
-                </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'users']" />
-                        Usuarios</a>
-                </li>
+                <router-link to="/principalProducto" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'store']" />
+                    Productos
+                </router-link>
+                <router-link to="/principalProveedor" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'user-tie']" />
+                    Proveedores
+                </router-link>
+                <router-link to="/principalCategorias" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'th-large']" />
+                    Categorias
+                </router-link>
+                <router-link to="/principalSubcategoria" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'th-list']" />
+                    Subcategorias
+                </router-link>
+                <router-link to="/principalUsuario" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'users']" />
+                    Usuarios
+                </router-link>
                 <li class="nav-item opciones">
                     <a class="nav-link" href="#">
                         <font-awesome-icon :icon="['fas', 'book']" />
@@ -62,12 +57,12 @@
 
 export default {
     components: {
-    },  
-    methods: {
-    logout() {
-      this.$emit("logoutClicked"); // Emitir un evento cuando se hace clic en "Salida"
     },
-  },
+    methods: {
+        logout() {
+            this.$emit("logoutClicked"); // Emitir un evento cuando se hace clic en "Salida"
+        },
+    },
 };
 </script>
 
@@ -106,7 +101,7 @@ export default {
 .navbar-dark .navbar-nav {
     width: 100%;
     /* Ancho completo para el menú */
-    height: 97vh;
+    height: 98vh;
 }
 
 .salida {

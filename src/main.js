@@ -8,12 +8,18 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Importa los iconos específicos que desees utilizar
 import { faHouse, faStore, faUsers, faBook, faWarehouse, faThLarge, faThList, faUserTie,
-    faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
+    faSignOutAlt, 
+    faTrash,
+    faEdit,
+    faEye,
+    faSyncAlt,
+    faPlus,
+    faMinus} from '@fortawesome/free-solid-svg-icons'
 
 
 // Agrega los iconos a la biblioteca de Font Awesome
 library.add(faHouse, faStore, faUsers, faBook, faWarehouse, faThLarge, faThList, faUserTie,
-    faSignOutAlt)
+    faSignOutAlt,faTrash, faEdit, faEye, faSyncAlt, faPlus,faMinus)
 
 const app = createApp(App)
 

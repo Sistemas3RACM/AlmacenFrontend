@@ -87,16 +87,16 @@ img {
 </style>
 
 <script>
-import { API_URL, ENDPOINT_INICIO_SESION } from '../keys'
+import { API_URL, ENDPOINT_INICIO_SESION } from '../keys';
 
 export default {
-    name: "Login",
+    name: 'Login',
     data() {
         return {
-            usuario: "",
-            password: "",
+            usuario: '',
+            password: '',
             error: false,
-            error_message: "",
+            error_message: '',
         };
     },
     methods: {
@@ -117,15 +117,29 @@ export default {
                 },
                 body: JSON.stringify(json),
             })
-                .then((response) => response.json())
-                .then((data) => {
-                    console.log("Respuesta exitosa");
+                .then((response) => {
+                    if (response.ok) {
+                        console.log('Respuesta exitosa');
+                        // Actualiza la autenticación en el store Vuex antes de redirigir
+                        this.$store
+                            .dispatch('auth/login')
+                            .then(() => {
+                                // Ahora que la autenticación se ha actualizado, redirige al usuario
+                                this.$router.push('/dashboard');
+                            })
+                            .catch((error) => {
+                                console.error('Error al actualizar la autenticación:', error);
+                            });
+                    } else {
+                        // Manejar el caso de respuesta no exitosa aquí
+                        console.log('Respuesta no exitosa');
+                        this.error = true;
+                        this.error_message = 'Error en el inicio de sesión. Verifica tus credenciales.';
+                    }
                 })
                 .catch((error) => {
-                    console.log("Error:", error);
+                    console.log('Error:', error);
                 });
-
-
         },
     },
 };
