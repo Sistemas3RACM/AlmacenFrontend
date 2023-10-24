@@ -10,19 +10,16 @@
                         <div class="row">
                             <div class="mt-5 tablaP">
                                 <div class="row">
-                                    <div class="col-4">
+                                    <div class="col-2">
                                         <h1 class="h1 m-3">Almacen</h1>
                                     </div>
-                                    <div class="col-2 mt-4">
+                                    <div class="col-6 mt-4">
                                         <button @click="mostrar()" class="btn m-1 btn-warning">
                                             <font-awesome-icon :icon="['fas', 'sync-alt']" />
                                         </button>
-                                    </div>
-                                    <div class="col-2 mt-4">
-                                        <button @click="mostrarFormulario" class="btn m-1 btn-warning">
+                                        <button @click="mostrarFormulario" class="btn m-1 btn-success">
                                             Agregar
                                         </button>
-
                                     </div>
                                     <div class="col-4 mt-4">
                                         <BusquedaGeneral @busqueda="buscarProducto" />
@@ -31,6 +28,9 @@
                                 <tabla v-if="paginated" :type="type" :data="paginated"
                                     :fields="['nombre', 'numeroDeSerie', 'cantidad']" :eliminar="eliminar">
                                     <template #default="{ item }">
+                                        <button @click="mostrarSalida(item)" class="btn m-1 btn-secondary">
+                                            <font-awesome-icon :icon="['fas', 'minus']" />
+                                        </button>
                                         <button @click="eliminarProducto(item.idProducto)" class="btn m-1 btn-danger">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
@@ -39,6 +39,9 @@
                                         </button>
                                         <button @click="mostrarInformacion(item)" class="btn m-1 btn-primary">
                                             <font-awesome-icon :icon="['fas', 'eye']" />
+                                        </button>
+                                        <button @click="mostrarEntrada(item)" class="btn m-1 btn-secondary">
+                                            <font-awesome-icon :icon="['fas', 'plus']" />
                                         </button>
                                     </template>
                                 </tabla>
@@ -70,12 +73,19 @@
         <!-- Modal de Error -->
         <ModalError :message="errorMessage" ref="modalError" />
 
-        <!-- Modal de Error -->
-        <EditarProducto :titulo="TituloEditar" :subcategoriaOptions="subcategoriasDisponibles" :proveedoresOptions="proveedoresDisponibles" :categoriaOptions="categoriasDisponibles" :camposMostrados="camposMostrados"
-            :objeto="objetoEditar" :id="id" @categoria-cambiada="cargarSubcategorias" @guardar-cambios="editarSubcategoria" ref="modalEditar" />
+        <ModalEntrada :id="id" :objetoEntrada="objetoEditar" @guardar-cambios="editarSubcategoria" ref="modalEntrada" />
 
-        <VerProducto :titulo="TituloVer" :proveedorOptions="proveedoresDisponibles" :subcategoriaOptions="subcategoriasDisponibles" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar" :id="id"
-            ref="modalVer" />
+        <ModalSalida :id="id" :objetoSalida="objetoEditar" @guardar-cambios="crearSalida" ref="modalSalida" />
+
+        <!-- Modal de Error -->
+        <EditarProducto :titulo="TituloEditar" :subcategoriaOptions="subcategoriasDisponibles"
+            :proveedoresOptions="proveedoresDisponibles" :categoriaOptions="categoriasDisponibles"
+            :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @categoria-cambiada="cargarSubcategorias"
+            @guardar-cambios="editarSubcategoria" ref="modalEditar" />
+
+        <VerProducto :titulo="TituloVer" :proveedorOptions="proveedoresDisponibles"
+            :subcategoriaOptions="subcategoriasDisponibles" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar"
+            :id="id" ref="modalVer" />
     </section>
 </template>
 
@@ -113,7 +123,7 @@ import Nvar from '../components/Nvar';
 import {
     API_URL, ENDPOINT_LISTAR_PRODUCTOS, ENDPOINT_AGREGAR_PRODUCTO,
     ENDPOINT_ELIMINAR_PRODUCTO, ENDPOINT_EDITAR_PRODUCTO, ENDPOINT_BUSCAR_PRODUCTO, ENDPOINT_LISTAR_CATEGORIAS,
-    ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS, ENDPOINT_LISTAR_PROVEEDORES
+    ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_SOLICITUD
 } from '../keys';
 import FormularioProducto from '@/components/FormularioProducto.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -121,6 +131,8 @@ import ModalError from '@/components/ModalError.vue';
 import VerProducto from '@/components/VerProducto.vue';
 import EditarProducto from '@/components/EditarProducto.vue';
 import BusquedaGeneral from '@/components/BusquedaGeneral.vue';
+import ModalEntrada from '@/components/ModalEntrada.vue';
+import ModalSalida from '@/components/ModalSalida.vue';
 
 export default {
     name: 'InicioSubcategoria',
@@ -133,6 +145,8 @@ export default {
         EditarProducto,
         VerProducto,
         BusquedaGeneral,
+        ModalEntrada,
+        ModalSalida,
     },
     data() {
         return {
@@ -179,8 +193,8 @@ export default {
                         { valor: 'Centímetros', etiqueta: 'Centímetros' },
                     ],
                 },
-                { id: 'cantidad', label: 'Cantidad', nombre: 'cantidad', type: 'number', valor: '', required: true },
-                { id: 'precioUnitario', label: 'Precio Unitario', nombre: 'precioUnitario', type: 'number', valor: '', required: true },
+                { id: 'cantidad', label: 'Cantidad', nombre: 'cantidad', type: 'text', valor: '', required: true },
+                { id: 'precioUnitario', label: 'Precio Unitario', nombre: 'precioUnitario', type: 'text', valor: '', required: true },
                 {
                     id: 'idProveedor',
                     label: 'Proveedor perteneciente',
@@ -206,7 +220,7 @@ export default {
                         { valor: '100', etiqueta: 'Servicio' },
                     ],
                 },
-                { id: 'cantidadMin', label: 'Cantidad Minima', nombre: 'cantidadMin', type: 'number', valor: '', required: true },
+                { id: 'cantidadMin', label: 'Cantidad Minima', nombre: 'cantidadMin', type: 'number', valor: 0, hidden: true },
                 { id: 'servicio', label: '¿Es servicio? ', nombre: 'servicio', type: 'checkbox', valor: false },
                 { id: 'numeroDeSerie', label: 'Número De Serie', nombre: 'numeroDeSerie', type: 'text', valor: '', hidden: true },
                 { id: 'consumible', nombre: 'consumible', type: 'checkbox', valor: true, hidden: true },
@@ -224,8 +238,8 @@ export default {
                 idSubcategoria: 0,
                 descripcion: '',
                 unidadMedida: '',
-                cantidad: 0,
-                precioUnitario: 0,
+                cantidad: '',
+                precioUnitario: '',
                 idProveedor: 0,
                 localizacion: '',
                 cantidadMin: 0,
@@ -243,6 +257,7 @@ export default {
             categoriasDisponibles: [],
             subcategoriasDisponibles: [],
             proveedoresDisponibles: [],
+            productosDisponibles: [],
             formularioVisible: false,
         };
     },
@@ -280,7 +295,6 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     this.productos = data;
-                    console.log(this.productos);
                 })
                 .catch(error => console.log(error));
         },
@@ -363,14 +377,14 @@ export default {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        this.successMessage = 'Subcategoria eliminada con éxito';
+                        this.successMessage = 'Producto eliminado con éxito';
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     } else if (response.status === 404) {
-                        this.errorMessage = 'Subcategoria no encontrada';
+                        this.errorMessage = 'Producto no encontrado';
                         this.$refs.modalError.openModal();
                     } else {
-                        this.errorMessage = 'Error al eliminar la Subcategoria';
+                        this.errorMessage = 'Error al eliminar el Producto';
                         this.$refs.modalError.openModal();
                     }
                 })
@@ -386,6 +400,12 @@ export default {
         ocultarFormulario() {
             this.formularioVisible = false;
         },
+        mostrarEntrada(datos) {
+            this.$refs.modalEntrada.openModal();
+        },
+        mostrarSalida(datos) {
+            this.$refs.modalSalida.openModal();
+        },
 
         mostrarInformacion(datos) {
             this.$refs.modalVer.openModal();
@@ -398,48 +418,146 @@ export default {
 
             this.$refs.modalEditar.openModal();
         },
-        editarSubcategoria(objetoModificado) {
+        crearSalida(datos) {
 
-            const objetoJSON = JSON.stringify(objetoModificado);
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_SOLICITUD}`;
+
+
+            const objetoProducto = {
+                idProducto: datos.idProducto,
+                nombre: datos.nombre,
+                numeroDeSerie: datos.numeroDeSerie,
+                idCategoria: datos.idCategoria,
+                idSubcategoria: datos.idSubcategoria,
+                descripcion: datos.descripcion,
+                unidadMedida: datos.unidadMedida,
+                cantidad: datos.cantidad,
+                precioUnitario: datos.precioUnitario,
+                idProveedor: datos.idProveedor,
+                localizacion: datos.localizacion,
+                cantidadMin: datos.cantidadMin,
+                status: 1,
+                consumible: 1,
+                servicio: datos.servicio,
+            };
+
+            const objetoSolicitud = {
+                idProducto: datos.idProducto,
+                solicitante: datos.solicitante,
+                correo: datos.correo,
+                estado: true,
+                regresoProducto: false,
+                cantidad: datos.cantidad,
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(objetoSolicitud),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        this.ocultarFormulario();
+                        this.editarSubcategoria(objetoProducto);
+                    }
+                    else {
+                        if (response.status === 409) {
+                            this.errorMessage = 'La solicitud ya existe y no se pueden repetir';
+                            this.$refs.modalError.openModal();
+                            this.ocultarFormulario();
+                            return;
+                        } else {
+                            this.errorMessage = 'Error al agregar la solicitud';
+                            this.$refs.modalError.openModal();
+                            this.ocultarFormulario();
+                            return;
+                        }
+                    }
+                })
+                .catch(error => {
+                    this.errorMessage = 'Error en la solicitud';
+                    this.$refs.modalError.openModal();
+                    this.ocultarFormulario();
+                    return;
+                });
+
+
+        },
+
+        editarSubcategoria(objetoJSON) {
+            //const objetoJSON = JSON.stringify(objetoModificado);
+
+            if (objetoJSON.servicio && objetoJSON.localizacion != "100") {
+
+                this.errorMessage = 'Si registra un servicio seleccione en ubicacion "SERVICIO"';
+                this.$refs.modalError.openModal();
+                this.ocultarFormulario();
+                return;
+            }
+            if (!objetoJSON.servicio && objetoJSON.localizacion == "100") {
+
+                this.errorMessage = 'Si registra un producto seleccione alguna ubicacion difernte a SERVICIO';
+                this.$refs.modalError.openModal();
+                this.ocultarFormulario();
+                return;
+            }
+
+            if (objetoJSON.servicio == 1) {
+                objetoJSON.numeroDeSerie = "S";
+            }
+            if (objetoJSON.servicio == 0) {
+                objetoJSON.numeroDeSerie = "P";
+            }
+
+            const precioCadena = objetoJSON.precioUnitario;
+            const precioNum = parseFloat(precioCadena);
+
+            objetoJSON.precioUnitario = precioNum;
+
+
+
 
             console.log(objetoJSON);
+            const objetoModificado = JSON.stringify(objetoJSON);
 
-            // if (!objetoModificado.nombre || !objetoModificado.nomenclatura) {
-            //     this.errorMessage = 'El campo nombre o nomenclatura no puede estar vacio';
-            //     this.$refs.modalError.openModal();
-            //     this.mostrar();
-            // } else {
+            if (!objetoJSON.nombre || !objetoJSON.cantidad || !objetoJSON.precioUnitario) {
+                this.errorMessage = 'El campo nombre, cantidad, precio unitario o cantidad minima no puede estar vacio';
+                this.$refs.modalError.openModal();
+                this.mostrar();
+            } else {
 
-            //     const url = `${API_URL}/${ENDPOINT_EDITAR_PRODUCTO}`;
+                const url = `${API_URL}/${ENDPOINT_EDITAR_PRODUCTO}`;
 
-            //     fetch(url, {
-            //         method: 'PUT',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: objetoJSON,
-            //     })
-            //         .then(response => {
-            //             if (response.status === 200) {
-            //                 this.successMessage = 'Subcategoria editada con éxito';
-            //                 this.$refs.modalSuccess.openModal();
-            //                 this.mostrar();
-            //             }
-            //             else {
-            //                 if (response.status === 400) {
-            //                     this.errorMessage = 'Surgio un problema con la edición';
-            //                     this.$refs.modalError.openModal();
-            //                 } else {
-            //                     this.errorMessage = 'Error al editar la Subcategoria';
-            //                     this.$refs.modalError.openModal();
-            //                 }
-            //             }
-            //         })
-            //         .catch(error => {
-            //             this.errorMessage = 'Error en la solicitud';
-            //             this.$refs.modalError.openModal();
-            //         });
-            // }
+                fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: objetoModificado,
+                })
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.successMessage = 'Producto editado con éxito';
+                            this.$refs.modalSuccess.openModal();
+                            this.mostrar();
+                        }
+                        else {
+                            if (response.status === 400) {
+                                this.errorMessage = 'Surgio un problema con la edición';
+                                this.$refs.modalError.openModal();
+                            } else {
+                                this.errorMessage = 'Error al editar el Producto';
+                                this.$refs.modalError.openModal();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        this.errorMessage = 'Error en la solicitud';
+                        this.$refs.modalError.openModal();
+                    });
+            }
 
         },
 
@@ -482,8 +600,18 @@ export default {
             nuevoJSON.consumible = 1;
             nuevoJSON.status = 1;
 
+            const precioCadena = nuevoJSON.precioUnitario;
+            const precioNum = parseFloat(precioCadena);
 
-            console.log(nuevoJSON);
+            nuevoJSON.precioUnitario = precioNum;
+
+            const cantidadCadena = nuevoJSON.cantidad;
+            const cantidadNum = parseFloat(cantidadCadena);
+
+            nuevoJSON.cantidad = cantidadNum;
+
+            nuevoJSON.cantidadMin = 0;
+
 
             fetch(url, {
                 method: 'POST',
