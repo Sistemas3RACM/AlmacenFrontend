@@ -48,6 +48,30 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/principalInventario',
+    name: 'principalInventario',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalInventario.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/productosProveedores',
+    name: 'productosProveedores',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/ProductosProveedores.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/productosCategorias',
+    name: 'productosCategorias',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/ProductosCategorias.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/productosTotales',
+    name: 'productosTotales',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/ProductosTotales.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/',
     name: 'login',
     component: Login
