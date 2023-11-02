@@ -82,7 +82,7 @@
   background: white;
   padding: 20px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  height: 70vh;
+  height: 52vh;
   border-radius: 10px;
   margin-top: 18%;
   width: 100%;
@@ -127,7 +127,7 @@ export default {
       camposProveedor: [
         { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor', required: true },
         { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
-        { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'number', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
+        { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'text', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
       ],
       textoBotonProveedor: 'Agregar Proveedor',
       successMessage: '',
@@ -245,7 +245,7 @@ export default {
     editarProveedor(objetoModificado) {
 
       if (objetoModificado.telefono === "") {
-        objetoModificado.telefono = "0";
+        objetoModificado.telefono = "";
       }
       const objetoJSON = JSON.stringify(objetoModificado);
 
@@ -296,7 +296,7 @@ export default {
         nuevoJSON[campo.id] = campo.valor;
       }
       if (nuevoJSON.telefono == "") {
-        nuevoJSON.telefono = 0;
+        nuevoJSON.telefono = "";
       }
 
 
