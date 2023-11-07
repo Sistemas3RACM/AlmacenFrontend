@@ -4,8 +4,8 @@
     <section class="vh-100">
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col-md-3">
-                    <img src="@/assets/logo3R.png" class="img-fluid" alt="3Racm" />
+                <div class="col-md-4">
+                    <img src="@/assets/logo3RACM.jpg" class="img-fluid" alt="3Racm" />
                 </div>
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
                     <form v-on:submit.prevent="login">

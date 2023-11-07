@@ -83,7 +83,7 @@
     background: white;
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    height: 60vh;
+    height: 40vh;
     border-radius: 10px;
     margin-top: 24%;
     width: 100%;

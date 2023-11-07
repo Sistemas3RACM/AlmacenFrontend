@@ -39,11 +39,10 @@
                         <font-awesome-icon :icon="['fas', 'book']" />
                         Reportes</a>
                 </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'warehouse']" />
-                        Inventario</a>
-                </li>
+                <router-link to="/principalInventario" class="nav-link opciones">
+                    <font-awesome-icon :icon="['fas', 'warehouse']" />
+                    Inventario
+                </router-link>
                 <router-link to="/" class="nav-link opciones salida">
                     <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
                     Salida
