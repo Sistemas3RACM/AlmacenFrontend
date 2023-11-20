@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0" v-flex="fill">
+                <div class="col-2 m-0 p-0">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -26,7 +26,7 @@
                                     :eliminar="eliminar">
                                     <template #default="{ item }">
                                         <button @click="eliminarSubcategoria(item.idSubcategoria)"
-                                            class="btn m-1 btn-danger">
+                                            class="btn m-1 btn-danger" v-if="permisos">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -65,10 +65,11 @@
         <ModalError :message="errorMessage" ref="modalError" />
 
         <!-- Modal de Error -->
-        <ModalEditar :titulo="TituloEditar" :categoriaOptions="categoriasDisponibles" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
-            @guardar-cambios="editarSubcategoria" ref="modalEditar" />
+        <ModalEditar :titulo="TituloEditar" :categoriaOptions="categoriasDisponibles" :camposMostrados="camposMostrados"
+            :objeto="objetoEditar" :id="id" @guardar-cambios="editarSubcategoria" ref="modalEditar" />
 
-        <ModalInformacion :titulo="TituloVer" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar" :id="id" ref="modalVer" />
+        <ModalInformacion :titulo="TituloVer" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar" :id="id"
+            ref="modalVer" />
     </section>
 </template>
 
@@ -99,8 +100,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_SUBCATEGORIAS, ENDPOINT_AGREGAR_SUBCATEGORIA,
-    ENDPOINT_ELIMINAR_SUBCATEGORIA, ENDPOINT_EDITAR_SUBCATEGORIA, ENDPOINT_BUSCAR_SUBCATEGORIA, ENDPOINT_LISTAR_CATEGORIAS
+    API_URL, ENDPOINT_LISTAR_SUBCATEGORIAS, ENDPOINT_AGREGAR_SUBCATEGORIA,ENDPOINT_AGREGAR_MOVIMIENTO,
+    ENDPOINT_ELIMINAR_SUBCATEGORIA, ENDPOINT_EDITAR_SUBCATEGORIA, ENDPOINT_BUSCAR_SUBCATEGORIA, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_CONSULTAR_SUBCATEGORIA
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -149,17 +150,19 @@ export default {
                 nomenclatura: 0,
                 idCategoria: 0,
             },
-            camposMostrados: ['nombre','idCategoria'],
+            camposMostrados: ['nombre', 'idCategoria'],
             id: 'idSubcategoria',
             TituloVer: 'Información de la Subcategoria',
             currentPage: 1,
             pageSize: 6,
             categoriasDisponibles: [],
+            permisos:false,
         };
     },
     mounted() {
         this.mostrar();
         this.obtenerCategoriasDisponibles();
+        this.obtenerPermisos();
     },
     computed: {
         totalPages() {
@@ -214,16 +217,39 @@ export default {
             fetch(url)
                 .then(response => {
                     if (response.ok) {
-                        return response.json(); 
+                        return response.json();
                     } else {
                         throw new Error("Error en la solicitud.");
                     }
                 })
                 .then(data => {
-                    this.subcategorias = data; 
+                    this.subcategorias = data;
                 })
                 .catch(error => {
                     console.error("Error:", error);
+                });
+        },
+        buscarSubcategoriaID(id) {
+            const url = `${API_URL}/${ENDPOINT_CONSULTAR_SUBCATEGORIA}/${id}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                })
+                .then(subcategoria => {
+                    this.registroDeMovimientos(`Subcategoría ${subcategoria.nombre} eliminada`);                    
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud:', error);
                 });
         },
         eliminarSubcategoria(id) {
@@ -235,6 +261,7 @@ export default {
 
             const url = `${API_URL}/${ENDPOINT_ELIMINAR_SUBCATEGORIA}/${id}`;
 
+            this.buscarSubcategoriaID(id);
 
             fetch(url, {
                 method: 'DELETE',
@@ -295,6 +322,7 @@ export default {
                     .then(response => {
                         if (response.status === 200) {
                             this.successMessage = 'Subcategoria editada con éxito';
+                            this.registroDeMovimientos(`Subcategoría ${objetoModificado.nombre} editada`);
                             this.$refs.modalSuccess.openModal();
                             this.mostrar();
                         }
@@ -342,6 +370,7 @@ export default {
                 .then(response => {
                     if (response.status === 201) {
                         this.successMessage = 'Subcategoria agregada con éxito';
+                        this.registroDeMovimientos(`Subcategoría ${nuevoJSON.nombre} agregada`);
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     }
@@ -359,6 +388,49 @@ export default {
                     this.errorMessage = 'Error en la solicitud';
                     this.$refs.modalError.openModal();
                 });
+        },
+        obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userId;
+
+            if (idUsuario == 1) {
+                this.permisos = true;
+            }
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+            console.log(JSONmovimientos);
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        this.mostrar();
+                    }
+                    else {
+                        if (response.status === 409) {
+                            this.errorMessage = 'Error al agregar el movimiento';
+                            this.$refs.modalError.openModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    this.errorMessage = 'Error en la solicitud';
+                });
+
         },
     },
 };

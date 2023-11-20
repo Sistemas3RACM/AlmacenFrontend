@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0" v-flex="fill">
+                <div class="col-2 m-0 p-0">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -25,8 +25,7 @@
                                 <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'nomenclatura']"
                                     :eliminar="eliminar">
                                     <template #default="{ item }">
-                                        <button @click="eliminarCategoria(item.idCategoria)"
-                                            class="btn m-1 btn-danger">
+                                        <button @click="eliminarCategoria(item.idCategoria)" class="btn m-1 btn-danger" v-if="permisos">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -50,8 +49,7 @@
                                     <h3>Agregar Categoria</h3>
 
                                     <FormularioGeneral ref="formularioGeneral" :campos="camposCategoria"
-                                        :textoBoton="textoBotonCategoria"
-                                        @formulario-enviado="agregarCategoria" />
+                                        :textoBoton="textoBotonCategoria" @formulario-enviado="agregarCategoria" />
                                 </div>
                             </div>
                         </div>
@@ -66,8 +64,8 @@
         <ModalError :message="errorMessage" ref="modalError" />
 
         <!-- Modal de Error -->
-        <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @guardar-cambios="editarCategoria"
-            ref="modalEditar" />
+        <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
+            @guardar-cambios="editarCategoria" ref="modalEditar" />
 
         <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
     </section>
@@ -100,8 +98,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_AGREGAR_CATEGORIA,
-    ENDPOINT_ELIMINAR_CATEGORIA, ENDPOINT_EDITAR_CATEGORIA, ENDPOINT_BUSCAR_CATEGORIA
+    API_URL, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_AGREGAR_CATEGORIA, ENDPOINT_CONSULTAR_CATEGORIA,
+    ENDPOINT_ELIMINAR_CATEGORIA, ENDPOINT_EDITAR_CATEGORIA, ENDPOINT_BUSCAR_CATEGORIA, ENDPOINT_AGREGAR_MOVIMIENTO
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -127,7 +125,7 @@ export default {
             categorias: null,
             type: 'categoria',
             camposCategoria: [
-                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoria', required: true  },
+                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoria', required: true },
             ],
             textoBotonCategoria: 'Agregar Categoria',
             successMessage: '',
@@ -142,10 +140,12 @@ export default {
             TituloVer: 'Información de la categoria',
             currentPage: 1,
             pageSize: 6,
+            permisos:false,
         };
     },
     mounted() {
         this.mostrar();
+        this.obtenerPermisos();
     },
     computed: {
 
@@ -188,7 +188,7 @@ export default {
             fetch(url)
                 .then(response => {
                     if (response.ok) {
-                        return response.json(); 
+                        return response.json();
                     } else {
                         throw new Error("Error en la solicitud.");
                     }
@@ -201,6 +201,30 @@ export default {
                     console.error("Error:", error);
                 });
         },
+        buscarCategoriaID(id) {
+            const url = `${API_URL}/${ENDPOINT_CONSULTAR_CATEGORIA}/${id}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                })
+                .then(categoria => {
+                    this.registroDeMovimientos(`Categoría ${categoria.nombre} eliminada`);                    
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud:', error);
+                });
+        },
+
         eliminarCategoria(id) {
             if (!id) {
                 this.errorMessage = 'Surgio un problema con el ID';
@@ -209,6 +233,8 @@ export default {
             }
 
             const url = `${API_URL}/${ENDPOINT_ELIMINAR_CATEGORIA}/${id}`;
+
+            this.buscarCategoriaID(id);
 
 
             fetch(url, {
@@ -266,6 +292,7 @@ export default {
                     .then(response => {
                         if (response.status === 200) {
                             this.successMessage = 'categoria editada con éxito';
+                            this.registroDeMovimientos(`Categoría ${objetoModificado.nombre} editada`);
                             this.$refs.modalSuccess.openModal();
                             this.mostrar();
                         }
@@ -296,9 +323,7 @@ export default {
                 nuevoJSON[campo.id] = campo.valor;
             }
 
-            nuevoJSON.nomenclatura=0;
-
-            console.log(nuevoJSON);
+            nuevoJSON.nomenclatura = 0;
 
 
             fetch(url, {
@@ -311,6 +336,7 @@ export default {
                 .then(response => {
                     if (response.status === 201) {
                         this.successMessage = 'categoria agregada con éxito';
+                        this.registroDeMovimientos(`Categoría ${nuevoJSON.nombre} agregada`);
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     }
@@ -328,6 +354,47 @@ export default {
                     this.errorMessage = 'Error en la solicitud';
                     this.$refs.modalError.openModal();
                 });
+        },
+        obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userId;
+
+            if (idUsuario == 1) {
+                this.permisos = true;
+            }
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        this.mostrar();
+                    }
+                    else {
+                        if (response.status === 409) {
+                            this.errorMessage = 'Error al agregar el movimiento';
+                            this.$refs.modalError.openModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    this.errorMessage = 'Error en la solicitud';
+                });
+
         },
     },
 };

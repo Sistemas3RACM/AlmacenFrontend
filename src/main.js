@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+
 // Importa los iconos específicos que desees utilizar
 import { faHouse, faStore, faUsers, faBook, faWarehouse, faThLarge, faThList, faUserTie,
     faSignOutAlt, 

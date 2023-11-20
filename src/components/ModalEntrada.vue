@@ -7,16 +7,24 @@
                     <div class="mb-3 container-fluid">
                         <div class="row">
                             <template v-for="(campo, key) in objetoEntrada">
-                                <div v-if="key == 'cantidad'
-                                    " :key="key" class="col-sm-12 form-group">
+                                <div v-if="key === 'cantidad'" :key="key" class="col-sm-12 form-group">
                                     <label :for="key" class="form-label label-left">{{ key }}</label>
                                     <div>
-                                        <div v-if="key == 'cantidad'">
-                                            <input type="text" class="form-control" :id="key" v-model="objetoEntrada[key]" />
+                                        <div v-if="key === 'cantidad'">
+                                            <input type="text" class="form-control" :id="key"
+                                                v-model="objetoEntrada[key]" />
                                         </div>
                                     </div>
                                 </div>
                             </template>
+                            <div v-if="permisos">
+                                <input type="checkbox" v-model="mostrarMotivo" /> Ajuste de inventario
+                            </div>
+                            <!-- <div v-if="mostrarMotivo">
+                                <label class="form-label mt-1">Motivo:</label>
+                                <input type="text" class="form-control" v-model="objetoEntrada.motivo"
+                                    placeholder="Motivo" />
+                            </div> -->
                         </div>
                     </div>
 
@@ -27,9 +35,11 @@
         </div>
     </div>
 </template>
-  
-  
+
 <script>
+import {
+    API_URL, ENDPOINT_AGREGAR_MOVIMIENTO
+} from '../keys';
 export default {
     props: {
         objetoEntrada: {
@@ -41,7 +51,12 @@ export default {
     data() {
         return {
             show: false,
+            permisos: false,
+            mostrarMotivo: false, // Nuevo dato para controlar la visibilidad del motivo
         };
+    },
+    mounted() {
+        this.obtenerPermisos();
     },
     methods: {
         openModal() {
@@ -51,8 +66,57 @@ export default {
             this.show = false;
         },
         enviarCambios() {
+            if (this.mostrarMotivo) {
+                this.registroDeMovimientos("Se realizo una entrada con ajuste de inventario");
+            }
+            if(!this.mostrarMotivo) {
+                this.registroDeMovimientos("Se realizo una entrada");
+            }
+
             this.$emit('guardar-cambios', this.objetoEntrada);
             this.closeModal();
+
+        },
+        obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userAdmin;
+
+            if (idUsuario == 1) {
+                this.permisos = true;
+            }
+
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+
+                    }
+                    else {
+                        if (response.status === 409) {
+                        }
+                    }
+                })
+                .catch(error => {
+
+                });
+
         },
     },
 };

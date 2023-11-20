@@ -17,7 +17,8 @@
                             </div>
                             <div v-else-if="key === 'idCategoria'" class="form-group">
                                 <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                    <option v-for="option in categoriaOptions" :value="option.idCategoria">{{ option.nombre }}
+                                    <option v-for="option in categoriaOptions" :value="option.idCategoria">{{ option.nombre
+                                    }}
                                     </option>
                                 </select>
                             </div>
@@ -60,8 +61,9 @@ export default {
         return {
             show: false,
             puestoOptions: [
-                { valor: '0', etiqueta: 'Administrativo' },
-                { valor: '1', etiqueta: 'Sin permisos' },
+                { valor: '1', etiqueta: 'Administrativo del Sistema' },
+                { valor: '2', etiqueta: 'Administrativo' },
+                { valor: '3', etiqueta: 'Sin permisos' },
             ],
         };
     },

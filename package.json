@@ -16,12 +16,27 @@
     "axios": "^1.5.0",
     "bootstrap": "^5.3.2",
     "bootstrap-icons-vue": "^1.10.3",
+    "chart.js": "^4.4.0",
+    "chartjs-to-image": "^1.2.2",
     "core-js": "^3.8.3",
+    "crypto-browserify": "^3.12.0",
+    "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.0",
+    "flatpickr": "^4.6.13",
+    "html2canvas": "^1.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.7.1",
+    "stream-browserify": "^3.0.0",
     "sweetalert2": "^11.6.13",
+    "util": "^0.12.5",
     "vue": "^3.2.13",
     "vue-bootstrap-icons": "^0.2.4",
+    "vue-chartjs": "^5.2.0",
+    "vue-flatpickr-component": "^11.0.3",
     "vue-icons": "^2.0.0",
     "vue-router": "^4.0.3",
+    "vue3-chartjs": "^1.0.0",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
@@ -29,7 +44,8 @@
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
-    "dotenv-webpack": "^8.0.1"
+    "dotenv-webpack": "^8.0.1",
+    "typescript": "^5.2.2"
   },
   "browserslist": [
     "> 1%",

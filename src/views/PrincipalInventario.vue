@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0" v-flex="fill">
+                <div class="col-2 m-0 p-0">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -15,19 +15,6 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="card mb-3">
-                                            <img src="../assets/repartidor.png" class="card-img-top" alt="...">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-center">Ver productos por proveedor</h5>
-                                                <div class="d-grid">
-                                                    <router-link to="/productosProveedores" class="btn btn-info">
-                                                        Ver los Productos
-                                                    </router-link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <div class="col-md-4">
                                         <div class="card mb-3">

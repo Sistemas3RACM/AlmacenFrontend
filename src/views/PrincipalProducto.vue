@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0" v-flex="fill">
+                <div class="col-2 m-0 p-0">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -28,10 +28,12 @@
                                 <tabla v-if="paginated" :type="type" :data="paginated"
                                     :fields="['nombre', 'numeroDeSerie', 'cantidad']" :eliminar="eliminar">
                                     <template #default="{ item }">
-                                        <button @click="mostrarSalida(item)" class="btn m-1 btn-secondary">
+                                        <button @click="mostrarSalida(item)" class="btn m-1 btn-secondary"
+                                            v-if="sinPermiso">
                                             <font-awesome-icon :icon="['fas', 'minus']" />
                                         </button>
-                                        <button @click="eliminarProducto(item.idProducto)" class="btn m-1 btn-danger">
+                                        <button @click="eliminarProducto(item.idProducto)" class="btn m-1 btn-danger"
+                                            v-if="permisos">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -40,7 +42,8 @@
                                         <button @click="mostrarInformacion(item)" class="btn m-1 btn-primary">
                                             <font-awesome-icon :icon="['fas', 'eye']" />
                                         </button>
-                                        <button @click="mostrarEntrada(item)" class="btn m-1 btn-secondary">
+                                        <button @click="mostrarEntrada(item)" class="btn m-1 btn-secondary"
+                                            v-if="sinPermiso">
                                             <font-awesome-icon :icon="['fas', 'plus']" />
                                         </button>
                                     </template>
@@ -121,7 +124,7 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_PRODUCTOS, ENDPOINT_AGREGAR_PRODUCTO,
+    API_URL, ENDPOINT_LISTAR_PRODUCTOS, ENDPOINT_AGREGAR_PRODUCTO, ENDPOINT_AGREGAR_MOVIMIENTO, ENDPOINT_CONSULTAR_PRODUCTO,
     ENDPOINT_ELIMINAR_PRODUCTO, ENDPOINT_EDITAR_PRODUCTO, ENDPOINT_BUSCAR_PRODUCTO, ENDPOINT_LISTAR_CATEGORIAS,
     ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_SOLICITUD
 } from '../keys';
@@ -259,12 +262,15 @@ export default {
             proveedoresDisponibles: [],
             productosDisponibles: [],
             formularioVisible: false,
+            permisos: false,
+            sinPermiso: false,
         };
     },
     mounted() {
         this.mostrar();
         this.obtenerCategoriasDisponibles();
         this.obtenerProveedoresDisponibles();
+        this.obtenerPermisos();
     },
     computed: {
         totalPages() {
@@ -272,14 +278,17 @@ export default {
             return Math.ceil(this.productos.length / this.pageSize);
         },
         paginated() {
-            if (!this.productos) return null;
+            if (!Array.isArray(this.productos) || this.productos.length === 0) {
+                
+                return null;
+            }
 
-            const sortedproductos = this.productos.slice().reverse();
+            const sortedProductos = this.productos.slice().reverse();
 
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = startIndex + this.pageSize;
 
-            return sortedproductos.slice(startIndex, endIndex);
+            return sortedProductos.slice(startIndex, endIndex);
         },
     },
     methods: {
@@ -287,6 +296,19 @@ export default {
             if (page < 1) page = 1;
             if (page > this.totalPages) page = this.totalPages;
             this.currentPage = page;
+        },
+        obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userAdmin;
+
+
+            if (idUsuario === 1) {
+                this.permisos = true;
+                this.sinPermiso = true;
+            }
+            else if (idUsuario === 2) {
+                this.permisos = false;
+                this.sinPermiso = true;
+            }
         },
         mostrar() {
             const url = `${API_URL}/${ENDPOINT_LISTAR_PRODUCTOS}`;
@@ -368,6 +390,8 @@ export default {
 
             const url = `${API_URL}/${ENDPOINT_ELIMINAR_PRODUCTO}/${id}`;
 
+            this.buscarProductoID(id);
+
 
             fetch(url, {
                 method: 'DELETE',
@@ -441,6 +465,10 @@ export default {
                 servicio: datos.servicio,
             };
 
+            if (datos.motivo) {
+
+            }
+
             const objetoSolicitud = {
                 idProducto: datos.idProducto,
                 solicitante: datos.solicitante,
@@ -484,6 +512,29 @@ export default {
                 });
 
 
+        },
+        buscarProductoID(id) {
+            const url = `${API_URL}/${ENDPOINT_CONSULTAR_PRODUCTO}/${id}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                })
+                .then(producto => {
+                    this.registroDeMovimientos(`Producto ${producto.nombre} eliminado`);
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud:', error);
+                });
         },
 
         editarSubcategoria(objetoJSON) {
@@ -540,6 +591,7 @@ export default {
                     .then(response => {
                         if (response.status === 200) {
                             this.successMessage = 'Producto editado con éxito';
+                            this.registroDeMovimientos(`Producto ${objetoJSON.nombre} editado`);
                             this.$refs.modalSuccess.openModal();
                             this.mostrar();
                         }
@@ -623,6 +675,7 @@ export default {
                 .then(response => {
                     if (response.status === 201) {
                         this.successMessage = 'Producto agregado con éxito';
+                        this.registroDeMovimientos(`Producto ${nuevoJSON.nombre} agregado`);
                         this.ocultarFormulario();
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
@@ -647,6 +700,42 @@ export default {
                     this.ocultarFormulario();
                     return;
                 });
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+            console.log(JSONmovimientos);
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        this.mostrar();
+                    }
+                    else {
+                        if (response.status === 409) {
+                            this.errorMessage = 'Error al agregar el movimiento';
+                            this.$refs.modalError.openModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    this.errorMessage = 'Error en la solicitud';
+                });
+
         },
     },
 };
