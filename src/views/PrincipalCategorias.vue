@@ -11,7 +11,7 @@
                             <div class="col-7 mt-5 tablaP">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h1 class="h1 m-3">Categorias</h1>
+                                        <h1 class="h1 m-3">Categorías</h1>
                                     </div>
                                     <div class="col-2 mt-4">
                                         <button @click="mostrar()" class="btn m-1 btn-warning">
@@ -46,7 +46,7 @@
                             </div>
                             <div class="col-4 mt-4">
                                 <div class="formulario">
-                                    <h3>Agregar Categoria</h3>
+                                    <h3>Agregar Categoría</h3>
 
                                     <FormularioGeneral ref="formularioGeneral" :campos="camposCategoria"
                                         :textoBoton="textoBotonCategoria" @formulario-enviado="agregarCategoria" />
@@ -125,19 +125,19 @@ export default {
             categorias: null,
             type: 'categoria',
             camposCategoria: [
-                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoria', required: true },
+                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoría', required: true },
             ],
-            textoBotonCategoria: 'Agregar Categoria',
+            textoBotonCategoria: 'Agregar Categoría',
             successMessage: '',
             errorMessage: '',
-            TituloEditar: 'Editar Categoria',
+            TituloEditar: 'Editar Categoría',
             objetoEditar: {
                 idCategoria: '',
                 nombre: '',
             },
             camposMostrados: ['nombre'],
             id: 'idCategoria',
-            TituloVer: 'Información de la categoria',
+            TituloVer: 'Información de la categoría',
             currentPage: 1,
             pageSize: 6,
             permisos:false,
@@ -227,7 +227,7 @@ export default {
 
         eliminarCategoria(id) {
             if (!id) {
-                this.errorMessage = 'Surgio un problema con el ID';
+                this.errorMessage = 'Surgió un problema con el ID';
                 this.$refs.modalError.openModal();
                 return;
             }
@@ -245,14 +245,14 @@ export default {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        this.successMessage = 'categoria eliminada con éxito';
+                        this.successMessage = 'Categoría eliminada con éxito';
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     } else if (response.status === 404) {
-                        this.errorMessage = 'categoria no encontrada';
+                        this.errorMessage = 'Categoría no encontrada';
                         this.$refs.modalError.openModal();
                     } else {
-                        this.errorMessage = 'Error al eliminar la categoria';
+                        this.errorMessage = 'Error al eliminar la categoría';
                         this.$refs.modalError.openModal();
                     }
                 })
@@ -275,7 +275,7 @@ export default {
             const objetoJSON = JSON.stringify(objetoModificado);
 
             if (!objetoModificado.nombre || !objetoModificado.nomenclatura) {
-                this.errorMessage = 'El campo nombre o nomenclatura no puede estar vacio';
+                this.errorMessage = 'El campo nombre o nomenclatura no puede estar vacío';
                 this.$refs.modalError.openModal();
                 this.mostrar();
             } else {
@@ -291,17 +291,17 @@ export default {
                 })
                     .then(response => {
                         if (response.status === 200) {
-                            this.successMessage = 'categoria editada con éxito';
+                            this.successMessage = 'Categoría editada con éxito';
                             this.registroDeMovimientos(`Categoría ${objetoModificado.nombre} editada`);
                             this.$refs.modalSuccess.openModal();
                             this.mostrar();
                         }
                         else {
                             if (response.status === 400) {
-                                this.errorMessage = 'Surgio un problema con la edición';
+                                this.errorMessage = 'Surgió un problema con la edición';
                                 this.$refs.modalError.openModal();
                             } else {
-                                this.errorMessage = 'Error al editar la categoria';
+                                this.errorMessage = 'Error al editar la categoría';
                                 this.$refs.modalError.openModal();
                             }
                         }
@@ -335,17 +335,17 @@ export default {
             })
                 .then(response => {
                     if (response.status === 201) {
-                        this.successMessage = 'categoria agregada con éxito';
+                        this.successMessage = 'Categoría agregada con éxito';
                         this.registroDeMovimientos(`Categoría ${nuevoJSON.nombre} agregada`);
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     }
                     else {
                         if (response.status === 409) {
-                            this.errorMessage = 'La categoria ya existe y no se pueden repetir';
+                            this.errorMessage = 'La categoría ya existe y no se pueden repetir';
                             this.$refs.modalError.openModal();
                         } else {
-                            this.errorMessage = 'Error al agregar la categoria';
+                            this.errorMessage = 'Error al agregar la categoría';
                             this.$refs.modalError.openModal();
                         }
                     }

@@ -6,10 +6,9 @@
 
 
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
-                    <!-- Verifica si el campo actual debe mostrarse según camposMostrados -->
                     <div v-if="key !== id && camposMostrados.includes(key)" class="row">
                         <div class="col-3">
-                            <label :for="key" class="form-label label-left">{{ key }}</label>
+                            <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
                         </div>
                         <div class="col-9">
                             <div v-if="typeof campo === 'boolean'" class="form-check">
@@ -85,6 +84,28 @@ export default {
         enviarCambios() {
             this.$emit('guardar-cambios', this.objeto);
             this.closeModal();
+        },
+        getLabel(key) {
+            switch (key) {
+                case 'idCategoria':
+                    return 'Categoría';
+                case 'nombre':
+                    return 'Nombre';
+                case 'direccion':
+                    return 'Dirección';
+                case 'telefono':
+                    return 'Teléfono';
+                case 'apellidoMaterno':
+                    return 'Apellido Materno';
+                case 'apellidoPaterno':
+                    return 'Apellido Paterno';
+                case 'correo':
+                    return 'Correo';
+                case 'puesto':
+                    return 'Puesto';
+                default:
+                    return key;
+            }
         },
     },
 

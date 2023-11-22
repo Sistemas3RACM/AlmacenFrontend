@@ -7,7 +7,7 @@
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav flex-column"> <!-- Utiliza la clase flex-column para hacerlo vertical -->
                 <li class="nav-item m-3">
-                    <a class="navbar-brand" href="#">Almacen</a>
+                    <a class="navbar-brand" href="#">Almacén</a>
                 </li>
                 <router-link to="/dashboard" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'home']" />
@@ -23,11 +23,11 @@
                 </router-link>
                 <router-link to="/principalCategorias" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'th-large']" />
-                    Categorias
+                    Categorías
                 </router-link>
                 <router-link to="/principalSubcategoria" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'th-list']" />
-                    Subcategorias
+                    Subcategorías
                 </router-link>
                 <router-link to="/principalReportes" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'book']" />

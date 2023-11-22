@@ -127,7 +127,7 @@ export default {
       camposProveedor: [
         { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor', required: true },
         { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
-        { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'text', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
+        { id: 'telefono', label: 'Teléfono', nombre: 'telefono', type: 'text', valor: '', ayuda: 'Ingrese el teléfono del proveedor' },
       ],
       textoBotonProveedor: 'Agregar Proveedor',
       successMessage: '',
@@ -226,7 +226,7 @@ export default {
     },
     eliminarProveedor(id) {
       if (!id) {
-        this.errorMessage = 'Surgio un problema con el ID';
+        this.errorMessage = 'Surgió un problema con el ID';
         this.$refs.modalError.openModal();
         return;
       }
@@ -276,7 +276,7 @@ export default {
       const objetoJSON = JSON.stringify(objetoModificado);
 
       if (!objetoModificado.nombre) {
-        this.errorMessage = 'El campo nombre no puede estar vacio';
+        this.errorMessage = 'El campo nombre no puede estar vacío';
         this.$refs.modalError.openModal();
         this.mostrar();
       } else {
@@ -299,7 +299,7 @@ export default {
             }
             else {
               if (response.status === 400) {
-                this.errorMessage = 'Surgio un problema con la edición';
+                this.errorMessage = 'Surgió un problema con la edición';
                 this.$refs.modalError.openModal();
               } else {
                 this.errorMessage = 'Error al editar el proveedor';

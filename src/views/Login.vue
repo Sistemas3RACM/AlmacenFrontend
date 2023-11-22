@@ -5,6 +5,7 @@
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-md-4">
+                    <h1 class="m-3">Sistema de almacén</h1>
                     <img src="@/assets/logo3RACM.jpg" class="img-fluid" alt="3Racm" />
                 </div>
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">

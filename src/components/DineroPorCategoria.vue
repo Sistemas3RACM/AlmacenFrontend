@@ -1,7 +1,7 @@
 <template>
     <div class="contenedor">
         <div v-if="mostrarTablaCategorias">
-            <h2 class="text-center">Dinero por categoria</h2>
+            <h2 class="text-center">Dinero por categoría</h2>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -28,7 +28,7 @@
         </div>
         <div class="col-md-12" v-if="!mostrarTablaCategorias">
             <div class="contador">
-                <h3>Dinero dentro de esta categoria:</h3>
+                <h3>Dinero dentro de esta categoría:</h3>
                 <div class="numero">$ {{ total }}</div>
             </div>
         </div>

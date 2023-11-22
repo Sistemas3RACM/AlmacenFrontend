@@ -6,17 +6,14 @@
                 <form @submit.prevent="enviarCambios">
                     <div class="mb-3 container-fluid">
                         <div class="row">
-                            <template v-for="(campo, key) in objetoEntrada">
-                                <div v-if="key === 'cantidad'" :key="key" class="col-sm-12 form-group">
-                                    <label :for="key" class="form-label label-left">{{ key }}</label>
+                            <div class="form-group">
+                                <label class="form-label label-left">Cantidad:</label>
+                                <div>
                                     <div>
-                                        <div v-if="key === 'cantidad'">
-                                            <input type="text" class="form-control" :id="key"
-                                                v-model="objetoEntrada[key]" />
-                                        </div>
+                                        <input type="text" class="form-control" v-model="cantidadInicial" />
                                     </div>
                                 </div>
-                            </template>
+                            </div>
                             <div v-if="permisos">
                                 <input type="checkbox" v-model="mostrarMotivo" /> Ajuste de inventario
                             </div>
@@ -53,6 +50,7 @@ export default {
             show: false,
             permisos: false,
             mostrarMotivo: false, // Nuevo dato para controlar la visibilidad del motivo
+            cantidadInicial: 0,
         };
     },
     mounted() {
@@ -65,15 +63,28 @@ export default {
         closeModal() {
             this.show = false;
         },
+        obtenerCantidad() {
+            const cantidadFinal = parseInt(this.objetoEntrada.cantidad) + parseInt(this.cantidadInicial);
+            if (!isNaN(cantidadFinal) && cantidadFinal >= 0) {
+                return cantidadFinal;
+            } else {
+                return -1;
+            }
+        },
+
         enviarCambios() {
             if (this.mostrarMotivo) {
                 this.registroDeMovimientos("Se realizo una entrada con ajuste de inventario");
             }
-            if(!this.mostrarMotivo) {
+            if (!this.mostrarMotivo) {
                 this.registroDeMovimientos("Se realizo una entrada");
             }
 
+            this.objetoEntrada.cantidad = this.obtenerCantidad();
+
+
             this.$emit('guardar-cambios', this.objetoEntrada);
+            this.cantidadInicial = 0;
             this.closeModal();
 
         },

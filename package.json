@@ -27,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.7.1",
+    "nodemailer": "^6.9.7",
     "stream-browserify": "^3.0.0",
     "sweetalert2": "^11.6.13",
     "util": "^0.12.5",
@@ -37,7 +38,8 @@
     "vue-icons": "^2.0.0",
     "vue-router": "^4.0.3",
     "vue3-chartjs": "^1.0.0",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",

@@ -45,12 +45,18 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="entrada in entradas" :key="entrada.id">
+                                                <tr v-for="entrada in paginated" :key="entrada.id">
                                                     <td>{{ entrada.cantidad }}</td>
                                                     <td>{{ formatDate(entrada.fechaEntrada) }}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
+                                        <div class="pagination-buttons boton-container">
+                                            <button @click="goToPage(currentPage - 1)" class="btn btn-info"
+                                                :disabled="currentPage === 1">Anterior</button>
+                                            <button @click="goToPage(currentPage + 1)" class="btn btn-info"
+                                                :disabled="currentPage === totalPages">Siguiente</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -70,6 +76,14 @@
         </div>
     </section>
 </template>
+
+<style scoped>
+.boton-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+</style>
   
 <script>
 import jsPDF from 'jspdf';
@@ -135,9 +149,35 @@ export default {
                 ],
             },
             mostrarGenerar: false,
+            currentPage: 1,
+            pageSize: 6,
         };
     },
+    computed: {
+        totalPages() {
+            if (!this.entradas) return 0;
+            return Math.ceil(this.entradas.length / this.pageSize);
+        },
+        paginated() {
+            if (!Array.isArray(this.entradas) || this.entradas.length === 0) {
+
+                return null;
+            }
+
+            const sortedEntradas = this.entradas.slice().reverse();
+
+            const startIndex = (this.currentPage - 1) * this.pageSize;
+            const endIndex = startIndex + this.pageSize;
+
+            return sortedEntradas.slice(startIndex, endIndex);
+        },
+    },
     methods: {
+        goToPage(page) {
+            if (page < 1) page = 1;
+            if (page > this.totalPages) page = this.totalPages;
+            this.currentPage = page;
+        },
         async generatePDF() {
             try {
                 if (this.startDate && this.endDate && isValid(parseISO(this.startDate)) && isValid(parseISO(this.endDate))) {
@@ -194,11 +234,11 @@ export default {
                     const totalDinero = totalDineroArray.reduce((total, dinero) => total + dinero, 0);
 
                     // Definir posición y tamaño del rectángulo
-                    const rectX = 100;
+                    const rectX = 105;
                     const rectY = 145;
                     const rectX2 = 20;
                     const rectWidth = 95;
-                    const rectWidth2 = 60;  // Ajusta el ancho del rectángulo según tus preferencias
+                    const rectWidth2 = 80;  // Ajusta el ancho del rectángulo según tus preferencias
                     const rectHeight = 10; // Ajusta la altura del rectángulo según tus preferencias
 
                     // Agregar el rectángulo al PDF
@@ -209,7 +249,7 @@ export default {
                     pdf.text(`Total de entradas: ${totalEntradas}`, rectX2, rectY);
 
                     // Agregar el texto dentro del rectángulo
-                    pdf.text(`Ingreso total: $${totalDinero} Pesos Mexicanos`, rectX, rectY);
+                    pdf.text(`Ingreso total: $${totalDinero} MNX`, rectX, rectY);
 
                     // Agrega información de las entradas al PDF
                     pdf.text('Entradas:', 15, 170);

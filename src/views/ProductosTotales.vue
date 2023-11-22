@@ -18,6 +18,9 @@
                       <font-awesome-icon :icon="['fas', 'sync-alt']" />
                     </button>
                   </div>
+                  <div class="col-md-3 mt-4">
+                    <button @click="exportToExcel" class="btn btn-success">Exportar a Excel</button>
+                  </div>
                   <div class="col-md-4 mt-4">
                     <BusquedaGeneral @busqueda="buscarProducto" />
                   </div>
@@ -65,6 +68,7 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import BusquedaGeneral from '@/components/BusquedaGeneral.vue';
+import * as XLSX from 'xlsx';
 
 import {
   API_URL, ENDPOINT_BUSCAR_PRODUCTO, ENDPOINT_LISTAR_PRODUCTOS
@@ -138,6 +142,30 @@ export default {
         .catch(error => {
           console.error("Error:", error);
         });
+    },
+    exportToExcel() {
+      // Crear una nueva matriz de objetos solo con las propiedades deseadas
+      const exportData = this.productos.map(producto => ({
+        'Número de serie': producto.numeroDeSerie,
+        'Nombre': producto.nombre,
+        'Cantidad': producto.cantidad,
+      }));
+
+      // Crear el libro de Excel y la hoja de cálculo
+      const wb = XLSX.utils.book_new();
+
+      // Definir la configuración de la hoja de cálculo con nombres personalizados
+      const wsConfig = {
+        header: ['Número de serie', 'Nombre', 'Cantidad'],
+      };
+
+      const ws = XLSX.utils.json_to_sheet(exportData, wsConfig);
+
+      // Añade la hoja al libro
+      XLSX.utils.book_append_sheet(wb, ws, 'Productos');
+
+      // Guarda el libro como un archivo Excel
+      XLSX.writeFile(wb, 'productos.xlsx');
     },
   },
 

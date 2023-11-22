@@ -14,8 +14,8 @@
                                     key != 'servicio' &&
                                     key != 'cantidad' &&
                                     key != 'cantidadMin'
-                                    " :key="key" class="col-sm-6 form-group">
-                                    <label :for="key" class="form-label label-left">{{ key }}</label>
+                                " :key="key" class="col-sm-6 form-group">
+                                    <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
                                     <div>
 
                                         <div v-if="typeof campo === 'boolean'" class="form-check">
@@ -99,6 +99,7 @@ export default {
         categoriaOptions: Array,
         subcategoriaOptions: Array,
         proveedoresOptions: Array,
+        camposMostrados: Array,
     },
     data() {
         return {
@@ -140,6 +141,28 @@ export default {
             const categoriaId = event.target.value;
             this.objeto.idCategoria = categoriaId;
             this.$emit('categoria-cambiada', categoriaId);
+        },
+        getLabel(key) {
+            switch (key) {
+                case 'idCategoria':
+                    return 'Categoría';
+                case 'idSubcategoria':
+                    return 'Subcategoría';
+                case 'idProveedor':
+                    return 'Proveedor';
+                case 'unidadMedida':
+                    return 'Unidad de medida';
+                case 'localizacion':
+                    return 'Localización';
+                case 'nombre':
+                    return 'Nombre';
+                case 'precioUnitario':
+                    return 'Precio unitario';
+                case 'descripcion':
+                    return 'Descripción';
+                default:
+                    return key; // por defecto, devuelve el valor original de campo
+            }
         },
     },
 };

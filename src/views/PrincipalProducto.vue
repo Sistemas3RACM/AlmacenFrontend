@@ -11,7 +11,7 @@
                             <div class="mt-5 tablaP">
                                 <div class="row">
                                     <div class="col-2">
-                                        <h1 class="h1 m-3">Almacen</h1>
+                                        <h1 class="h1 m-3">Almacén</h1>
                                     </div>
                                     <div class="col-6 mt-4">
                                         <button @click="mostrar()" class="btn m-1 btn-warning">
@@ -25,29 +25,43 @@
                                         <BusquedaGeneral @busqueda="buscarProducto" />
                                     </div>
                                 </div>
-                                <tabla v-if="paginated" :type="type" :data="paginated"
-                                    :fields="['nombre', 'numeroDeSerie', 'cantidad']" :eliminar="eliminar">
-                                    <template #default="{ item }">
-                                        <button @click="mostrarSalida(item)" class="btn m-1 btn-secondary"
-                                            v-if="sinPermiso">
-                                            <font-awesome-icon :icon="['fas', 'minus']" />
-                                        </button>
-                                        <button @click="eliminarProducto(item.idProducto)" class="btn m-1 btn-danger"
-                                            v-if="permisos">
-                                            <font-awesome-icon :icon="['fas', 'trash']" />
-                                        </button>
-                                        <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
-                                            <font-awesome-icon :icon="['fas', 'edit']" />
-                                        </button>
-                                        <button @click="mostrarInformacion(item)" class="btn m-1 btn-primary">
-                                            <font-awesome-icon :icon="['fas', 'eye']" />
-                                        </button>
-                                        <button @click="mostrarEntrada(item)" class="btn m-1 btn-secondary"
-                                            v-if="sinPermiso">
-                                            <font-awesome-icon :icon="['fas', 'plus']" />
-                                        </button>
-                                    </template>
-                                </tabla>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Número de Parte</th>
+                                            <th>Cantidad</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="producto in paginated" :key="producto.id">
+                                            <td>{{ producto.nombre }}</td>
+                                            <td>{{ producto.numeroDeSerie }}</td>
+                                            <td>{{ producto.cantidad }}</td>
+                                            <td>
+                                                <button @click="mostrarSalida(producto)" class="btn m-1 btn-secondary"
+                                                    v-if="sinPermiso">
+                                                    <font-awesome-icon :icon="['fas', 'minus']" />
+                                                </button>
+                                                <button @click="eliminarProducto(producto.idProducto)"
+                                                    class="btn m-1 btn-danger" v-if="permisos">
+                                                    <font-awesome-icon :icon="['fas', 'trash']" />
+                                                </button>
+                                                <button @click="mostrarEdicion(producto)" class="btn m-1 btn-warning">
+                                                    <font-awesome-icon :icon="['fas', 'edit']" />
+                                                </button>
+                                                <button @click="mostrarInformacion(producto)" class="btn m-1 btn-primary">
+                                                    <font-awesome-icon :icon="['fas', 'eye']" />
+                                                </button>
+                                                <button @click="mostrarEntrada(producto)" class="btn m-1 btn-secondary"
+                                                    v-if="sinPermiso">
+                                                    <font-awesome-icon :icon="['fas', 'plus']" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                                 <!-- Botones de navegación -->
                                 <div class="pagination-buttons boton-container">
                                     <button @click="goToPage(currentPage - 1)" class="btn btn-info"
@@ -82,9 +96,8 @@
 
         <!-- Modal de Error -->
         <EditarProducto :titulo="TituloEditar" :subcategoriaOptions="subcategoriasDisponibles"
-            :proveedoresOptions="proveedoresDisponibles" :categoriaOptions="categoriasDisponibles"
-            :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @categoria-cambiada="cargarSubcategorias"
-            @guardar-cambios="editarSubcategoria" ref="modalEditar" />
+            :proveedoresOptions="proveedoresDisponibles" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar"
+            :id="id" @categoria-cambiada="cargarSubcategorias" @guardar-cambios="editarSubcategoria" ref="modalEditar" />
 
         <VerProducto :titulo="TituloVer" :proveedorOptions="proveedoresDisponibles"
             :subcategoriaOptions="subcategoriasDisponibles" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar"
@@ -175,10 +188,10 @@ export default {
                     required: true,
                     opciones: []
                 },
-                { id: 'descripcion', label: 'Descripcion', nombre: 'descripcion', type: 'text', valor: '' },
+                { id: 'descripcion', label: 'Descripción', nombre: 'descripcion', type: 'text', valor: '' },
                 {
                     id: 'unidadMedida',
-                    label: 'Unidad de Medida',
+                    label: 'Unidad de medida',
                     nombre: 'unidadMedida',
                     type: 'select',
                     valor: '',
@@ -197,7 +210,7 @@ export default {
                     ],
                 },
                 { id: 'cantidad', label: 'Cantidad', nombre: 'cantidad', type: 'text', valor: '', required: true },
-                { id: 'precioUnitario', label: 'Precio Unitario', nombre: 'precioUnitario', type: 'text', valor: '', required: true },
+                { id: 'precioUnitario', label: 'Precio unitario', nombre: 'precioUnitario', type: 'text', valor: '', required: true },
                 {
                     id: 'idProveedor',
                     label: 'Proveedor perteneciente',
@@ -251,8 +264,6 @@ export default {
                 consumible: true,
                 servicio: true,
             },
-            camposMostrados: ['nombre', 'idCategoria', 'idSubcategoria', 'descripcion', 'unidadMedida', 'cantidad',
-                'precioUnitario', 'idProveedor', 'localizacion', 'cantidadMin'],
             id: 'idProducto',
             TituloVer: 'Información de la Subcategoria',
             currentPage: 1,
@@ -279,7 +290,7 @@ export default {
         },
         paginated() {
             if (!Array.isArray(this.productos) || this.productos.length === 0) {
-                
+
                 return null;
             }
 
@@ -425,13 +436,16 @@ export default {
             this.formularioVisible = false;
         },
         mostrarEntrada(datos) {
+            this.objetoEditar = datos;
             this.$refs.modalEntrada.openModal();
         },
         mostrarSalida(datos) {
+            this.objetoEditar = datos;
             this.$refs.modalSalida.openModal();
         },
 
         mostrarInformacion(datos) {
+            this.objetoEditar = datos;
             this.$refs.modalVer.openModal();
         },
         mostrarEdicion(datos) {
@@ -465,9 +479,6 @@ export default {
                 servicio: datos.servicio,
             };
 
-            if (datos.motivo) {
-
-            }
 
             const objetoSolicitud = {
                 idProducto: datos.idProducto,
@@ -540,6 +551,8 @@ export default {
         editarSubcategoria(objetoJSON) {
             //const objetoJSON = JSON.stringify(objetoModificado);
 
+            const cantidadInicial = objetoJSON.cantidad;
+
             if (objetoJSON.servicio && objetoJSON.localizacion != "100") {
 
                 this.errorMessage = 'Si registra un servicio seleccione en ubicacion "SERVICIO"';
@@ -568,9 +581,8 @@ export default {
             objetoJSON.precioUnitario = precioNum;
 
 
+            
 
-
-            console.log(objetoJSON);
             const objetoModificado = JSON.stringify(objetoJSON);
 
             if (!objetoJSON.nombre || !objetoJSON.cantidad || !objetoJSON.precioUnitario) {
