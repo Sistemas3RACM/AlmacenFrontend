@@ -5,6 +5,7 @@
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-md-4">
+                    <h1 class="m-3">Sistema de almacén</h1>
                     <img src="@/assets/logo3RACM.jpg" class="img-fluid" alt="3Racm" />
                 </div>
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
@@ -108,8 +109,6 @@ export default {
 
             const url = `${API_URL}/${ENDPOINT_INICIO_SESION}`;
 
-            console.log(url);
-
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -117,25 +116,38 @@ export default {
                 },
                 body: JSON.stringify(json),
             })
+                // Dentro de la promesa de la solicitud fetch después de una respuesta exitosa
                 .then((response) => {
                     if (response.ok) {
                         console.log('Respuesta exitosa');
-                        // Actualiza la autenticación en el store Vuex antes de redirigir
-                        this.$store
-                            .dispatch('auth/login')
-                            .then(() => {
-                                // Ahora que la autenticación se ha actualizado, redirige al usuario
-                                this.$router.push('/dashboard');
-                            })
-                            .catch((error) => {
-                                console.error('Error al actualizar la autenticación:', error);
-                            });
+
+                        // Actualizar la autenticación en el store Vuex
+                        this.$store.dispatch('auth/login');
+
+                        // Obtener el userId después del inicio de sesión exitoso
+                        return response.json(); // Parsear la respuesta como JSON
                     } else {
                         // Manejar el caso de respuesta no exitosa aquí
                         console.log('Respuesta no exitosa');
                         this.error = true;
                         this.error_message = 'Error en el inicio de sesión. Verifica tus credenciales.';
+                        throw new Error('Error en la respuesta del servidor');
                     }
+                })
+                .then((data) => {
+                    const userId = data.id;
+                    const userAdmin = data.userAdmin; // Asumiendo que recibes el userAdmin desde el servidor
+
+                    this.$store.commit('auth/SET_USER_ID', userId);
+                    this.$store.commit('auth/SET_USER_ADMIN', userAdmin); // Guarda userAdmin en el store
+
+
+                    if(userAdmin==3){
+                        this.$router.push('/principalProducto');
+                    }else{
+                        this.$router.push('/dashboard');
+                    }
+                    
                 })
                 .catch((error) => {
                     console.log('Error:', error);

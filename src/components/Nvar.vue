@@ -7,41 +7,43 @@
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav flex-column"> <!-- Utiliza la clase flex-column para hacerlo vertical -->
                 <li class="nav-item m-3">
-                    <a class="navbar-brand" href="#">Almacen</a>
+                    <a class="navbar-brand" href="#">Almacén</a>
                 </li>
-                <li class="nav-item opciones">
-                    <a class="nav-link active" aria-current="page" href="#">
-                        <font-awesome-icon :icon="['fas', 'home']" />
-                        Inicio</a>
-                </li>
+                <router-link to="/dashboard" class="nav-link opciones" v-if="mostrarCampos">
+                    <font-awesome-icon :icon="['fas', 'home']" />
+                    Inicio
+                </router-link>
                 <router-link to="/principalProducto" class="nav-link opciones">
                     <font-awesome-icon :icon="['fas', 'store']" />
                     Productos
                 </router-link>
-                <router-link to="/principalProveedor" class="nav-link opciones">
+                <router-link to="/principalProveedor" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'user-tie']" />
                     Proveedores
                 </router-link>
-                <router-link to="/principalCategorias" class="nav-link opciones">
+                <router-link to="/principalCategorias" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'th-large']" />
-                    Categorias
+                    Categorías
                 </router-link>
-                <router-link to="/principalSubcategoria" class="nav-link opciones">
+                <router-link to="/principalSubcategoria" class="nav-link opciones" v-if="mostrarCampos">
                     <font-awesome-icon :icon="['fas', 'th-list']" />
-                    Subcategorias
+                    Subcategorías
                 </router-link>
-                <router-link to="/principalUsuario" class="nav-link opciones">
+                <router-link to="/principalReportes" class="nav-link opciones" v-if="mostrarCampos">
+                    <font-awesome-icon :icon="['fas', 'book']" />
+                    Reportes
+                </router-link>
+                <router-link to="/principalInventario" class="nav-link opciones" v-if="mostrarCampos">
+                    <font-awesome-icon :icon="['fas', 'warehouse']" />
+                    Inventario
+                </router-link>
+                <router-link to="/principalUsuario" class="nav-link opciones" v-if="mostrarUsuario">
                     <font-awesome-icon :icon="['fas', 'users']" />
                     Usuarios
                 </router-link>
-                <li class="nav-item opciones">
-                    <a class="nav-link" href="#">
-                        <font-awesome-icon :icon="['fas', 'book']" />
-                        Reportes</a>
-                </li>
-                <router-link to="/principalInventario" class="nav-link opciones">
+                <router-link to="/principalMovimientos" class="nav-link opciones" v-if="mostrarUsuario">
                     <font-awesome-icon :icon="['fas', 'warehouse']" />
-                    Inventario
+                    Movimientos
                 </router-link>
                 <router-link to="/" class="nav-link opciones salida">
                     <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
@@ -57,10 +59,33 @@
 export default {
     components: {
     },
+    data() {
+        return {
+            mostrarUsuario: false,
+            mostrarCampos: false,
+        }
+    },
+    mounted() {
+        this.esAdministrador();
+    },
     methods: {
         logout() {
-            this.$emit("logoutClicked"); // Emitir un evento cuando se hace clic en "Salida"
+            this.$emit("logoutClicked");
         },
+        esAdministrador() {
+            const admin = this.$store.state.auth.userAdmin;
+
+
+            if (admin === 1) {
+                this.mostrarCampos = true;
+                this.mostrarUsuario = true; // Muestra el enlace Usuarios
+            } else if (admin === 2) {
+                // Mostrar todos los campos excepto el de Usuarios
+                this.mostrarCampos = true;
+                this.mostrarUsuario = false; // Oculta el enlace Usuarios
+            }
+
+        }
     },
 };
 </script>

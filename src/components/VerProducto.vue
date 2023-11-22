@@ -7,8 +7,9 @@
                     <div class="mb-3 container-fluid">
                         <div class="row">
                             <template v-for="(campo, key) in objeto">
-                                <div v-if="key != 'idProducto' && key != 'status' && key != 'consumible' && key != 'servicio'" :key="key" class="col-sm-6">
-                                    <label :for="key" class="form-label label-left">{{ key }}</label>
+                                <div v-if="key != 'idProducto' && key != 'status' && key != 'consumible' && key != 'servicio'"
+                                    :key="key" class="col-sm-6">
+                                    <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
                                     <div v-if="typeof campo === 'boolean'" class="form-check">
                                         <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]"
                                             :readonly="true">
@@ -83,6 +84,32 @@ export default {
         closeModal() {
             this.show = false;
         },
+        getLabel(key) {
+            switch (key) {
+                case 'idCategoria':
+                    return 'Categoría';
+                case 'idSubcategoria':
+                    return 'Subcategoría';
+                case 'idProveedor':
+                    return 'Proveedor';
+                case 'unidadMedida':
+                    return 'Unidad de medida';
+                case 'localizacion':
+                    return 'Localización';
+                case 'nombre':
+                    return 'Nombre';
+                case 'precioUnitario':
+                    return 'Precio unitario';
+                case 'descripcion':
+                    return 'Descripción';
+                case 'cantidadMin':
+                    return 'Cantidad Minima';
+                case 'numeroDeSerie':
+                    return 'Número de parte';
+                default:
+                    return key;
+            }
+        },
     },
 
 };
@@ -117,5 +144,6 @@ export default {
 
 button {
     margin-top: 10px;
-}</style>
+}
+</style>
   

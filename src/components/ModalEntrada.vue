@@ -6,17 +6,22 @@
                 <form @submit.prevent="enviarCambios">
                     <div class="mb-3 container-fluid">
                         <div class="row">
-                            <template v-for="(campo, key) in objetoEntrada">
-                                <div v-if="key == 'cantidad'
-                                    " :key="key" class="col-sm-12 form-group">
-                                    <label :for="key" class="form-label label-left">{{ key }}</label>
+                            <div class="form-group">
+                                <label class="form-label label-left">Cantidad:</label>
+                                <div>
                                     <div>
-                                        <div v-if="key == 'cantidad'">
-                                            <input type="text" class="form-control" :id="key" v-model="objetoEntrada[key]" />
-                                        </div>
+                                        <input type="text" class="form-control" v-model="cantidadInicial" />
                                     </div>
                                 </div>
-                            </template>
+                            </div>
+                            <div v-if="permisos">
+                                <input type="checkbox" v-model="mostrarMotivo" /> Ajuste de inventario
+                            </div>
+                            <!-- <div v-if="mostrarMotivo">
+                                <label class="form-label mt-1">Motivo:</label>
+                                <input type="text" class="form-control" v-model="objetoEntrada.motivo"
+                                    placeholder="Motivo" />
+                            </div> -->
                         </div>
                     </div>
 
@@ -27,9 +32,11 @@
         </div>
     </div>
 </template>
-  
-  
+
 <script>
+import {
+    API_URL, ENDPOINT_AGREGAR_MOVIMIENTO
+} from '../keys';
 export default {
     props: {
         objetoEntrada: {
@@ -41,7 +48,13 @@ export default {
     data() {
         return {
             show: false,
+            permisos: false,
+            mostrarMotivo: false, // Nuevo dato para controlar la visibilidad del motivo
+            cantidadInicial: 0,
         };
+    },
+    mounted() {
+        this.obtenerPermisos();
     },
     methods: {
         openModal() {
@@ -50,9 +63,71 @@ export default {
         closeModal() {
             this.show = false;
         },
+        obtenerCantidad() {
+            const cantidadFinal = parseInt(this.objetoEntrada.cantidad) + parseInt(this.cantidadInicial);
+            if (!isNaN(cantidadFinal) && cantidadFinal >= 0) {
+                return cantidadFinal;
+            } else {
+                return -1;
+            }
+        },
+
         enviarCambios() {
+            if (this.mostrarMotivo) {
+                this.registroDeMovimientos("Se realizo una entrada con ajuste de inventario");
+            }
+            if (!this.mostrarMotivo) {
+                this.registroDeMovimientos("Se realizo una entrada");
+            }
+
+            this.objetoEntrada.cantidad = this.obtenerCantidad();
+
+
             this.$emit('guardar-cambios', this.objetoEntrada);
+            this.cantidadInicial = 0;
             this.closeModal();
+
+        },
+        obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userAdmin;
+
+            if (idUsuario == 1) {
+                this.permisos = true;
+            }
+
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+
+                    }
+                    else {
+                        if (response.status === 409) {
+                        }
+                    }
+                })
+                .catch(error => {
+
+                });
+
         },
     },
 };

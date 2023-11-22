@@ -2,7 +2,7 @@
   <table class="table" v-if="data && data.length">
     <thead>
       <tr>
-        <th v-for="field in fields" :key="field">{{ field }}</th>
+        <th v-for="field in fields" :key="field">{{ getLabel(field) }}</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -10,7 +10,7 @@
       <tr v-for="item in data" :key="item.id">
         <td v-for="field in fields" :key="field">{{ item[field] }}</td>
         <td>
-          <slot :item="item"/>        
+          <slot :item="item" />
         </td>
       </tr>
     </tbody>
@@ -49,6 +49,22 @@ export default {
     editar: {
       type: Function,
       required: true,
+    },
+  },
+  methods: {
+    getLabel(field) {
+      switch (field) {
+        case 'nomenclatura':
+          return 'Nomenclatura';
+        case 'nombre':
+          return 'Nombre';
+        case 'correo':
+          return 'Correo';
+        case 'telefono':
+          return 'Teléfono';
+        default:
+          return field;
+      }
     },
   },
 };

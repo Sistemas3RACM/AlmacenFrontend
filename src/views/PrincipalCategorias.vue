@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0" v-flex="fill">
+                <div class="col-2 m-0 p-0">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -11,7 +11,7 @@
                             <div class="col-7 mt-5 tablaP">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h1 class="h1 m-3">Categorias</h1>
+                                        <h1 class="h1 m-3">Categorías</h1>
                                     </div>
                                     <div class="col-2 mt-4">
                                         <button @click="mostrar()" class="btn m-1 btn-warning">
@@ -25,8 +25,7 @@
                                 <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'nomenclatura']"
                                     :eliminar="eliminar">
                                     <template #default="{ item }">
-                                        <button @click="eliminarCategoria(item.idCategoria)"
-                                            class="btn m-1 btn-danger">
+                                        <button @click="eliminarCategoria(item.idCategoria)" class="btn m-1 btn-danger" v-if="permisos">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -47,11 +46,10 @@
                             </div>
                             <div class="col-4 mt-4">
                                 <div class="formulario">
-                                    <h3>Agregar Categoria</h3>
+                                    <h3>Agregar Categoría</h3>
 
                                     <FormularioGeneral ref="formularioGeneral" :campos="camposCategoria"
-                                        :textoBoton="textoBotonCategoria"
-                                        @formulario-enviado="agregarCategoria" />
+                                        :textoBoton="textoBotonCategoria" @formulario-enviado="agregarCategoria" />
                                 </div>
                             </div>
                         </div>
@@ -66,8 +64,8 @@
         <ModalError :message="errorMessage" ref="modalError" />
 
         <!-- Modal de Error -->
-        <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @guardar-cambios="editarCategoria"
-            ref="modalEditar" />
+        <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
+            @guardar-cambios="editarCategoria" ref="modalEditar" />
 
         <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
     </section>
@@ -100,8 +98,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_AGREGAR_CATEGORIA,
-    ENDPOINT_ELIMINAR_CATEGORIA, ENDPOINT_EDITAR_CATEGORIA, ENDPOINT_BUSCAR_CATEGORIA
+    API_URL, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_AGREGAR_CATEGORIA, ENDPOINT_CONSULTAR_CATEGORIA,
+    ENDPOINT_ELIMINAR_CATEGORIA, ENDPOINT_EDITAR_CATEGORIA, ENDPOINT_BUSCAR_CATEGORIA, ENDPOINT_AGREGAR_MOVIMIENTO
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -127,25 +125,27 @@ export default {
             categorias: null,
             type: 'categoria',
             camposCategoria: [
-                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoria', required: true  },
+                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre de la categoría', required: true },
             ],
-            textoBotonCategoria: 'Agregar Categoria',
+            textoBotonCategoria: 'Agregar Categoría',
             successMessage: '',
             errorMessage: '',
-            TituloEditar: 'Editar Categoria',
+            TituloEditar: 'Editar Categoría',
             objetoEditar: {
                 idCategoria: '',
                 nombre: '',
             },
             camposMostrados: ['nombre'],
             id: 'idCategoria',
-            TituloVer: 'Información de la categoria',
+            TituloVer: 'Información de la categoría',
             currentPage: 1,
             pageSize: 6,
+            permisos:false,
         };
     },
     mounted() {
         this.mostrar();
+        this.obtenerPermisos();
     },
     computed: {
 
@@ -188,7 +188,7 @@ export default {
             fetch(url)
                 .then(response => {
                     if (response.ok) {
-                        return response.json(); 
+                        return response.json();
                     } else {
                         throw new Error("Error en la solicitud.");
                     }
@@ -201,14 +201,40 @@ export default {
                     console.error("Error:", error);
                 });
         },
+        buscarCategoriaID(id) {
+            const url = `${API_URL}/${ENDPOINT_CONSULTAR_CATEGORIA}/${id}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                })
+                .then(categoria => {
+                    this.registroDeMovimientos(`Categoría ${categoria.nombre} eliminada`);                    
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud:', error);
+                });
+        },
+
         eliminarCategoria(id) {
             if (!id) {
-                this.errorMessage = 'Surgio un problema con el ID';
+                this.errorMessage = 'Surgió un problema con el ID';
                 this.$refs.modalError.openModal();
                 return;
             }
 
             const url = `${API_URL}/${ENDPOINT_ELIMINAR_CATEGORIA}/${id}`;
+
+            this.buscarCategoriaID(id);
 
 
             fetch(url, {
@@ -219,14 +245,14 @@ export default {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        this.successMessage = 'categoria eliminada con éxito';
+                        this.successMessage = 'Categoría eliminada con éxito';
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     } else if (response.status === 404) {
-                        this.errorMessage = 'categoria no encontrada';
+                        this.errorMessage = 'Categoría no encontrada';
                         this.$refs.modalError.openModal();
                     } else {
-                        this.errorMessage = 'Error al eliminar la categoria';
+                        this.errorMessage = 'Error al eliminar la categoría';
                         this.$refs.modalError.openModal();
                     }
                 })
@@ -249,7 +275,7 @@ export default {
             const objetoJSON = JSON.stringify(objetoModificado);
 
             if (!objetoModificado.nombre || !objetoModificado.nomenclatura) {
-                this.errorMessage = 'El campo nombre o nomenclatura no puede estar vacio';
+                this.errorMessage = 'El campo nombre o nomenclatura no puede estar vacío';
                 this.$refs.modalError.openModal();
                 this.mostrar();
             } else {
@@ -265,16 +291,17 @@ export default {
                 })
                     .then(response => {
                         if (response.status === 200) {
-                            this.successMessage = 'categoria editada con éxito';
+                            this.successMessage = 'Categoría editada con éxito';
+                            this.registroDeMovimientos(`Categoría ${objetoModificado.nombre} editada`);
                             this.$refs.modalSuccess.openModal();
                             this.mostrar();
                         }
                         else {
                             if (response.status === 400) {
-                                this.errorMessage = 'Surgio un problema con la edición';
+                                this.errorMessage = 'Surgió un problema con la edición';
                                 this.$refs.modalError.openModal();
                             } else {
-                                this.errorMessage = 'Error al editar la categoria';
+                                this.errorMessage = 'Error al editar la categoría';
                                 this.$refs.modalError.openModal();
                             }
                         }
@@ -296,9 +323,7 @@ export default {
                 nuevoJSON[campo.id] = campo.valor;
             }
 
-            nuevoJSON.nomenclatura=0;
-
-            console.log(nuevoJSON);
+            nuevoJSON.nomenclatura = 0;
 
 
             fetch(url, {
@@ -310,16 +335,17 @@ export default {
             })
                 .then(response => {
                     if (response.status === 201) {
-                        this.successMessage = 'categoria agregada con éxito';
+                        this.successMessage = 'Categoría agregada con éxito';
+                        this.registroDeMovimientos(`Categoría ${nuevoJSON.nombre} agregada`);
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     }
                     else {
                         if (response.status === 409) {
-                            this.errorMessage = 'La categoria ya existe y no se pueden repetir';
+                            this.errorMessage = 'La categoría ya existe y no se pueden repetir';
                             this.$refs.modalError.openModal();
                         } else {
-                            this.errorMessage = 'Error al agregar la categoria';
+                            this.errorMessage = 'Error al agregar la categoría';
                             this.$refs.modalError.openModal();
                         }
                     }
@@ -328,6 +354,47 @@ export default {
                     this.errorMessage = 'Error en la solicitud';
                     this.$refs.modalError.openModal();
                 });
+        },
+        obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userId;
+
+            if (idUsuario == 1) {
+                this.permisos = true;
+            }
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        this.mostrar();
+                    }
+                    else {
+                        if (response.status === 409) {
+                            this.errorMessage = 'Error al agregar el movimiento';
+                            this.$refs.modalError.openModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    this.errorMessage = 'Error en la solicitud';
+                });
+
         },
     },
 };

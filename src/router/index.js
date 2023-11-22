@@ -42,6 +42,30 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/principalMovimientos',
+    name: 'principalMovimientos',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalMovimientos.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/principalReportes',
+    name: 'principalReportes',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalReportes.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/reporteEntradas',
+    name: 'reporteEntradas',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/ReporteEntradas.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/reporteSalidas',
+    name: 'reporteSalidas',
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/ReporteSalidas.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/principalProducto',
     name: 'principalProducto',
     component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalProducto.vue'),
@@ -51,12 +75,6 @@ const routes = [
     path: '/principalInventario',
     name: 'principalInventario',
     component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalInventario.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/productosProveedores',
-    name: 'productosProveedores',
-    component: () => import(/* webpackChunkName: "dashboard" */ '../views/ProductosProveedores.vue'),
     meta: { requiresAuth: true },
   },
   {

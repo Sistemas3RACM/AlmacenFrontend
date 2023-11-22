@@ -2,7 +2,7 @@
   <section class="container-fluid">
     <div>
       <div class="row">
-        <div class="col-2 m-0 p-0" v-flex="fill">
+        <div class="col-2 m-0 p-0">
           <Nvar />
         </div>
         <div class="col-10 m-0 p-0">
@@ -25,7 +25,7 @@
                 <tabla v-if="paginatedProveedores" :type="type" :data="paginatedProveedores" :fields="['nombre']"
                   :eliminar="eliminar">
                   <template #default="{ item }">
-                    <button @click="eliminarProveedor(item.idProveedor)" class="btn m-1 btn-danger">
+                    <button @click="eliminarProveedor(item.idProveedor)" class="btn m-1 btn-danger" v-if="permisos">
                       <font-awesome-icon :icon="['fas', 'trash']" />
                     </button>
                     <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -64,8 +64,8 @@
     <ModalError :message="errorMessage" ref="modalError" />
 
     <!-- Modal de Error -->
-    <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @guardar-cambios="editarProveedor"
-      ref="modalEditar" />
+    <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
+      @guardar-cambios="editarProveedor" ref="modalEditar" />
 
     <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
   </section>
@@ -98,8 +98,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-  API_URL, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_PROVEEDOR,
-  ENDPOINT_ELIMINAR_PROVEEDOR, ENDPOINT_EDITAR_PROVEEDOR, ENDPOINT_BUSCAR_PROVEEDOR
+  API_URL, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_PROVEEDOR, ENDPOINT_AGREGAR_MOVIMIENTO,
+  ENDPOINT_ELIMINAR_PROVEEDOR, ENDPOINT_EDITAR_PROVEEDOR, ENDPOINT_BUSCAR_PROVEEDOR, ENDPOINT_CONSULTAR_PROVEEDOR
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -127,7 +127,7 @@ export default {
       camposProveedor: [
         { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', ayuda: 'Ingrese el nombre del proveedor', required: true },
         { id: 'direccion', label: 'Dirección', nombre: 'direccion', type: 'text', valor: '', ayuda: 'Ingrese la dirección del proveedor' },
-        { id: 'telefono', label: 'Telefono', nombre: 'telefono', type: 'text', valor: '', ayuda: 'Ingrese el telefono del proveedor' },
+        { id: 'telefono', label: 'Teléfono', nombre: 'telefono', type: 'text', valor: '', ayuda: 'Ingrese el teléfono del proveedor' },
       ],
       textoBotonProveedor: 'Agregar Proveedor',
       successMessage: '',
@@ -142,10 +142,12 @@ export default {
       TituloVer: 'Información del Proveedor',
       currentPage: 1,
       pageSize: 6,
+      permisos:false,
     };
   },
   mounted() {
     this.mostrar();
+    this.obtenerPermisos();
   },
   computed: {
     totalPages() {
@@ -199,15 +201,39 @@ export default {
           console.error("Error:", error);
         });
     },
+    buscarProveedorID(id) {
+      const url = `${API_URL}/${ENDPOINT_CONSULTAR_PROVEEDOR}/${id}`;
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+        })
+        .then(proveedor => {
+          this.registroDeMovimientos(`Proveedor ${proveedor.nombre} eliminado`);
+        })
+        .catch(error => {
+          console.error('Error en la solicitud:', error);
+        });
+    },
     eliminarProveedor(id) {
       if (!id) {
-        this.errorMessage = 'Surgio un problema con el ID';
+        this.errorMessage = 'Surgió un problema con el ID';
         this.$refs.modalError.openModal();
         return;
       }
 
       const url = `${API_URL}/${ENDPOINT_ELIMINAR_PROVEEDOR}/${id}`;
 
+      this.buscarProveedorID(id);
 
       fetch(url, {
         method: 'DELETE',
@@ -250,7 +276,7 @@ export default {
       const objetoJSON = JSON.stringify(objetoModificado);
 
       if (!objetoModificado.nombre) {
-        this.errorMessage = 'El campo nombre no puede estar vacio';
+        this.errorMessage = 'El campo nombre no puede estar vacío';
         this.$refs.modalError.openModal();
         this.mostrar();
       } else {
@@ -267,12 +293,13 @@ export default {
           .then(response => {
             if (response.status === 200) {
               this.successMessage = 'Proveedor editado con éxito';
+              this.registroDeMovimientos(`Proveedor ${objetoModificado.nombre} editado`);
               this.$refs.modalSuccess.openModal();
               this.mostrar();
             }
             else {
               if (response.status === 400) {
-                this.errorMessage = 'Surgio un problema con la edición';
+                this.errorMessage = 'Surgió un problema con la edición';
                 this.$refs.modalError.openModal();
               } else {
                 this.errorMessage = 'Error al editar el proveedor';
@@ -315,6 +342,7 @@ export default {
         .then(response => {
           if (response.status === 201) {
             this.successMessage = 'Proveedor agregado con éxito';
+            this.registroDeMovimientos(`Proveedor ${nuevoJSON.nombre} agregado`);
             this.$refs.modalSuccess.openModal();
             this.mostrar();
           }
@@ -332,6 +360,48 @@ export default {
           this.errorMessage = 'Error en la solicitud';
           this.$refs.modalError.openModal();
         });
+    },
+    obtenerPermisos() {
+            const idUsuario = this.$store.state.auth.userId;
+
+            if (idUsuario == 1) {
+                this.permisos = true;
+            }
+        },
+
+    registroDeMovimientos(mensaje) {
+      const idUsuario = this.$store.state.auth.userId;
+
+      const JSONmovimientos = {
+        "tipoMovimiento": mensaje,
+        "encargado": idUsuario,
+        "fechaDeMovimiento": null
+      };
+
+      const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(JSONmovimientos),
+      })
+        .then(response => {
+          if (response.status === 201) {
+            this.mostrar();
+          }
+          else {
+            if (response.status === 409) {
+              this.errorMessage = 'Error al agregar el movimiento';
+              this.$refs.modalError.openModal();
+            }
+          }
+        })
+        .catch(error => {
+          this.errorMessage = 'Error en la solicitud';
+        });
+
     },
   },
 };

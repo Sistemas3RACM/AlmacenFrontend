@@ -8,7 +8,7 @@
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
                     <div v-if="key != id" class="row">
                         <div class="col-3">
-                            <label :for="key" class="form-label label-left">{{ key }}</label>
+                            <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
                         </div>
                         <div class="col-9">
                             <div v-if="typeof campo === 'boolean'" class="form-check">
@@ -17,7 +17,8 @@
                             </div>
                             <div v-else-if="key === 'idCategoria'" class="form-group">
                                 <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                    <option v-for="option in categoriaOptions" :value="option.idCategoria">{{ option.nombre }}
+                                    <option v-for="option in categoriaOptions" :value="option.idCategoria">{{ option.nombre
+                                    }}
                                     </option>
                                 </select>
                             </div>
@@ -60,8 +61,9 @@ export default {
         return {
             show: false,
             puestoOptions: [
-                { valor: '0', etiqueta: 'Administrativo' },
-                { valor: '1', etiqueta: 'Sin permisos' },
+                { valor: '1', etiqueta: 'Administrativo del Sistema' },
+                { valor: '2', etiqueta: 'Administrativo' },
+                { valor: '3', etiqueta: 'Sin permisos' },
             ],
         };
     },
@@ -71,6 +73,32 @@ export default {
         },
         closeModal() {
             this.show = false;
+        },
+        getLabel(key) {
+            switch (key) {
+                case 'idCategoria':
+                    return 'Categoría';
+                case 'nombre':
+                    return 'Nombre';
+                case 'direccion':
+                    return 'Dirección';
+                case 'telefono':
+                    return 'Teléfono';
+                case 'nomenclatura':
+                    return 'Nomenclatura';
+                case 'apellidoMaterno':
+                    return 'Apellido Materno';
+                case 'apellidoPaterno':
+                    return 'Apellido Paterno';
+                case 'correo':
+                    return 'Correo';
+                case 'puesto':
+                    return 'Puesto';
+                case 'contraseña':
+                    return 'Contraseña';
+                default:
+                    return key;
+            }
         },
     },
 

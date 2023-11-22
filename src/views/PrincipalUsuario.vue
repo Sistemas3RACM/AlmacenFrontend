@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0 bg-dark" v-flex="fill">
+                <div class="col-2 m-0 p-0 bg-dark">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -25,8 +25,7 @@
                                 <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'correo']"
                                     :eliminar="eliminar">
                                     <template #default="{ item }">
-                                        <button @click="eliminarUsuario(item.idUsuario)"
-                                            class="btn m-1 btn-danger">
+                                        <button @click="eliminarUsuario(item.idUsuario)" class="btn m-1 btn-danger">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -62,10 +61,11 @@
 
         <ModalError :message="errorMessage" ref="modalError" />
 
-        <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" @guardar-cambios="editarUsuario"
-            ref="modalEditar" />
+        <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
+            @guardar-cambios="editarUsuario" ref="modalEditar" />
 
-        <ModalInformacion :titulo="TituloVer" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id" ref="modalVer" />
+        <ModalInformacion :titulo="TituloVer" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
+            ref="modalVer" />
     </section>
 </template>
 
@@ -96,8 +96,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_USUARIOS, ENDPOINT_AGREGAR_USUARIO,
-    ENDPOINT_ELIMINAR_USUARIO, ENDPOINT_EDITAR_USUARIO, ENDPOINT_BUSCAR_USUARIO
+    API_URL, ENDPOINT_LISTAR_USUARIOS, ENDPOINT_AGREGAR_USUARIO,ENDPOINT_CONSULTAR_USUARIO,
+    ENDPOINT_ELIMINAR_USUARIO, ENDPOINT_EDITAR_USUARIO, ENDPOINT_BUSCAR_USUARIO,ENDPOINT_AGREGAR_MOVIMIENTO
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -136,8 +136,9 @@ export default {
                     valor: '',
                     required: true,
                     opciones: [
-                        { valor: '0', etiqueta: 'Administrativo' },
-                        { valor: '1', etiqueta: 'Sin permisos' },
+                        { valor: '1', etiqueta: 'Administrativo del Sistema' },
+                        { valor: '2', etiqueta: 'Administrativo' },
+                        { valor: '3', etiqueta: 'Sin permisos' },
                     ],
                 },],
             textoBotonSubcategoria: 'Agregar Usuario',
@@ -154,12 +155,12 @@ export default {
                 puesto: '',
             },
             camposMostrados: [
-                'nombre', 
+                'nombre',
                 'apellidoPaterno',
                 'apellidoMaterno',
                 'correo',
                 'puesto'
-            
+
             ],
             id: 'idUsuario',
             TituloVer: 'Información del Usuario',
@@ -221,6 +222,29 @@ export default {
                     console.error("Error:", error);
                 });
         },
+        buscarUsuarioID(id) {
+            const url = `${API_URL}/${ENDPOINT_CONSULTAR_USUARIO}/${id}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                })
+                .then(usuario => {
+                    this.registroDeMovimientos(`Usuario ${usuario.nombre} eliminado`);                    
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud:', error);
+                });
+        },
         eliminarUsuario(id) {
             console.log(id);
             if (!id) {
@@ -231,6 +255,7 @@ export default {
 
             const url = `${API_URL}/${ENDPOINT_ELIMINAR_USUARIO}/${id}`;
 
+            this.buscarUsuarioID(id);
 
             fetch(url, {
                 method: 'DELETE',
@@ -290,6 +315,7 @@ export default {
                     .then(response => {
                         if (response.status === 200) {
                             this.successMessage = 'Usuario editado con éxito';
+                            this.registroDeMovimientos(`Usuario ${objetoModificado.nombre} editado`);
                             this.$refs.modalSuccess.openModal();
                             this.mostrar();
                         }
@@ -317,7 +343,7 @@ export default {
             const nuevoJSON = {};
 
             for (const campo of datos) {
-                 nuevoJSON[campo.id] = campo.valor;
+                nuevoJSON[campo.id] = campo.valor;
             }
 
             fetch(url, {
@@ -330,16 +356,17 @@ export default {
                 .then(response => {
                     if (response.status === 201) {
                         this.successMessage = 'Usuario agregado con éxito';
+                        this.registroDeMovimientos(`Usuario ${nuevoJSON.nombre} agregado`);
                         this.$refs.modalSuccess.openModal();
                         this.mostrar();
                     }
                     else {
                         if (response.status === 409) {
-                           this.errorMessage = 'El Correo ya existe y no se pueden repetir';
-                           this.$refs.modalError.openModal();
-                       } else {
-                           this.errorMessage = 'Error al agregar el Usuario';
-                           this.$refs.modalError.openModal();
+                            this.errorMessage = 'El Correo ya existe y no se pueden repetir';
+                            this.$refs.modalError.openModal();
+                        } else {
+                            this.errorMessage = 'Error al agregar el Usuario';
+                            this.$refs.modalError.openModal();
                         }
                     }
                 })
@@ -347,6 +374,40 @@ export default {
                     this.errorMessage = 'Error en la solicitud';
                     this.$refs.modalError.openModal();
                 });
+        },
+        registroDeMovimientos(mensaje) {
+            const idUsuario = this.$store.state.auth.userId;
+
+            const JSONmovimientos = {
+                "tipoMovimiento": mensaje,
+                "encargado": idUsuario,
+                "fechaDeMovimiento": null
+            };
+
+            const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(JSONmovimientos),
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        this.mostrar();
+                    }
+                    else {
+                        if (response.status === 409) {
+                            this.errorMessage = 'Error al agregar el movimiento';
+                            this.$refs.modalError.openModal();
+                        }
+                    }
+                })
+                .catch(error => {
+                    this.errorMessage = 'Error en la solicitud';
+                });
+
         },
     },
 };
