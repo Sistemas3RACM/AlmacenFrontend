@@ -54,15 +54,19 @@ export default {
     AlertaInventario,
   },
   methods: {
+    // Esta función maneja el cierre de sesión del usuario
     async handleLogout() {
-      // Lógica para cerrar sesión en el servidor, si es necesario
       try {
+        // Se llama a la acción de logout del módulo de autenticación del store
         this.$store.dispatch('auth/logout');
+        // Se redirige al usuario a la página de inicio
         this.$router.push("/");
       } catch (error) {
+        // Se muestra un mensaje de error en la consola si ocurre algún problema
         console.error("Error al cerrar sesión:", error);
       }
     },
+
   },
 }
 </script>

@@ -21,8 +21,9 @@
                             <div v-if="!mostrarMotivo">
                                 <label class="form-label mt-1">Nombre del solicitante:</label>
                                 <select v-model="solicitanteId" class="form-control">
-                                    <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">{{
-                                        usuario.nombre }}</option>
+                                    <option v-for="usuario in usuarios" :key="usuario.idUsuario" :value="usuario.idUsuario">
+                                        {{
+                                            usuario.nombre }}</option>
                                 </select>
 
                                 <label class="form-label mt-1">Correo:</label>
@@ -100,7 +101,7 @@ export default {
             const idUsuario = this.$store.state.auth.userId;
 
             if (this.mostrarMotivo) {
-                const usuario = this.usuarios.find(u => u.id === idUsuario);
+                const usuario = this.usuarios.find(u => u.idUsuario === idUsuario);
                 this.solicitante = usuario ? usuario.nombre : 'Nombre Desconocido';
 
                 this.correo = 'AjusteDeinventario@gmail.com';
@@ -112,16 +113,15 @@ export default {
 
             this.objetoSalida.cantidad = this.obtenerCantidad();
 
+
             if (this.objetoSalida.cantidad >= 0 && !this.mostrarMotivo) {
                 const objetoCombinado = {
                     ...this.objetoSalida,
-                    solicitante: this.usuarios.find(u => u.id === this.solicitanteId)?.nombre,
+                    solicitante: this.usuarios.find(u => u.idUsuario === this.solicitanteId)?.nombre,
                     correo: this.correo,
                 };
 
-
                 this.enviarCorreo(objetoCombinado);
-
 
                 this.$emit('guardar-cambios', objetoCombinado);
             } else if (this.objetoSalida.cantidad >= 0 && this.mostrarMotivo) {
@@ -206,14 +206,28 @@ export default {
 
             const mensajeCorreo = {
                 "destinatario": objetoCombinado.correo,
-                "mensaje": `Hola ${objetoCombinado.solicitante} se ha solicitado una salida del almacén a tu nombre esta salida es de la siguiente herramienta o producto:
+                "mensaje": `Hola, ${objetoCombinado.solicitante}
+            ¡Realizaste una solicitud de salida para un equipo o material!
+            A continuación encontrarás el desglose de tu solicitud.
+                
+                Id producto: ${this.objetoSalida.numeroDeSerie}
+                Cantidad: ${this.cantidadInicial} 
+                Unidad de Medida: ${this.objetoSalida.unidadMedida}
+                Descripción: ${this.objetoSalida.nombre}
 
-                Producto: ${this.objetoSalida.nombre}
-                Cantidad: ${this.cantidadInicial}
+            A la recepción del presente correo, hago constar que recibí los artículos listados en el 
+            presente y me obligo a conservarlos en buen estado; y a utilizarlos para lo que están 
+            destinados dentro de mis condiciones de trabajo, me obligo a regresarlos solo si aplica, al 
+            finalizar mis actividades para las cuales fueron requeridos, y me responsabilizo de los mismos.
 
-                Si no solicitaste lo anterior favor de comunicarse con Julio a la brevedad.`,
-                "asunto": "Salida de almacén"
+            En caso de robo, pérdida o deterioro voluntario de alguno de los objetos, será obligatorio 
+            el pago o su restitución con iguales calidades.
+                
+            *Si esta solicitud no corresponde a tu solicitud o no eres el responsable de esto favor de responder 
+            inmediatamente a este correo solicitando la aclaración y modificación.`,
+                "asunto": "Recibo de Salida de Almacén"
             };
+
 
             fetch(url, {
                 method: 'POST',

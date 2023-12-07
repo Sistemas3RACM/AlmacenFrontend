@@ -23,6 +23,10 @@
                                             Generar PDF
                                         </button>
                                     </div>
+                                    <div class="col-2 mt-4">
+                                        <button type="button" @click="redirigirASalidas"
+                                            class="btn m-1 btn-warning" v-if="mostrarGenerar"><font-awesome-icon :icon="['fas', 'sync-alt']" /></button>
+                                    </div>
                                 </div>
                                 <div class="mt-4">
                                     <!-- Modifica la propiedad mode a 'single' -->
@@ -182,6 +186,9 @@ export default {
             if (page > this.totalPages) page = this.totalPages;
             this.currentPage = page;
         },
+        // The above code is a method in a Vue component that generates a PDF report. It first checks if the
+        // start date and end date are valid. If they are valid, it creates a new instance of jsPDF and sets
+        // up the header and title of the report.
         async generatePDF() {
             try {
                 if (this.startDate && this.endDate && isValid(parseISO(this.startDate)) && isValid(parseISO(this.endDate))) {
@@ -223,22 +230,17 @@ export default {
                     pdf.setFontSize(14);
                     pdf.setFont("helvetica", "bold");
 
-                    // Calcular la cantidad total de salidas
                     const totalsolicitud = this.solicitudes.reduce((total, solicitud) => total + solicitud.cantidad, 0);
 
-                    // Calcular el dinero total de las salidas
                     const totalDineroPromises = this.solicitudes.map(async (solicitud) => {
                         const productoPrecio = await this.obtenerPrecioProducto(solicitud.idProducto);
                         return productoPrecio * solicitud.cantidad;
                     });
 
-                    // Esperar a que todas las promesas se resuelvan antes de continuar
                     const totalDineroArray = await Promise.all(totalDineroPromises);
 
-                    // Sumar los valores del array
                     const totalDinero = totalDineroArray.reduce((total, dinero) => total + dinero, 0);
 
-                    // Definir posición y tamaño del rectángulo
                     const rectX = 100;
                     const rectY = 145;
                     const rectX2 = 20;
@@ -246,32 +248,24 @@ export default {
                     const rectWidth2 = 60;  // Ajusta el ancho del rectángulo según tus preferencias
                     const rectHeight = 10; // Ajusta la altura del rectángulo según tus preferencias
 
-                    // Agregar el rectángulo al PDF
                     pdf.rect(rectX - 2, rectY - 8, rectWidth, rectHeight, 'S');
                     pdf.rect(rectX2 - 2, rectY - 8, rectWidth2, rectHeight, 'S');
 
-                    // Agregar la cantidad total de salidas al PDF
                     pdf.text(`Total de salidas: ${totalsolicitud}`, rectX2, rectY);
 
-                    // Agregar el texto dentro del rectángulo
                     pdf.text(`Ingreso total: $${totalDinero} MNX`, rectX, rectY);
 
-                    // Agrega información de las salidas al PDF
                     pdf.text('salidas:', 15, 170);
 
-                    // Construir datos de la tabla
                     const tableDataPromises = this.solicitudes.map(async (solicitud) => {
                         const productoNombre = await this.obtenerNombreProducto(solicitud.idProducto);
                         return [productoNombre, format(parseISO(solicitud.fechaSolicitud), 'yyyy-MM-dd', { timeZone: 'America/New_York' }), solicitud.cantidad];
                     });
 
-                    // Esperar a que todas las promesas se resuelvan antes de continuar
                     const tableData = await Promise.all(tableDataPromises);
 
-                    // Encabezados de la tabla
                     const headers = [['Producto', 'Fecha', 'Cantidad']];
 
-                    // Agregar la tabla al PDF
                     pdf.autoTable({
                         startY: 175,
                         head: headers,
@@ -317,15 +311,14 @@ export default {
                     const productoNombre = await this.obtenerNombreProducto(solicitud.idProducto);
                     const productoPrecio = await this.obtenerPrecioProducto(solicitud.idProducto);
 
-                    this.chartData.labels.push(this.formatDate(solicitud.fechaSolicitud)); 
+                    this.chartData.labels.push(this.formatDate(solicitud.fechaSolicitud));
                     cantidadAcumulada += solicitud.cantidad;
                     this.chartData.datasets[0].data.push(cantidadAcumulada);
 
                     PrecioTotal += productoPrecio * solicitud.cantidad;
-                    this.chartData2.labels.push(this.formatDate(solicitud.fechaSolicitud)); 
+                    this.chartData2.labels.push(this.formatDate(solicitud.fechaSolicitud));
                     this.chartData2.datasets[0].data.push(PrecioTotal);
                 }
-                // Muestra el gráfico cuando se obtienen los datos
                 this.mostrarGrafico = true;
                 this.mostrarGenerar = true;
             } catch (error) {
@@ -334,12 +327,9 @@ export default {
         },
         async ListarSolicitudesEntreFechas() {
             try {
-                // Verificar que las fechas son válidas
                 if (this.startDate && this.endDate && isValid(parseISO(this.startDate)) && isValid(parseISO(this.endDate))) {
-                    // Construir la URL con los parámetros de fecha
                     const url = `${API_URL}/${ENDPOINT_LISTAR_SOLICITUDES_ENTRE_FECHAS}?fechaInicio=${this.startDate}&fechaFin=${this.endDate}`;
 
-                    // Realizar la solicitud GET al backend
                     const response = await fetch(url, {
                         method: 'GET',
                         headers: {
@@ -347,12 +337,10 @@ export default {
                         },
                     });
 
-                    // Verificar si la solicitud fue exitosa
                     if (!response.ok) {
                         throw new Error('Error al obtener las solicitudes');
                     }
 
-                    // Obtener los datos de la respuesta
                     const data = await response.json();
 
                     for (const solicitud of data) {
@@ -360,7 +348,6 @@ export default {
                         solicitud.salidas = salidas;
                     }
 
-                    // Actualizar el array de solicitudes con los nuevos datos
                     this.solicitudes = data;
 
                     this.chartData2.labels = [];
@@ -389,12 +376,10 @@ export default {
                         }
                     }
 
-                    //Muestra el gráfico cuando se obtienen los datos
                     this.mostrarGenerar = true;
                     this.mostrarGrafico = true;
 
 
-                    // Otros procesamientos o actualizaciones que necesites realizar con las solicitudes obtenidas
 
                 } else {
                     console.error('Las fechas no son válidas');
@@ -431,7 +416,7 @@ export default {
         },
         async obtenerSalidasPorSolicitud(idSolicitud) {
             try {
-                const url = `${API_URL}/${ENDPOINT_CONSULTAR_SOLICITUD}/${idSolicitud}`; // Ajusta la URL según tu implementación
+                const url = `${API_URL}/${ENDPOINT_CONSULTAR_SOLICITUD}/${idSolicitud}`;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -445,10 +430,10 @@ export default {
 
                 const data = await response.json();
 
-                return data; // Retorna un array de salidas asociadas a la solicitud
+                return data;
             } catch (error) {
                 console.error('Error al obtener salidas por solicitud', error);
-                return []; // Retorna un array vacío en caso de error
+                return [];
             }
         },
 
@@ -478,9 +463,46 @@ export default {
                 return 'Nombre no disponible';
             }
         },
+        // The above code is defining a method called `formatDate` in a Vue component. This method takes a
+        // `dateString` parameter and converts it into a `Date` object. It then uses the `toLocaleDateString`
+        // method to format the date in the Spanish (Spain) locale and returns the formatted date as a string.
         formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('es-ES'); // Ajusta el local según tus preferencias
+            return date.toLocaleDateString('es-ES');
+        },
+        redirigirASalidas() {
+            this.startDate= null;
+            this.endDate= null;
+            this.salidas= [];
+            this.solicitudes= [];
+            this.flatpickrOptions= {
+                mode: 'single',
+                dateFormat: 'Y-m-d',
+            };
+            this.mostrarGrafico= false;
+            this.chartData= {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Cantidad',
+                        borderColor: '#f87979',
+                        pointBackgroundColor: '#f87979',
+                        data: [],
+                    },
+                ],
+            };
+            this.chartData2= {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Dinero ingresado',
+                        borderColor: '#f87979',
+                        pointBackgroundColor: '#f87979',
+                        data: [],
+                    },
+                ],
+            };
+            this.mostrarGenerar= false;
         },
     },
 };

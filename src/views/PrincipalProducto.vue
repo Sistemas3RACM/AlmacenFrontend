@@ -41,13 +41,13 @@
                                             <td>{{ producto.cantidad }}</td>
                                             <td>
                                                 <button @click="mostrarSalida(producto)" class="btn m-1 btn-secondary"
-                                                    v-if="sinPermiso">
+                                                    v-if="sinPermiso" title="Baja de producto">
                                                     <font-awesome-icon :icon="['fas', 'minus']" />
                                                 </button>
-                                                <button @click="eliminarProducto(producto.idProducto)"
+                                                <!-- <button @click="eliminarProducto(producto.idProducto)"
                                                     class="btn m-1 btn-danger" v-if="permisos">
                                                     <font-awesome-icon :icon="['fas', 'trash']" />
-                                                </button>
+                                                </button> -->
                                                 <button @click="mostrarEdicion(producto)" class="btn m-1 btn-warning">
                                                     <font-awesome-icon :icon="['fas', 'edit']" />
                                                 </button>
@@ -55,7 +55,7 @@
                                                     <font-awesome-icon :icon="['fas', 'eye']" />
                                                 </button>
                                                 <button @click="mostrarEntrada(producto)" class="btn m-1 btn-secondary"
-                                                    v-if="sinPermiso">
+                                                    v-if="sinPermiso" title="Alta de producto">
                                                     <font-awesome-icon :icon="['fas', 'plus']" />
                                                 </button>
                                             </td>
@@ -134,6 +134,8 @@
 </style>
 
 <script>
+
+
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
@@ -233,6 +235,9 @@ export default {
                         { valor: '03', etiqueta: 'Anaquel 3' },
                         { valor: '04', etiqueta: 'Anaquel 4' },
                         { valor: '05', etiqueta: 'Anaquel 5' },
+                        { valor: '06', etiqueta: 'Anaquel 6' },
+                        { valor: '07', etiqueta: 'Anaquel 7' },
+                        { valor: '08', etiqueta: 'Anaquel 8' },
                         { valor: '100', etiqueta: 'Servicio' },
                     ],
                 },
@@ -284,10 +289,16 @@ export default {
         this.obtenerPermisos();
     },
     computed: {
+        // The above code is a method in a Vue component that calculates the total number of pages based on the
+        // number of products and the page size. It first checks if the `productos` array is defined, and if
+        // not, it returns 0. If the `productos` array is defined, it calculates the total number of pages by
+        // dividing the length of the `productos` array by the `pageSize` property and rounding up using the
+        // `Math.ceil()` function. The calculated total number of pages is then returned.
         totalPages() {
             if (!this.productos) return 0;
             return Math.ceil(this.productos.length / this.pageSize);
         },
+        // The above code is a method in a Vue component that is used for pagination.
         paginated() {
             if (!Array.isArray(this.productos) || this.productos.length === 0) {
 
@@ -303,6 +314,8 @@ export default {
         },
     },
     methods: {
+        // The above code is a method in a Vue component that is used to navigate to a specific page. It takes
+        // a parameter `page` which represents the page number to navigate to.
         goToPage(page) {
             if (page < 1) page = 1;
             if (page > this.totalPages) page = this.totalPages;
@@ -489,6 +502,7 @@ export default {
                 cantidad: datos.cantidad,
             };
 
+            console.log(objetoSolicitud);
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -497,6 +511,7 @@ export default {
                 body: JSON.stringify(objetoSolicitud),
             })
                 .then(response => {
+                    console.log('Respuesta del servidor:', response);
                     if (response.status === 201) {
                         this.ocultarFormulario();
                         this.editarSubcategoria(objetoProducto);
@@ -516,6 +531,7 @@ export default {
                     }
                 })
                 .catch(error => {
+                    console.error('Error en la solicitud:', error);
                     this.errorMessage = 'Error en la solicitud';
                     this.$refs.modalError.openModal();
                     this.ocultarFormulario();
@@ -581,12 +597,13 @@ export default {
             objetoJSON.precioUnitario = precioNum;
 
 
-            
+
 
             const objetoModificado = JSON.stringify(objetoJSON);
+            
 
-            if (!objetoJSON.nombre || !objetoJSON.cantidad || !objetoJSON.precioUnitario) {
-                this.errorMessage = 'El campo nombre, cantidad, precio unitario o cantidad minima no puede estar vacio';
+            if (!objetoJSON.nombre || !objetoJSON.precioUnitario) {
+                this.errorMessage = 'El campo nombre, precio unitario o cantidad minima no puede estar vacio';
                 this.$refs.modalError.openModal();
                 this.mostrar();
             } else {

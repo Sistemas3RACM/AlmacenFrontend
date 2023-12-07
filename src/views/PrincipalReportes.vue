@@ -50,12 +50,12 @@ export default {
         };
     },
     methods: {
+        // The `redirigirAEntradas()` and `redirigirASalidas()` methods are used to redirect the user to
+        // different routes within the Vue application.
         redirigirAEntradas() {
-            // Utiliza el nombre de la ruta configurado en tu enrutador
             this.$router.push({ name: 'reporteEntradas' });
         },
         redirigirASalidas() {
-            // Utiliza el nombre de la ruta configurado en tu enrutador
             this.$router.push({ name: 'reporteSalidas' });
         },
     },

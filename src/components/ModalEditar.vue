@@ -102,7 +102,7 @@ export default {
                 case 'correo':
                     return 'Correo';
                 case 'puesto':
-                    return 'Puesto';
+                    return 'Permisos';
                 default:
                     return key;
             }

@@ -27,6 +27,9 @@
             </div>
         </div>
         <div class="col-md-12" v-if="!mostrarTablaCategorias">
+            <button @click="mostrar()" class="btn m-2 col-12 btn-warning">
+                Volver a seleccionar
+            </button>
             <div class="contador">
                 <h3>Productos con menos cantidad:</h3>
                 <ul class="productos-list">
@@ -88,6 +91,9 @@ export default {
             this.currentPage = page;
         },
         mostrar() {
+            this.productos= null;
+            this.mostrarTablaCategorias= true;
+            this.productosConMenos= [];
             const url = `${API_URL}/${ENDPOINT_LISTAR_CATEGORIAS}`;
 
             fetch(url)
@@ -150,7 +156,9 @@ export default {
 
 .productos-list {
     padding-left: 3px;
-    list-style: none; /* Quita los puntos de la lista */
-    padding: 0; /* Quita el relleno predeterminado de la lista */
+    list-style: none;
+    /* Quita los puntos de la lista */
+    padding: 0;
+    /* Quita el relleno predeterminado de la lista */
 }
 </style>

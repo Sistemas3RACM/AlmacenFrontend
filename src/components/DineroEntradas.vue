@@ -48,6 +48,7 @@ export default {
                 total += subtotal;
             }
             this.total = total;
+            this.total = total.toLocaleString('en-US');
         },
     },
 

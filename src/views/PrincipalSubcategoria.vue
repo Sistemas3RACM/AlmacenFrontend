@@ -100,7 +100,7 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_SUBCATEGORIAS, ENDPOINT_AGREGAR_SUBCATEGORIA,ENDPOINT_AGREGAR_MOVIMIENTO,
+    API_URL, ENDPOINT_LISTAR_SUBCATEGORIAS, ENDPOINT_AGREGAR_SUBCATEGORIA, ENDPOINT_AGREGAR_MOVIMIENTO,
     ENDPOINT_ELIMINAR_SUBCATEGORIA, ENDPOINT_EDITAR_SUBCATEGORIA, ENDPOINT_BUSCAR_SUBCATEGORIA, ENDPOINT_LISTAR_CATEGORIAS, ENDPOINT_CONSULTAR_SUBCATEGORIA
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
@@ -156,7 +156,7 @@ export default {
             currentPage: 1,
             pageSize: 6,
             categoriasDisponibles: [],
-            permisos:false,
+            permisos: false,
         };
     },
     mounted() {
@@ -165,6 +165,8 @@ export default {
         this.obtenerPermisos();
     },
     computed: {
+        // The above code is a part of a Vue component and it is calculating the total number of pages and
+        // returning a paginated subset of an array of subcategories.
         totalPages() {
             if (!this.subcategorias) return 0;
             return Math.ceil(this.subcategorias.length / this.pageSize);
@@ -246,7 +248,7 @@ export default {
                     }
                 })
                 .then(subcategoria => {
-                    this.registroDeMovimientos(`Subcategoría ${subcategoria.nombre} eliminada`);                    
+                    this.registroDeMovimientos(`Subcategoría ${subcategoria.nombre} eliminada`);
                 })
                 .catch(error => {
                     console.error('Error en la solicitud:', error);
@@ -388,6 +390,9 @@ export default {
                     this.$refs.modalError.openModal();
                 });
         },
+        // The above code is a method in a Vue component that is used to obtain permissions for a user. It
+        // first retrieves the user ID from the Vuex store using `this..state.auth.userId`. If the user
+        // ID is equal to 1, it sets the `permisos` data property to `true`.
         obtenerPermisos() {
             const idUsuario = this.$store.state.auth.userId;
 

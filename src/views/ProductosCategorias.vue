@@ -100,11 +100,15 @@ export default {
   },
   computed: {
 
+    // The `totalPages()` method is a computed property that calculates the total number of pages based on
+    // the number of categories and the page size.
     totalPages() {
       if (!this.categorias) return 0;
       return Math.ceil(this.categorias.length / this.pageSize);
     },
 
+    // The `paginated()` method is a computed property that returns a subset of the `categorias` array
+    // based on the current page and page size.
     paginated() {
       if (!this.categorias) return null;
 
@@ -117,6 +121,7 @@ export default {
     },
   },
   methods: {
+    // The `goToPage` method is used to navigate to a specific page in the paginated list of categories.
     goToPage(page) {
       if (page < 1) page = 1;
       if (page > this.totalPages) page = this.totalPages;
@@ -163,28 +168,44 @@ export default {
           console.error("Error:", error);
         });
     },
+    // The `exportToExcel()` method is a function that exports the data of the selected products to an
+    // Excel file.
     exportToExcel() {
-      // Crear una nueva matriz de objetos solo con las propiedades deseadas
+      // The `exportData` variable is an array that is created by mapping over the `productos` array. For
+      // each `producto` object in the `productos` array, a new object is created with the keys `'Número de
+      // serie'`, `'Nombre'`, and `'Cantidad'`. The values for these keys are taken from the corresponding
+      // properties of each `producto` object (`producto.numeroDeSerie`, `producto.nombre`, and
+      // `producto.cantidad`).
       const exportData = this.productos.map(producto => ({
         'Número de serie': producto.numeroDeSerie,
         'Nombre': producto.nombre,
         'Cantidad': producto.cantidad,
       }));
 
-      // Crear el libro de Excel y la hoja de cálculo
+      // The line `const wb = XLSX.utils.book_new();` is creating a new Excel workbook object using the
+      // `book_new()` function from the XLSX library. This workbook object will be used to store the data and
+      // configuration for the Excel file that will be exported.
       const wb = XLSX.utils.book_new();
 
-      // Definir la configuración de la hoja de cálculo con nombres personalizados
+      // The `wsConfig` object is used to configure the headers (column names) for the worksheet in the Excel
+      // file. In this case, the headers are set to 'Número de serie', 'Nombre', and 'Cantidad'. These
+      // headers will be displayed as the first row in the Excel file.
       const wsConfig = {
         header: ['Número de serie', 'Nombre', 'Cantidad'],
       };
 
+      // The line `const ws = XLSX.utils.json_to_sheet(exportData, wsConfig);` is using the `json_to_sheet()`
+      // function from the XLSX library to convert the `exportData` array into a worksheet object.
       const ws = XLSX.utils.json_to_sheet(exportData, wsConfig);
 
-      // Añade la hoja al libro
+      // The line `XLSX.utils.book_append_sheet(wb, ws, 'Productos');` is appending a worksheet (`ws`) to a
+      // workbook (`wb`) with the name 'Productos'.
       XLSX.utils.book_append_sheet(wb, ws, 'Productos');
 
-      // Guarda el libro como un archivo Excel
+      // The line `XLSX.writeFile(wb, 'productos.xlsx');` is a function call that exports the data stored in
+      // the `wb` (workbook) object to an Excel file named 'productos.xlsx'. The `writeFile()` function is
+      // provided by the XLSX library and takes two arguments: the workbook object and the filename for the
+      // exported Excel file.
       XLSX.writeFile(wb, 'productos.xlsx');
     },
 

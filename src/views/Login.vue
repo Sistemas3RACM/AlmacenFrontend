@@ -11,13 +11,11 @@
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
                     <form v-on:submit.prevent="login">
                         <h1 class="mb-3">Datos de Ingreso</h1>
-                        <!-- Email input -->
                         <div class="form-outline mb-4">
                             <input type="email" id="form3Example3" class="form-control form-control-lg"
                                 placeholder="Ingrese el correo" v-model="usuario" />
                         </div>
 
-                        <!-- Password input -->
                         <div class="form-outline mb-3">
                             <input type="password" id="form3Example4" class="form-control form-control-lg"
                                 placeholder="Ingrese la contraseña" v-model="password" />
@@ -80,7 +78,6 @@ img {
     margin-bottom: 70px;
 }
 
-/* Evitar que el botón cambie de color al pasar el puntero sobre él */
 .btn:hover {
     background-color: #D92828;
     color: #fff;
@@ -121,13 +118,13 @@ export default {
                     if (response.ok) {
                         console.log('Respuesta exitosa');
 
-                        // Actualizar la autenticación en el store Vuex
+                        // Actualiza la autenticación en el store Vuex
                         this.$store.dispatch('auth/login');
 
-                        // Obtener el userId después del inicio de sesión exitoso
-                        return response.json(); // Parsear la respuesta como JSON
+                        // Obtiene el userId después del inicio de sesión exitoso
+                        return response.json(); // Parsea la respuesta como JSON
                     } else {
-                        // Manejar el caso de respuesta no exitosa aquí
+                        // Maneja el caso de respuesta no exitosa
                         console.log('Respuesta no exitosa');
                         this.error = true;
                         this.error_message = 'Error en el inicio de sesión. Verifica tus credenciales.';
@@ -136,7 +133,7 @@ export default {
                 })
                 .then((data) => {
                     const userId = data.id;
-                    const userAdmin = data.userAdmin; // Asumiendo que recibes el userAdmin desde el servidor
+                    const userAdmin = data.userAdmin; // Asumiendo que se recibe el userAdmin desde el servidor
 
                     this.$store.commit('auth/SET_USER_ID', userId);
                     this.$store.commit('auth/SET_USER_ADMIN', userAdmin); // Guarda userAdmin en el store

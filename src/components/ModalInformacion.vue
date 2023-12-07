@@ -6,7 +6,7 @@
 
 
                 <div v-for="(campo, key) in objeto" :key="key" class="mb-3">
-                    <div v-if="key != id" class="row">
+                    <div v-if="key != id && key != 'apellidoMaterno' && key != 'apellidoPaterno' && key != 'contraseña'" class="row">
                         <div class="col-3">
                             <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
                         </div>
@@ -86,14 +86,10 @@ export default {
                     return 'Teléfono';
                 case 'nomenclatura':
                     return 'Nomenclatura';
-                case 'apellidoMaterno':
-                    return 'Apellido Materno';
-                case 'apellidoPaterno':
-                    return 'Apellido Paterno';
                 case 'correo':
                     return 'Correo';
                 case 'puesto':
-                    return 'Puesto';
+                    return 'Permisos';
                 case 'contraseña':
                     return 'Contraseña';
                 default:

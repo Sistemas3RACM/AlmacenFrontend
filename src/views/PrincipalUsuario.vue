@@ -8,7 +8,7 @@
                 <div class="col-10 m-0 p-0">
                     <section class="container-fluid">
                         <div class="row">
-                            <div class="col-6 mt-5 tablaP">
+                            <div class="col-7 mt-5 tablaP">
                                 <div class="row">
                                     <div class="col-6">
                                         <h1 class="h1 m-3">Usuarios</h1>
@@ -44,7 +44,7 @@
                                         :disabled="currentPage === totalPages">Siguiente</button>
                                 </div>
                             </div>
-                            <div class="col-5 m-1">
+                            <div class="col-4 m-1">
                                 <div class="formulario">
                                     <h3>Agregar Usuario</h3>
 
@@ -81,7 +81,7 @@
     padding: 20px;
     margin-top: 100px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    height: 70vh;
+    height: 55vh;
     border-radius: 10px;
     width: 100%;
 }
@@ -96,8 +96,8 @@
 import tabla from '../components/tablainformacion.vue';
 import Nvar from '../components/Nvar';
 import {
-    API_URL, ENDPOINT_LISTAR_USUARIOS, ENDPOINT_AGREGAR_USUARIO,ENDPOINT_CONSULTAR_USUARIO,
-    ENDPOINT_ELIMINAR_USUARIO, ENDPOINT_EDITAR_USUARIO, ENDPOINT_BUSCAR_USUARIO,ENDPOINT_AGREGAR_MOVIMIENTO
+    API_URL, ENDPOINT_LISTAR_USUARIOS, ENDPOINT_AGREGAR_USUARIO, ENDPOINT_CONSULTAR_USUARIO,
+    ENDPOINT_ELIMINAR_USUARIO, ENDPOINT_EDITAR_USUARIO, ENDPOINT_BUSCAR_USUARIO, ENDPOINT_AGREGAR_MOVIMIENTO
 } from '../keys';
 import FormularioGeneral from '@/components/FormularioGeneral.vue';
 import ModalSuccess from '@/components/ModalSuccess.vue';
@@ -123,14 +123,14 @@ export default {
             usuarios: null,
             type: 'usuario',
             camposUsuario: [
-                { id: 'nombre', label: 'Nombre', nombre: 'nombre', type: 'text', valor: '', required: true },
-                { id: 'apellidoPaterno', label: 'Primer Apellido', nombre: 'apellidoPaterno', type: 'text', valor: '', required: true },
-                { id: 'apellidoMaterno', label: 'Segundo Apellido', nombre: 'apellidoMaterno', type: 'text', valor: '', required: true },
+                { id: 'nombre', label: 'Nombre Completo', nombre: 'nombre', type: 'text', valor: '', required: true },
+                // { id: 'apellidoPaterno', label: 'Primer Apellido', nombre: 'apellidoPaterno', type: 'text', valor: '', required: true },
+                // { id: 'apellidoMaterno', label: 'Segundo Apellido', nombre: 'apellidoMaterno', type: 'text', valor: '', required: true },
                 { id: 'correo', label: 'Correo', nombre: 'correo', type: 'text', valor: '', required: true },
                 { id: 'contraseña', label: 'Contraseña', nombre: 'contraseña', type: 'text', valor: '', required: true },
                 {
                     id: 'puesto',
-                    label: 'Puesto',
+                    label: 'Permisos',
                     nombre: 'puesto',
                     type: 'select',
                     valor: '',
@@ -148,16 +148,16 @@ export default {
             objetoEditar: {
                 idUsuario: '',
                 nombre: '',
-                apellidoPaterno: '',
-                apellidoMaterno: '',
+                // apellidoPaterno: '',
+                // apellidoMaterno: '',
                 correo: '',
                 contraseña: '',
                 puesto: '',
             },
             camposMostrados: [
                 'nombre',
-                'apellidoPaterno',
-                'apellidoMaterno',
+                // 'apellidoPaterno',
+                // 'apellidoMaterno',
                 'correo',
                 'puesto'
 
@@ -172,10 +172,16 @@ export default {
         this.mostrar();
     },
     computed: {
+        // The above code is a method in a Vue component that calculates the total number of pages based on the
+        // number of users and the page size. It first checks if the `usuarios` array is defined, and if not,
+        // it returns 0. If the `usuarios` array is defined, it calculates the total number of pages by
+        // dividing the length of the `usuarios` array by the `pageSize` property and rounding up using the
+        // `Math.ceil()` function.
         totalPages() {
             if (!this.usuarios) return 0;
             return Math.ceil(this.usuarios.length / this.pageSize);
         },
+        // The above code is a method in a Vue component that is used for pagination.
         paginated() {
             if (!this.usuarios) return null;
 
@@ -188,6 +194,8 @@ export default {
         },
     },
     methods: {
+        // The above code is defining a method called "goToPage" in a Vue component. This method takes a
+        // parameter called "page" and is used to navigate to a specific page.
         goToPage(page) {
             if (page < 1) page = 1;
             if (page > this.totalPages) page = this.totalPages;
@@ -239,7 +247,7 @@ export default {
                     }
                 })
                 .then(usuario => {
-                    this.registroDeMovimientos(`Usuario ${usuario.nombre} eliminado`);                    
+                    this.registroDeMovimientos(`Usuario ${usuario.nombre} eliminado`);
                 })
                 .catch(error => {
                     console.error('Error en la solicitud:', error);
@@ -345,6 +353,10 @@ export default {
             for (const campo of datos) {
                 nuevoJSON[campo.id] = campo.valor;
             }
+
+            nuevoJSON.apellidoMaterno='vacio';
+            nuevoJSON.apellidoPaterno='vacio';
+
 
             fetch(url, {
                 method: 'POST',

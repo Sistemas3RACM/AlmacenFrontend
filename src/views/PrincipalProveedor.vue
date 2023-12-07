@@ -142,7 +142,7 @@ export default {
       TituloVer: 'Información del Proveedor',
       currentPage: 1,
       pageSize: 6,
-      permisos:false,
+      permisos: false,
     };
   },
   mounted() {
@@ -150,10 +150,16 @@ export default {
     this.obtenerPermisos();
   },
   computed: {
+    // The above code is a method in a Vue component that calculates the total number of pages based on the
+    // number of items in the "proveedores" array and the "pageSize" value. It returns the total number of
+    // pages by dividing the length of the "proveedores" array by the "pageSize" and rounding up the result
+    // using the Math.ceil() function.
     totalPages() {
       if (!this.proveedores) return 0;
       return Math.ceil(this.proveedores.length / this.pageSize);
     },
+    // The above code is a method in a Vue component that is used to paginate a list of "proveedores"
+    // (suppliers).
     paginatedProveedores() {
       if (!this.proveedores) return null;
 
@@ -166,11 +172,18 @@ export default {
     },
   },
   methods: {
+    // The above code is defining a method called "goToPage" in a Vue component. This method takes a
+    // parameter called "page" and is used to navigate to a specific page.
     goToPage(page) {
       if (page < 1) page = 1;
       if (page > this.totalPages) page = this.totalPages;
       this.currentPage = page;
     },
+    // The above code is a method in a Vue component that is making an HTTP GET request to a specified API
+    // endpoint. It is using the `fetch` function to send the request and receive the response. Once the
+    // response is received, it is converted to JSON format using the `response.json()` method. The
+    // resulting data is then assigned to the `proveedores` property of the component. If there is an error
+    // during the request or response handling, the error is logged to the console.
     mostrar() {
       const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
 
@@ -361,14 +374,19 @@ export default {
           this.$refs.modalError.openModal();
         });
     },
+    // The above code is a method in a Vue component that is used to obtain permissions for a user. It
+    // first retrieves the user's ID from the Vuex store. If the user's ID is equal to 1, it sets the
+    // "permisos" data property to true.
     obtenerPermisos() {
-            const idUsuario = this.$store.state.auth.userId;
+      const idUsuario = this.$store.state.auth.userId;
 
-            if (idUsuario == 1) {
-                this.permisos = true;
-            }
-        },
+      if (idUsuario == 1) {
+        this.permisos = true;
+      }
+    },
 
+    // The above code is defining a method called "registroDeMovimientos" in a Vue component. This method
+    // takes a parameter called "mensaje".
     registroDeMovimientos(mensaje) {
       const idUsuario = this.$store.state.auth.userId;
 

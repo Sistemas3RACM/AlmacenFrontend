@@ -25,7 +25,8 @@
                                 <tabla v-if="paginated" :type="type" :data="paginated" :fields="['nombre', 'nomenclatura']"
                                     :eliminar="eliminar">
                                     <template #default="{ item }">
-                                        <button @click="eliminarCategoria(item.idCategoria)" class="btn m-1 btn-danger" v-if="permisos">
+                                        <button @click="eliminarCategoria(item.idCategoria)" class="btn m-1 btn-danger"
+                                            v-if="permisos">
                                             <font-awesome-icon :icon="['fas', 'trash']" />
                                         </button>
                                         <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
@@ -36,6 +37,33 @@
                                         </button>
                                     </template>
                                 </tabla>
+                                <!-- <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Nomanclatura</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="categoria in paginated" :key="categoria.idCategoria">
+                                            <td>{{ categoria.nombre }}</td>
+                                            <td>{{ categoria.nomenclatura }}</td>
+                                            <td>
+                                                <button @click="eliminarCategoria(categoria.idCategoria)" class="btn m-1 btn-danger"
+                                            v-if="permisos">
+                                            <font-awesome-icon :icon="['fas', 'trash']" />
+                                        </button>
+                                        <button @click="mostrarEdicion(categoria)" class="btn m-1 btn-warning">
+                                            <font-awesome-icon :icon="['fas', 'edit']" />
+                                        </button>
+                                        <button @click="mostrarInformacion(categoria)" class="btn m-1 btn-primary">
+                                            <font-awesome-icon :icon="['fas', 'eye']" />
+                                        </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table> -->
                                 <!-- Botones de navegación -->
                                 <div class="pagination-buttons boton-container">
                                     <button @click="goToPage(currentPage - 1)" class="btn btn-info"
@@ -66,7 +94,7 @@
         <!-- Modal de Error -->
         <ModalEditar :titulo="TituloEditar" :camposMostrados="camposMostrados" :objeto="objetoEditar" :id="id"
             @guardar-cambios="editarCategoria" ref="modalEditar" />
-
+        <!-- Modal de Informacion -->
         <ModalInformacion :titulo="TituloVer" :objeto="objetoEditar" :id="id" ref="modalVer" />
     </section>
 </template>
@@ -140,7 +168,7 @@ export default {
             TituloVer: 'Información de la categoría',
             currentPage: 1,
             pageSize: 6,
-            permisos:false,
+            permisos: false,
         };
     },
     mounted() {
@@ -148,24 +176,40 @@ export default {
         this.obtenerPermisos();
     },
     computed: {
-
+        /**
+         * Calculates the total number of pages needed to display all categories
+         * @returns {number} The number of pages
+         */
         totalPages() {
-            if (!this.categorias) return 0;
-            return Math.ceil(this.categorias.length / this.pageSize);
+            // If there are no categories, return 0
+            if (!this.categories) return 0;
+            // Divide the number of categories by the page size and round up
+            return Math.ceil(this.categories.length / this.pageSize);
         },
 
+        /**
+         * Returns an array of paginated and sorted categories in descending order
+         * @returns {Array} The array of categories for the current page
+         */
         paginated() {
+            // If there are no categories, return null
             if (!this.categorias) return null;
 
-            const sortedcategorias = this.categorias.slice().reverse();
+            // Create a copy of the categories array and reverse the order
+            const sortedCategorias = this.categorias.slice().reverse();
 
+            // Calculate the start and end index of the current page
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = startIndex + this.pageSize;
 
-            return sortedcategorias.slice(startIndex, endIndex);
+            // Return a slice of the categories array that corresponds to the current page
+            return sortedCategorias.slice(startIndex, endIndex);
         },
+
     },
     methods: {
+        // The above code is defining a method called "goToPage" in a Vue component. This method takes a
+        // parameter called "page" and is used to navigate to a specific page.
         goToPage(page) {
             if (page < 1) page = 1;
             if (page > this.totalPages) page = this.totalPages;
@@ -197,7 +241,6 @@ export default {
                     this.categorias = data;
                 })
                 .catch(error => {
-                    // Maneja los errores de la solicitud aquí
                     console.error("Error:", error);
                 });
         },
@@ -218,7 +261,7 @@ export default {
                     }
                 })
                 .then(categoria => {
-                    this.registroDeMovimientos(`Categoría ${categoria.nombre} eliminada`);                    
+                    this.registroDeMovimientos(`Categoría ${categoria.nombre} eliminada`);
                 })
                 .catch(error => {
                     console.error('Error en la solicitud:', error);

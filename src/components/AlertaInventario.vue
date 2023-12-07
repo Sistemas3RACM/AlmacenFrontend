@@ -25,6 +25,8 @@ export default {
         this.obtenerUltimaFecha();
     },
     methods: {
+// The `obtenerUltimaFecha()` method is an asynchronous function that retrieves the last date from an
+// API endpoint.
         async obtenerUltimaFecha() {
             const url = `${API_URL}/${ENDPOINT_LISTAR_FECHAS}`;
 
@@ -35,15 +37,12 @@ export default {
                 if (data.length > 0) {
                     const ultimaFecha = data[data.length - 1];
 
-                    // Formatea la última fecha para mostrar solo la parte de la fecha
                     const fechaUltima = new Date(ultimaFecha.ultimaFecha);
-                    this.ultimaFecha = fechaUltima.toLocaleDateString(); // O utiliza fechaUltima.toISOString().split('T')[0];
+                    this.ultimaFecha = fechaUltima.toLocaleDateString(); 
 
-                    // Formatea la próxima fecha para mostrar solo la parte de la fecha
                     const fechaProxima = new Date(ultimaFecha.proximaFecha);
-                    this.proximaFecha = fechaProxima.toLocaleDateString(); // O utiliza fechaProxima.toISOString().split('T')[0];
+                    this.proximaFecha = fechaProxima.toLocaleDateString(); 
 
-                    // Calcula los días restantes entre la próxima fecha y la fecha actual
                     const hoy = new Date();
                     const diffTime = fechaProxima - hoy;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

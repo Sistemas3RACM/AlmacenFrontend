@@ -27,6 +27,9 @@
             </div>
         </div>
         <div class="col-md-12" v-if="!mostrarTablaCategorias">
+            <button @click="mostrar()" class="btn m-2 col-12 btn-warning">
+                Volver a seleccionar
+            </button>
             <div class="contador">
                 <h3>Dinero dentro de esta categoría:</h3>
                 <div class="numero">$ {{ total }}</div>
@@ -84,6 +87,9 @@ export default {
             this.currentPage = page;
         },
         mostrar() {
+            this.productos= null;
+            this.mostrarTablaCategorias= true;
+            this.total= 0;
             const url = `${API_URL}/${ENDPOINT_LISTAR_CATEGORIAS}`;
 
             fetch(url)
@@ -105,6 +111,7 @@ export default {
                 total += subtotal;
             }
             this.total = total;
+            this.total = total.toLocaleString('en-US');
         },
         obtenerIDCategoria(categoria) {
             const id = categoria.idCategoria;
