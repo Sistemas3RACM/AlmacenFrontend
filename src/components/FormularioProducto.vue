@@ -11,15 +11,16 @@
                         <div v-if="!campo.hidden">
                             <div v-if="campo.type === 'checkbox'" class="form-check">
                                 <input :type="campo.type" class="form-check-input" :id="campo.id" v-model="campo.valor"
-                                    :required="campo.required">
+                                    :required="campo.required" @change="toggleCampos" />
                                 <label :for="campo.id" class="form-check-label">{{ campo.ayuda }}</label>
                             </div>
                             <div v-else-if="campo.type === 'select'" class="form-group">
                                 <select class="form-select" :id="campo.id" v-model="campo.valor" :required="campo.required"
                                     @change="categoriaCambiada(campo.valor)">
                                     <option value="" disabled>Seleccione una opción</option>
-                                    <option v-for="opcion in campo.opciones" :key="opcion.valor" :value="opcion.valor">{{
-                                        opcion.etiqueta }}</option>
+                                    <option v-for="opcion in campo.opciones" :key="opcion.valor" :value="opcion.valor">
+                                        {{ opcion.etiqueta }}
+                                    </option>
                                 </select>
                                 <div v-if="campo.ayuda" class="form-text">{{ campo.ayuda }}</div>
                             </div>
@@ -68,9 +69,27 @@ export default {
     data() {
         return {
             modo: this.modoInicial,
+            ocultarCampos: false,
         };
     },
     methods: {
+        toggleCampos() {
+            this.ocultarCampos = !this.ocultarCampos;
+
+            for (const campo of this.campos) {
+                if (campo.id === 'localizacion' || campo.id === 'unidadMedida') {
+                    campo.hidden = this.ocultarCampos;
+
+                    if (campo.id === 'localizacion') {
+                        campo.valor = '100';
+                    }
+                    if (campo.id === 'unidadMedida') {
+                        campo.valor = 'Servicio';
+                    }
+                }
+
+            }
+        },
         enviar() {
             this.$emit('formulario-enviado', this.campos, this.modo);
         },

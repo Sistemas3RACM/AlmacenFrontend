@@ -10,7 +10,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="categoria in categorias" :key="categoria.id">
+                    <tr v-for="categoria in paginated" :key="categoria.id">
                         <td>{{ categoria.nombre }}</td>
                         <td> <button @click="obtenerIDCategoria(categoria)" class="btn m-1 btn-primary">
                                 Seleccionar

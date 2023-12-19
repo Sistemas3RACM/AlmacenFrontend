@@ -14,8 +14,14 @@
                                     key != 'servicio' &&
                                     key != 'cantidad' &&
                                     key != 'cantidadMin'
-                                " :key="key" class="col-sm-6 form-group">
-                                    <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
+                                    " :key="key" class="col-sm-6 form-group">
+                                    <div v-if="(key != 'localizacion' || key != 'unidadMedida') && objeto.servicio == 0">
+                                        <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
+                                    </div>
+                                    <div v-else-if="key != 'localizacion' && key != 'unidadMedida'">
+                                        <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
+                                    </div>
+
                                     <div>
 
                                         <div v-if="typeof campo === 'boolean'" class="form-check">
@@ -42,18 +48,6 @@
                                                     option.nombre }}</option>
                                             </select>
                                         </div>
-                                        <div v-else-if="key === 'unidadMedida'" class="form-group">
-                                            <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                                <option v-for="option in unidadMedidaOptions" :value="option.valor">{{
-                                                    option.etiqueta }}</option>
-                                            </select>
-                                        </div>
-                                        <div v-else-if="key === 'localizacion'" class="form-group">
-                                            <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
-                                                <option v-for="option in localizacionOptions" :value="option.valor">{{
-                                                    option.etiqueta }}</option>
-                                            </select>
-                                        </div>
                                         <div v-else-if="key === 'cantidad'">
                                             <input type="text" class="form-control" :id="key" v-model="objeto[key]" />
                                         </div>
@@ -63,6 +57,24 @@
 
                                         <div v-else-if="typeof campo === 'number'">
                                             <input type="number" class="form-control" :id="key" v-model="objeto[key]" />
+                                        </div>
+                                        <div v-else-if="key === 'unidadMedida'" class="form-group">
+                                            <div v-if="objeto.servicio == 0">
+                                                <select class="form-control" :id="key" v-model="objeto[key]"
+                                                    :readonly="true">
+                                                    <option v-for="option in unidadMedidaOptions" :value="option.valor">{{
+                                                        option.etiqueta }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div v-else-if="key === 'localizacion'" class="form-group">
+                                            <div v-if="objeto.servicio == 0">
+                                                <select class="form-control" :id="key" v-model="objeto[key]"
+                                                    :readonly="true">
+                                                    <option v-for="option in localizacionOptions" :value="option.valor">{{
+                                                        option.etiqueta }}</option>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div v-else class="form-group">
                                             <input type="text" class="form-control" :id="key" v-model="objeto[key]" />
@@ -115,6 +127,7 @@ export default {
                 { valor: 'Mililitros', etiqueta: 'Mililitros' },
                 { valor: 'Gramos', etiqueta: 'Gramos' },
                 { valor: 'Centímetros', etiqueta: 'Centímetros' },
+                { valor: 'Servicio', etiqueta: 'Servicio' },
             ],
             localizacionOptions: [
                 { valor: '01', etiqueta: 'Anaquel 1' },

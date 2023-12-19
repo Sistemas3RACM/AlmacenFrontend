@@ -96,7 +96,7 @@
 
         <!-- Modal de Error -->
         <EditarProducto :titulo="TituloEditar" :subcategoriaOptions="subcategoriasDisponibles"
-            :proveedoresOptions="proveedoresDisponibles" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar"
+            :proveedoresOptions="proveedoresDisponibles" :categoriaOptions="categoriasDisponibles" :objeto="objetoEditar" :servicioCampo="objetoEditar.servicio"
             :id="id" @categoria-cambiada="cargarSubcategorias" @guardar-cambios="editarSubcategoria" ref="modalEditar" />
 
         <VerProducto :titulo="TituloVer" :proveedorOptions="proveedoresDisponibles"
@@ -191,26 +191,6 @@ export default {
                     opciones: []
                 },
                 { id: 'descripcion', label: 'Descripción', nombre: 'descripcion', type: 'text', valor: '' },
-                {
-                    id: 'unidadMedida',
-                    label: 'Unidad de medida',
-                    nombre: 'unidadMedida',
-                    type: 'select',
-                    valor: '',
-                    required: true,
-                    opciones: [
-                        { valor: 'Piezas', etiqueta: 'Piezas' },
-                        { valor: 'Kilogramos', etiqueta: 'Kilogramos' },
-                        { valor: 'Cajas', etiqueta: 'Cajas' },
-                        { valor: 'Pares', etiqueta: 'Pares' },
-                        { valor: 'Metros', etiqueta: 'Metros' },
-                        { valor: 'Docenas', etiqueta: 'Docenas' },
-                        { valor: 'Litros', etiqueta: 'Litros' },
-                        { valor: 'Mililitros', etiqueta: 'Mililitros' },
-                        { valor: 'Gramos', etiqueta: 'Gramos' },
-                        { valor: 'Centímetros', etiqueta: 'Centímetros' },
-                    ],
-                },
                 { id: 'cantidad', label: 'Cantidad', nombre: 'cantidad', type: 'text', valor: '', required: true },
                 { id: 'precioUnitario', label: 'Precio unitario', nombre: 'precioUnitario', type: 'text', valor: '', required: true },
                 {
@@ -238,7 +218,26 @@ export default {
                         { valor: '06', etiqueta: 'Anaquel 6' },
                         { valor: '07', etiqueta: 'Anaquel 7' },
                         { valor: '08', etiqueta: 'Anaquel 8' },
-                        { valor: '100', etiqueta: 'Servicio' },
+                    ],
+                },
+                {
+                    id: 'unidadMedida',
+                    label: 'Unidad de medida',
+                    nombre: 'unidadMedida',
+                    type: 'select',
+                    valor: '',
+                    required: true,
+                    opciones: [
+                        { valor: 'Piezas', etiqueta: 'Piezas' },
+                        { valor: 'Kilogramos', etiqueta: 'Kilogramos' },
+                        { valor: 'Cajas', etiqueta: 'Cajas' },
+                        { valor: 'Pares', etiqueta: 'Pares' },
+                        { valor: 'Metros', etiqueta: 'Metros' },
+                        { valor: 'Docenas', etiqueta: 'Docenas' },
+                        { valor: 'Litros', etiqueta: 'Litros' },
+                        { valor: 'Mililitros', etiqueta: 'Mililitros' },
+                        { valor: 'Gramos', etiqueta: 'Gramos' },
+                        { valor: 'Centímetros', etiqueta: 'Centímetros' },
                     ],
                 },
                 { id: 'cantidadMin', label: 'Cantidad Minima', nombre: 'cantidadMin', type: 'number', valor: 0, hidden: true },
@@ -600,6 +599,8 @@ export default {
 
 
             const objetoModificado = JSON.stringify(objetoJSON);
+
+            
             
 
             if (!objetoJSON.nombre || !objetoJSON.precioUnitario) {

@@ -10,7 +10,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="categoria in categorias" :key="categoria.id">
+                    <tr v-for="categoria in paginated" :key="categoria.id">
                         <td>{{ categoria.nombre }}</td>
                         <td> <button @click="obtenerIDCategoria(categoria)" class="btn m-1 btn-primary">
                                 Seleccionar
@@ -157,8 +157,6 @@ export default {
 .productos-list {
     padding-left: 3px;
     list-style: none;
-    /* Quita los puntos de la lista */
     padding: 0;
-    /* Quita el relleno predeterminado de la lista */
 }
 </style>
