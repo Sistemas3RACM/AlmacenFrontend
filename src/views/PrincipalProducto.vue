@@ -238,6 +238,7 @@ export default {
                         { valor: 'Mililitros', etiqueta: 'Mililitros' },
                         { valor: 'Gramos', etiqueta: 'Gramos' },
                         { valor: 'Centímetros', etiqueta: 'Centímetros' },
+                        
                     ],
                 },
                 { id: 'cantidadMin', label: 'Cantidad Minima', nombre: 'cantidadMin', type: 'number', valor: 0, hidden: true },

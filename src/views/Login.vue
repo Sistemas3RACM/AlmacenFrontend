@@ -5,10 +5,10 @@
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-md-4">
-                    <h1 class="m-3">Sistema de almacén</h1>
+                    <h1 class="m-3 tituloNombre">Sistema de almacén</h1>
                     <img src="@/assets/logo3RACM.jpg" class="img-fluid" alt="3Racm" />
                 </div>
-                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1 contenedorPrincipal">
                     <form v-on:submit.prevent="login">
                         <h1 class="mb-3">Datos de Ingreso</h1>
                         <div class="form-outline mb-4">
@@ -61,12 +61,6 @@
     height: calc(100% - 73px);
 }
 
-@media (max-width: 450px) {
-    .h-custom {
-        height: 100%;
-    }
-}
-
 .bg-custom {
     background-color: #F02B2B;
 
@@ -81,6 +75,29 @@ img {
 .btn:hover {
     background-color: #D92828;
     color: #fff;
+}
+
+@media (max-width: 767px) {
+  img {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+    display: block;
+  }
+  .tituloNombre{
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+  }
+  .contenedorPrincipal{
+    margin: 0px;
+    padding: 0;
+    text-align: center     ;
+    justify-content: center;
+  }
+  .h-custom {
+    height: 70%;
+}
 }
 </style>
 
