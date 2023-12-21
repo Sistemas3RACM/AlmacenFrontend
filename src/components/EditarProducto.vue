@@ -127,6 +127,7 @@ export default {
                 { valor: 'Mililitros', etiqueta: 'Mililitros' },
                 { valor: 'Gramos', etiqueta: 'Gramos' },
                 { valor: 'Centímetros', etiqueta: 'Centímetros' },
+                { valor: 'Ninguno', etiqueta: 'Ninguno' },
                 { valor: 'Servicio', etiqueta: 'Servicio' },
             ],
             localizacionOptions: [
@@ -135,6 +136,7 @@ export default {
                 { valor: '03', etiqueta: 'Anaquel 3' },
                 { valor: '04', etiqueta: 'Anaquel 4' },
                 { valor: '05', etiqueta: 'Anaquel 5' },
+                { valor: '00', etiqueta: 'Ninguno' },
                 { valor: '100', etiqueta: 'Servicio' },
             ],
         };

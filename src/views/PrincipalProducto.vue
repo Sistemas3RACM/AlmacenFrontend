@@ -218,6 +218,7 @@ export default {
                         { valor: '06', etiqueta: 'Anaquel 6' },
                         { valor: '07', etiqueta: 'Anaquel 7' },
                         { valor: '08', etiqueta: 'Anaquel 8' },
+                        { valor: '00', etiqueta: 'Ninguno' },
                     ],
                 },
                 {
@@ -238,6 +239,7 @@ export default {
                         { valor: 'Mililitros', etiqueta: 'Mililitros' },
                         { valor: 'Gramos', etiqueta: 'Gramos' },
                         { valor: 'Centímetros', etiqueta: 'Centímetros' },
+                        { valor: 'Ninguno', etiqueta: 'Ninguno' },
                         
                     ],
                 },
