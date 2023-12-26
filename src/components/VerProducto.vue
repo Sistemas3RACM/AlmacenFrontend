@@ -7,9 +7,16 @@
                     <div class="mb-3 container-fluid">
                         <div class="row">
                             <template v-for="(campo, key) in objeto">
-                                <div v-if="key != 'idProducto' && key != 'status' && key != 'consumible' && key != 'servicio'"
+                                <div v-if="key != 'idProducto' && key != 'status' && key != 'consumible' && key != 'servicio' && key != 'cantidadMin'"
                                     :key="key" class="col-sm-6">
-                                    <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
+                                    <div v-if="(key === 'localizacion' || key === 'unidadMedida') && esServicio">
+                                        <label :for="key" class="form-label label-left" :hidden="true">{{ getLabel(key)
+                                        }}</label>
+                                    </div>
+                                    <div v-else>
+                                        <label :for="key" class="form-label label-left">{{ getLabel(key) }}</label>
+                                    </div>
+
                                     <div v-if="typeof campo === 'boolean'" class="form-check">
                                         <input type="checkbox" class="form-check-input" :id="key" v-model="objeto[key]"
                                             :readonly="true">
@@ -30,6 +37,24 @@
                                         <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
                                             <option v-for="option in proveedorOptions" :value="option.idProveedor">{{
                                                 option.nombre }}</option>
+                                        </select>
+                                    </div>
+                                    <div v-else-if="key === 'localizacion' && esServicio" class="form-group" :hidden="true">
+                                        <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                                            <option v-for="option in localizacionOptions" :value="option.valor">{{
+                                                option.etiqueta }}</option>
+                                        </select>
+                                    </div>
+                                    <div v-else-if="key === 'unidadMedida' && esServicio" class="form-group">
+                                        <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true" :hidden="true">
+                                            <option v-for="option in unidadMedidaOptions" :value="option.valor">{{
+                                                option.etiqueta }}</option>
+                                        </select>
+                                    </div>
+                                    <div v-else-if="key === 'unidadMedida'" class="form-group">
+                                        <select class="form-control" :id="key" v-model="objeto[key]" :readonly="true">
+                                            <option v-for="option in unidadMedidaOptions" :value="option.valor">{{
+                                                option.etiqueta }}</option>
                                         </select>
                                     </div>
                                     <div v-else-if="typeof campo === 'number'">
@@ -75,14 +100,47 @@ export default {
                 { valor: '0', etiqueta: 'Administrativo' },
                 { valor: '1', etiqueta: 'Sin permisos' },
             ],
+            esServicio: false,
+            unidadMedidaOptions: [
+                { valor: 'Piezas', etiqueta: 'Piezas' },
+                { valor: 'Kilogramos', etiqueta: 'Kilogramos' },
+                { valor: 'Cajas', etiqueta: 'Cajas' },
+                { valor: 'Pares', etiqueta: 'Pares' },
+                { valor: 'Metros', etiqueta: 'Metros' },
+                { valor: 'Docenas', etiqueta: 'Docenas' },
+                { valor: 'Litros', etiqueta: 'Litros' },
+                { valor: 'Mililitros', etiqueta: 'Mililitros' },
+                { valor: 'Gramos', etiqueta: 'Gramos' },
+                { valor: 'Centímetros', etiqueta: 'Centímetros' },
+                { valor: 'Ninguno', etiqueta: 'Ninguno' },
+                { valor: 'Servicio', etiqueta: 'Servicio' },
+            ],
+            localizacionOptions: [
+                { valor: '01', etiqueta: 'Anaquel 1' },
+                { valor: '02', etiqueta: 'Anaquel 2' },
+                { valor: '03', etiqueta: 'Anaquel 3' },
+                { valor: '04', etiqueta: 'Anaquel 4' },
+                { valor: '05', etiqueta: 'Anaquel 5' },
+                { valor: '06', etiqueta: 'Anaquel 6' },
+                { valor: '07', etiqueta: 'Anaquel 7' },
+                { valor: '08', etiqueta: 'Anaquel 8' },
+                { valor: '00', etiqueta: 'Ninguno' },
+                { valor: '100', etiqueta: 'Servicio' },
+            ],
         };
     },
     methods: {
         openModal() {
             this.show = true;
+            if (this.objeto.servicio) {
+                this.esServicio = true;
+            } else {
+                this.esServicio = false;
+            }
         },
         closeModal() {
             this.show = false;
+            this.esServicio = false;
         },
         getLabel(key) {
             switch (key) {

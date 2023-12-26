@@ -359,8 +359,6 @@ export default {
 
             nuevoJSON.nomenclatura = 0;
 
-            console.log(nuevoJSON);
-
             fetch(url, {
                 method: 'POST',
                 headers: {

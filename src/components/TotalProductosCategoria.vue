@@ -1,14 +1,14 @@
 <template>
     <div class="contenedor">
-        <div class="col-md-12" v-if="conCategoria">
-            <div class="contador">
-                <h3>Dinero dentro de {{ this.nombreCategoria }}:</h3>
-                <div class="numero">$ {{ total }}</div>
-            </div>
-        </div>
-        <div class="col-md-12" v-if="!conCategoria">
+        <div v-if="!conCategoria">
             <div class="contador">
                 <h3>Ninguna categoría seleccionada</h3>
+            </div>
+        </div>
+        <div class="col-md-12" v-if="conCategoria">
+            <div class="contador">
+                <h4>Cantidad de productos en {{ this.nombreCategoria }}:</h4>
+                <h3>{{ cantidadProductos }} Productos</h3>
             </div>
         </div>
     </div>
@@ -24,15 +24,14 @@ export default {
         categoriaSeleccionada: {
             type: Number,
         },
-        nombreCategoria:{
-            type:String,
+        nombreCategoria: {
+            type: String,
         }
     },
     data() {
         return {
             productos: null,
-            mostrarTablaCategorias: true,
-            total: 0,
+            cantidadProductos: 0,
             conCategoria: false,
         };
     },
@@ -49,7 +48,7 @@ export default {
     methods: {
         mostrar() {
             this.productos = null;
-            this.total = 0;
+            this.cantidadProductos = 0;
             const id = this.categoriaSeleccionada;
 
             const url = `${API_URL}/${ENDPOINT_LISTAR_PRODUCTO_POR_CATEGORIA}/${id}`;
@@ -61,27 +60,15 @@ export default {
                 })
                 .then(data => {
                     this.productos = data;
-                    this.calcularCantidad(this.productos);
+                    this.mostrarCantidadProductos();
                 })
                 .catch(error => console.error(error));
+
         },
-        calcularCantidad(productos) {
-            if (!productos || !Array.isArray(productos)) {
-                return;
+        mostrarCantidadProductos() {
+            if (this.productos && Array.isArray(this.productos)) {
+                this.cantidadProductos = this.productos.length;
             }
-
-            let total = 0;
-
-            for (const producto of productos) {
-                const precioUnitario = producto.precioUnitario;
-                const cantidad = producto.cantidad;
-
-                const subtotal = precioUnitario * cantidad;
-
-                total += subtotal;
-            }
-            this.total = total;
-            this.total = total.toLocaleString('en-US');
             this.conCategoria = true;
         },
     },
@@ -112,7 +99,13 @@ export default {
 }
 
 .contador .numero {
-    font-size: 50px;
+    font-size: 30px;
     font-weight: bold;
+}
+
+.productos-list {
+    padding-left: 3px;
+    list-style: none;
+    padding: 0;
 }
 </style>

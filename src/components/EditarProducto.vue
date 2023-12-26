@@ -84,7 +84,7 @@
                             </template>
                             <div class="col-sm-6 form-group">
                                 <input type="checkbox" class="form-check-input" :id="key" :checked="objeto.servicio === 1"
-                                    @change="objeto.servicio = objeto.servicio === 1 ? 0 : 1" />
+                                    @change="cambioServicio" />
                                 <label :for="servicio" class="form-label label-left">Servicio</label>
                             </div>
                         </div>
@@ -136,12 +136,26 @@ export default {
                 { valor: '03', etiqueta: 'Anaquel 3' },
                 { valor: '04', etiqueta: 'Anaquel 4' },
                 { valor: '05', etiqueta: 'Anaquel 5' },
+                { valor: '06', etiqueta: 'Anaquel 6' },
+                { valor: '07', etiqueta: 'Anaquel 7' },
+                { valor: '08', etiqueta: 'Anaquel 8' },
                 { valor: '00', etiqueta: 'Ninguno' },
                 { valor: '100', etiqueta: 'Servicio' },
             ],
         };
     },
     methods: {
+        cambioServicio() {
+            if (this.objeto.servicio) {
+                this.objeto.localizacion = '00';
+                this.objeto.unidadMedida = 'Ninguno'
+                this.objeto.servicio = 0;
+            } else {
+                this.objeto.localizacion = '100';
+                this.objeto.unidadMedida = 'Servicio'
+                this.objeto.servicio = 1;
+            }
+        },
         openModal() {
             this.show = true;
         },

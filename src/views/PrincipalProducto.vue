@@ -2,7 +2,7 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-2 m-0 p-0">
+                <div class="col-2 m-0 p-0 nvar">
                     <Nvar />
                 </div>
                 <div class="col-10 m-0 p-0">
@@ -10,10 +10,10 @@
                         <div class="row">
                             <div class="mt-5 tablaP">
                                 <div class="row">
-                                    <div class="col-2">
+                                    <div class="col-2 titulo">
                                         <h1 class="h1 m-3">Almacén</h1>
                                     </div>
-                                    <div class="col-6 mt-4">
+                                    <div class="col-6 mt-4 titulo">
                                         <button @click="mostrar()" class="btn m-1 btn-warning">
                                             <font-awesome-icon :icon="['fas', 'sync-alt']" />
                                         </button>
@@ -29,7 +29,7 @@
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
-                                            <th>Número de Parte</th>
+                                            <th class="d-none d-sm-table-cell">Número de Parte</th>
                                             <th>Cantidad</th>
                                             <th>Acciones</th>
                                         </tr>
@@ -37,7 +37,7 @@
                                     <tbody>
                                         <tr v-for="producto in paginated" :key="producto.id">
                                             <td>{{ producto.nombre }}</td>
-                                            <td>{{ producto.numeroDeSerie }}</td>
+                                            <td class="d-none d-sm-table-cell">{{ producto.numeroDeSerie }}</td>
                                             <td>{{ producto.cantidad }}</td>
                                             <td>
                                                 <button @click="mostrarSalida(producto)" class="btn m-1 btn-secondary"
@@ -75,7 +75,7 @@
                                     <FormularioProducto ref="formularioProducto" :campos="camposProducto"
                                         :textoBoton="textoBotonSubcategoria" @formulario-enviado="agregarProducto"
                                         @categoria-cambiada="cargarSubcategorias" :visible="formularioVisible"
-                                        @cerrar-formulario="ocultarFormulario" />
+                                        @cerrar-formulario="ocultarFormulario" @actualizar-listas="actualizarListas" />
                                 </div>
 
                             </div>
@@ -130,6 +130,18 @@
 .tablaP {
     margin-left: 10px;
     margin-right: 40px;
+}
+@media (max-width: 750px) {
+    .nvar{
+        width: 100%;
+    }
+    .titulo{
+        size: 50px;
+        text-align: center;
+        margin: 0px;
+        padding: 0px;
+        width: 100%;
+    }
 }
 </style>
 
@@ -345,6 +357,10 @@ export default {
                     this.productos = data;
                 })
                 .catch(error => console.log(error));
+        },
+        actualizarListas() {
+            this.obtenerCategoriasDisponibles();
+            this.obtenerProveedoresDisponibles();
         },
         obtenerProveedoresDisponibles() {
             const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
@@ -602,7 +618,6 @@ export default {
 
 
             const objetoModificado = JSON.stringify(objetoJSON);
-
             
             
 
@@ -697,6 +712,7 @@ export default {
 
             nuevoJSON.cantidadMin = 0;
 
+            console.log(nuevoJSON);
 
             fetch(url, {
                 method: 'POST',

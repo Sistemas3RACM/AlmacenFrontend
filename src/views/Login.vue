@@ -133,7 +133,6 @@ export default {
                 // Dentro de la promesa de la solicitud fetch después de una respuesta exitosa
                 .then((response) => {
                     if (response.ok) {
-                        console.log('Respuesta exitosa');
 
                         // Actualiza la autenticación en el store Vuex
                         this.$store.dispatch('auth/login');
@@ -142,7 +141,6 @@ export default {
                         return response.json(); // Parsea la respuesta como JSON
                     } else {
                         // Maneja el caso de respuesta no exitosa
-                        console.log('Respuesta no exitosa');
                         this.error = true;
                         this.error_message = 'Error en el inicio de sesión. Verifica tus credenciales.';
                         throw new Error('Error en la respuesta del servidor');

@@ -2,7 +2,7 @@
     <div class="contenedor">
         <div class="col-md-12">
             <div class="contador">
-                <h3>Productos en almacén</h3>
+                <h4>Productos en almacén</h4>
                 <div class="numero">{{ total }} Productos</div>
             </div>
         </div>
@@ -45,18 +45,18 @@ export default {
                 total += cantidad;
             }
             this.total = total;
-            console.log(this.total);
         },
     },
 
 };
 </script>
 <style scoped>
-.contenedor{
+.contenedor {
     padding: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
+
 .boton-container {
     display: flex;
     justify-content: center;
@@ -74,7 +74,13 @@ export default {
 }
 
 .contador .numero {
-    font-size: 50px;
+    font-size: 45px;
     font-weight: bold;
+}
+
+@media (max-width: 750px) {
+    .contador .numero {
+        font-size: 30px;
+    }
 }
 </style>

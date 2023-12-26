@@ -2,7 +2,7 @@
     <div class="contenedor">
         <div class="col-md-12">
             <div class="contador">
-                <h3>Dinero en almacén</h3>
+                <h4 class="titulo">Dinero en almacén</h4>
                 <div class="numero">$ {{ total }}</div>
             </div>
         </div>
@@ -59,6 +59,11 @@ export default {
     padding: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    
+}
+.titulo{
+    size: 20px;
+    font-weight: bold;
 }
 .boton-container {
     display: flex;
@@ -77,7 +82,16 @@ export default {
 }
 
 .contador .numero {
-    font-size: 50px;
+    font-size: 45px;
     font-weight: bold;
+}
+@media (max-width: 767px) {
+    .contenedor{
+        width: 100%;
+    }
+    .contador .numero {
+    font-size: 30px;
+}
+
 }
 </style>
