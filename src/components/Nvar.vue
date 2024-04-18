@@ -6,7 +6,7 @@
     <div class="collapse navbar-collapse" :class="{ 'show': isNavbarOpen }">
       <ul class="navbar-nav flex-column">
         <li class="nav-item m-3">
-          <a class="navbar-brand" href="#">Almacén</a>
+          <a class="navbar-brand titulo" href="#">Almacén</a>
         </li>
         <router-link to="/dashboard" class="nav-link opciones" v-if="mostrarCampos">
           <font-awesome-icon :icon="['fas', 'home']" />
@@ -62,6 +62,12 @@ export default {
   
 <style scoped>
 /* Estilos CSS específicos del componente */
+/* Estilos CSS específicos del componente */
+
+.bg-color {
+  background-color: #0056FF; /* Cambiar al color deseado */
+}
+
 .opciones:hover {
   background: #5F5B5B;
 }
@@ -95,7 +101,6 @@ export default {
 
 .navbar-dark .navbar-nav {
   width: 100%;
-  /* Ancho completo para el menú */
   height: 98vh;
 }
 
@@ -103,5 +108,21 @@ export default {
   margin-top: auto;
   /* Empuja la opción de "Salida" hacia la parte inferior */
 }
+@media (max-width: 767px) {
+  .navbar-nav.flex-column {
+    align-items: center;
+  }
+  .titulo {
+    display: block; /* Muestra el título */
+    text-align: center;
+    margin: auto; /* Centra el título */
+  }
+  .navbar-dark .navbar-nav {
+  width: 100%;
+  height: 80vh;
+}
+}
+
+
 </style>
   

@@ -55,7 +55,6 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     this.categorias = data;
-                    console.log(this.categorias);
                 })
                 .catch(error => console.log(error));
         },
@@ -67,7 +66,6 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     this.productos = data;
-                    console.log(this.productos);
                 })
                 .catch(error => console.log(error));
         },

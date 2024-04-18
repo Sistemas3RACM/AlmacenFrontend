@@ -105,7 +105,6 @@ export default {
                     pdf.setFont("helvetica", "normal");
                     pdf.text(`Fecha de salida: ${formattedStartDate} - ${formattedEndDate}`, 20, 50);
 
-                    console.log(formattedEndDate);
 
                     const chartContainer1 = this.$refs.chartContainer1;
                     const chartImage1 = await html2canvas(chartContainer1);

@@ -3,7 +3,7 @@
       <div class="modal-content">
         <h3 class="modal-title">Correcto</h3>
         <p>{{ message }}</p>
-        <button @click="closeModal" class="btn btn-primary">Cerrar</button>
+        <button @click="closeModal" class="btn btn-success">Cerrar</button>
       </div>
     </div>
   </template>
@@ -52,6 +52,11 @@
   
   button {
     margin-top: 10px;
+  }
+  @media (max-width: 750px) {
+    .modal-content {
+    width: 70%;
+  }
   }
   </style>
   

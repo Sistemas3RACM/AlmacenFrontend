@@ -84,9 +84,9 @@
     background: white;
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    height: 40vh;
+    height: 60vh;
     border-radius: 10px;
-    margin-top: 24%;
+    margin-top: 35%;
     width: 100%;
 }
 

@@ -79,11 +79,12 @@
 .formulario {
     background: white;
     padding: 20px;
-    margin-top: 100px;
+    margin-top: 130px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    height: 55vh;
+    height: 70vh;
     border-radius: 10px;
     width: 100%;
+
 }
 
 .tablaP {

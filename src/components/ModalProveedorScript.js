@@ -29,7 +29,6 @@ export default {
             this.show = false;
         },
         agregarProveedor() {
-            console.log(this.proveedor);
             // const url = `${API_URL}/${ENDPOINT_AGREGAR_PROVEEDOR}`;
 
             // const nuevoJSON = {};

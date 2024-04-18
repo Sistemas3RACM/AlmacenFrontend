@@ -290,7 +290,6 @@ export default {
                 "fechaDeMovimiento": null
             };
 
-            console.log(JSONmovimientos);
 
             const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
 

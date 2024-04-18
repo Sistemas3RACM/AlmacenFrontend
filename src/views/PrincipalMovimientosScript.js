@@ -75,7 +75,6 @@ export default {
 
             const movimientosWithNames = await Promise.all(
                 this.movimientos.map(async (movimiento) => {
-                    console.log(movimiento.encargado);
                     const nombre = await this.buscarNombreUsuario(movimiento.encargado);
                     return { ...movimiento, encargadoName: nombre };
                 })

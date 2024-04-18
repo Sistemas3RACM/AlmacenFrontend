@@ -30,6 +30,8 @@ export default {
                     required: true,
                     opciones: []
                 },
+                { id: 'marca', label: 'Marca', nombre: 'marca', type: 'text', valor: '' },
+                { id: 'modelo', label: 'Modelo', nombre: 'marca', type: 'text', valor: '' },
                 { id: 'descripcion', label: 'Descripción', nombre: 'descripcion', type: 'text', valor: '' },
                 { id: 'cantidad', label: 'Cantidad', nombre: 'cantidad', type: 'text', valor: '', required: true },
                 { id: 'precioUnitario', label: 'Precio unitario', nombre: 'precioUnitario', type: 'text', valor: '', required: true },
@@ -80,7 +82,7 @@ export default {
                         { valor: 'Gramos', etiqueta: 'Gramos' },
                         { valor: 'Centímetros', etiqueta: 'Centímetros' },
                         { valor: 'Ninguno', etiqueta: 'Ninguno' },
-                        
+
                     ],
                 },
                 { id: 'cantidadMin', label: 'Cantidad Minima', nombre: 'cantidadMin', type: 'number', valor: 0, hidden: true },
@@ -99,6 +101,8 @@ export default {
                 numeroDeSerie: '',
                 idCategoria: 0,
                 idSubcategoria: 0,
+                marca: '',
+                modelo: '',
                 descripcion: '',
                 unidadMedida: '',
                 cantidad: '',
@@ -349,6 +353,7 @@ export default {
                 proyectoCuenta: datos.proyectoCuenta,
             };
 
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -357,7 +362,6 @@ export default {
                 body: JSON.stringify(objetoSolicitud),
             })
                 .then(response => {
-                    console.log('Respuesta del servidor:', response);
                     if (response.status === 201) {
                         this.ocultarFormulario();
                         this.editarSubcategoria(objetoProducto);
@@ -446,8 +450,9 @@ export default {
 
 
             const objetoModificado = JSON.stringify(objetoJSON);
-            
-            
+
+
+
 
             if (!objetoJSON.nombre || !objetoJSON.precioUnitario) {
                 this.errorMessage = 'El campo nombre, precio unitario o cantidad minima no puede estar vacio';
@@ -540,7 +545,6 @@ export default {
 
             nuevoJSON.cantidadMin = 0;
 
-            console.log(nuevoJSON);
 
             fetch(url, {
                 method: 'POST',
@@ -587,7 +591,6 @@ export default {
                 "fechaDeMovimiento": null
             };
 
-            console.log(JSONmovimientos);
 
             const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
 

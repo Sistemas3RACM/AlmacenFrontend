@@ -49,6 +49,10 @@ export default {
   width: 40%;
   border-radius: 10px;
 }
-
+@media (max-width: 750px) {
+    .modal-content {
+    width: 70%;
+  }
+  }
 /* Puedes agregar estilos personalizados aquí si es necesario */
 </style>

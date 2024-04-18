@@ -95,7 +95,6 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     this.usuarios = data;
-                    console.log(this.usuarios);
                 })
                 .catch(error => console.log(error));
         },
@@ -141,7 +140,6 @@ export default {
                 });
         },
         eliminarUsuario(id) {
-            console.log(id);
             if (!id) {
                 this.errorMessage = 'Surgio un problema con el ID';
                 this.$refs.modalError.openModal();

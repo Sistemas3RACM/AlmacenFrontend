@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
+import Login from '../views/Login/Login.vue'
 import store from '@/store';
 
 
@@ -13,13 +13,13 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Dashboard.vue'),
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Dashboard/Dashboard.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/principalProveedor',
     name: 'principalProveedor',
-    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalProveedor.vue'),
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Proveedor/PrincipalProveedor.vue'),
     meta: { requiresAuth: true },
   },
   {
@@ -37,7 +37,7 @@ const routes = [
   {
     path: '/principalCategorias',
     name: 'principalCategorias',
-    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalCategorias.vue'),
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/CategoriaSubcategoria/PrincipalCategorias.vue'),
     meta: { requiresAuth: true },
   },
   {
@@ -49,7 +49,7 @@ const routes = [
   {
     path: '/principalReportes',
     name: 'principalReportes',
-    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalReportes.vue'),
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Reportes/PrincipalReportes.vue'),
     meta: { requiresAuth: true },
   },
   {
@@ -67,7 +67,7 @@ const routes = [
   {
     path: '/principalProducto',
     name: 'principalProducto',
-    component: () => import(/* webpackChunkName: "dashboard" */ '../views/PrincipalProducto.vue'),
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Producto/PrincipalProducto.vue'),
     meta: { requiresAuth: true },
   },
   {
@@ -89,6 +89,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    /*LAS RUTAS ESTAN MODIFICADAS PARA QUE FUNCIONEN EN EL SERVIDOR SOLO SE LE AGREGO SistemaAlmacen/dist/  A TODO*/
     path: '/',
     name: 'login',
     component: Login
@@ -111,7 +112,7 @@ router.beforeEach((to, from, next) => {
       next('/');
     }
   } else {
-    next(); 
+    next();
   }
 });
 
