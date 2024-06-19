@@ -9,45 +9,42 @@ export default {
                 contraseña: '',
                 correo: ''
             },
-            usuario: '',
-            password: '',
             error: false,
             error_message: '',
         };
     },
     methods: {
-        login() {
 
+        async login() {
             const url = `${API_URL}/${ENDPOINT_INICIO_SESION}`;
 
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
+            try {
+                const response = await axios.post(url, this.datos);
 
-            axios.post(url, this.datos, config)
-                .then(response => {
+                const data = response.data;
+
+                if (data.objetoEnviado.match) {
+                    const token = data.objetoEnviado.token;
                     this.$store.dispatch('auth/login');
-                    const userId = response.data.idUsuario;
-                    const userAdmin = response.data.puesto; // Asumiendo que se recibe el userAdmin desde el servidor
+                    this.$store.commit('auth/SET_TOKEN', token);
+                    const userId = data.objetoEnviado.usuario.idUsuario;
+                    const userAdmin = data.objetoEnviado.usuario.puesto;
 
                     this.$store.commit('auth/SET_USER_ID', userId);
-                    this.$store.commit('auth/SET_USER_ADMIN', userAdmin); // Guarda userAdmin en el store
+                    this.$store.commit('auth/SET_USER_ADMIN', userAdmin);
 
 
-                    if (userAdmin == 3) {
-                        this.$router.push('/principalProducto');
-                    } else {
-                        this.$router.push('/dashboard');
-                    }
+                    this.$router.push('/principalProducto');
 
-                })
-                .catch(() => {
+                } else {
                     this.error_message = 'Credenciales incorrectas...';
-                    this.error = true;
-                });
+                    this.error = true;                }
 
+            } catch (error) {
+                console.error(error);
+                this.error_message = 'Credenciales incorrectas...';
+                this.error = true;
+            }
         },
     },
 };

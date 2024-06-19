@@ -2,217 +2,207 @@
     <section class="container-fluid">
         <div>
             <div class="row">
-                <div class="col-12 col-md-2 m-0 p-0 nvar">
-                    <Nvar />
-                </div>
-                <div class="col-12 col-md-10 m-0 p-0">
-                    <section>
-                        <div class="row contenidoEnvuelto">
-                            <div class="contenidoPrincipal">
-                                <div class="row">
-                                    <div class="col-12 col-lg-2 titulo">
-                                        <h1 class="h1">Almacén</h1>
-                                    </div>
-                                    <div class="col botonCargar">
-                                        <button @click="mostrar()" class="btn m-1 btn-warning">
-                                            <font-awesome-icon :icon="['fas', 'sync-alt']" />
-                                        </button>
-                                        <button @click="abrirAgregarProducto()" class="btn m-1 btn-primary">
-                                            Agregar
-                                        </button>
-                                    </div>
-                                    <div class="col-12 col-lg-4 mt-4 buscador input-container">
-                                        <BusquedaGeneral @busqueda="buscarProducto" />
-                                    </div>
-                                </div>
-                                <div class="row m-2 categorias">
-                                    <a class="col-6 btn btn-success" @click="cambiarProductoServicio">Productos</a>
-                                    <a class="col-6 btn btn-secondary" @click="cambiarProductoServicio">Servicios</a>
-                                </div>
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th class="d-none d-sm-table-cell">Número de Parte</th>
-                                            <th>Cantidad</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="producto in paginated" :key="producto.idProducto">
-                                            <td>{{ producto.nombre }}</td>
-                                            <td class="d-none d-sm-table-cell">{{ producto.numeroDeSerie }}</td>
-                                            <td>{{ producto.cantidad }}</td>
-                                            <td>
-                                                <button @click="abrirSalida(producto.idProducto)"
-                                                    class="btn m-1 btn-secondary" v-if="permisos != 3"
-                                                    title="Baja de producto">
-                                                    <font-awesome-icon :icon="['fas', 'minus']" />
-                                                </button>
-                                                <button @click="mostrarEdicion(producto.idProducto)"
-                                                    class="btn m-1 btn-warning">
-                                                    <font-awesome-icon :icon="['fas', 'edit']" />
-                                                </button>
-                                                <button @click="mostrarInformacion(producto.idProducto)"
-                                                    class="btn m-1 btn-primary">
-                                                    <font-awesome-icon :icon="['fas', 'eye']" />
-                                                </button>
-                                                <button @click="abrirEntrada(producto.idProducto)"
-                                                    class="btn m-1 btn-secondary" v-if="permisos != 3"
-                                                    title="Alta de producto">
-                                                    <font-awesome-icon :icon="['fas', 'plus']" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <!-- Botones de navegación -->
-                                <div class="pagination-buttons boton-container">
-                                    <button @click="goToPage(currentPage - 1)" class="btn btn-info"
-                                        :disabled="currentPage === 1">Anterior</button>
-                                    <button @click="goToPage(currentPage + 1)" class="btn btn-info"
-                                        :disabled="currentPage === totalPages">Siguiente</button>
-                                </div>
+                <Nvar />
+            </div>
+            <div class="row ">
+                <div class="col-md-12" v-if="show">
+                    <div class="row">
+                        <div class="row m-2 align-items-center">
+                            <div class="col-md-5">
+                                <h1 class="titulo-seccion" v-if="enProductos">Productos</h1>
+                                <h1 class="titulo-seccion" v-if="!enProductos">Servicios</h1>
+                            </div>
+                            <div class="col-md-7 d-flex justify-content-end">
+                                <a class="btn btn-servicios btn-anchura" @click="cambioServicio"
+                                    v-if="enProductos">Servicios</a>
+                                <a class="btn btn-servicios btn-anchura" @click="cambioServicio"
+                                    v-if="!enProductos">Productos</a>
+                                <button v-if="!showInput" class="btn btn-secondary btn-anchura"
+                                    @click="toggleSearchInput">
+                                    <font-awesome-icon :icon="['fas', 'search']" />
+                                </button>
+                                <!-- Input de búsqueda -->
+                                <input v-model="searchTerm" v-if="showInput" type="text" class="form-control"
+                                    placeholder="Buscar por producto..." @input="buscar(searchTerm)">
+                                <button v-if="showInput" class="btn btn-danger m-1"
+                                    @click="toggleSearchInput">Cancelar</button>
+
+                                <a class="btn btn-mas" @click="abrirAgregar">+</a>
+
                             </div>
                         </div>
-                    </section>
+
+                        <hr>
+                        <div class="col-md-12" v-if="productos.length > 0">
+                            <table class="table table-striped justify-content-center text-center">
+                                <thead>
+                                    <tr class="table-active">
+                                        <th>Número de serie</th>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Unidad de medida</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="producto in paginated" :key="producto.idProducto">
+                                        <td>{{ producto.numeroDeSerie }}</td>
+                                        <td>{{ producto.nombre }}</td>
+                                        <td>{{ producto.cantidad }}</td>
+                                        <td>{{ producto.unidadMedida }}</td>
+                                        <td class="button-container">
+                                            <button @click="abrirModalEntrada(producto)"
+                                                class="btn btn-success btn-redondo" v-if="permisosAdmin != 3">
+                                                +
+                                            </button>
+
+                                            <button @click="abrirModalEdicion(producto)"
+                                                class="btn btn-warning btn-redondo" v-if="permisosAdmin != 3">
+                                                <font-awesome-icon :icon="['fas', 'edit']" />
+                                            </button>
+                                            <button @click="abrirModalInformacion(producto.idProducto)"
+                                                class="btn btn-primary btn-redondo">
+                                                <font-awesome-icon :icon="['fas', 'eye']" />
+                                            </button>
+                                            <button @click="eliminar(producto)" class="btn btn-danger btn-redondo"
+                                                v-if="permisosAdmin != 3">
+                                                <font-awesome-icon :icon="['fas', 'trash']" />
+                                            </button>
+
+                                            <button @click="abrirModalSalida(producto)"
+                                                class="btn btn-secondary btn-redondo" v-if="permisosAdmin != 3">
+                                                -
+                                            </button>
+
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- Botones de navegación -->
+                            <div class="pagination-buttons boton-container">
+                                <button @click="goToPage(currentPage - 1)" class="btn btn-secondary"
+                                    :disabled="currentPage === 1">&lt;</button>
+                                <button @click="goToPage(currentPage + 1)" class="btn btn-secondary"
+                                    :disabled="currentPage === totalPages">&gt;</button>
+                            </div>
+                        </div>
+                        <div class="col-md-9" v-else>
+                            <h1 class="text-center">No hay ningún producto registrado.</h1>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>
-    <ModalError :message="errorMessage" ref="modalError" />
-    <ModalSuccess :message="successMessage" ref="modalSuccess" />
-    <FormularioProducto :objeto="producto" @formulario-enviado="agregarProducto" ref="agregarProducto" />
-    <EditarProducto :objeto="producto" @formulario-enviado="editarProducto" ref="editarProducto" />
-    <VerProducto :objeto="producto" ref="verProducto" />
-    <ModalEntrada :objetoEntrada="producto" @recargar-pagina="mostrar" ref="EntradaProducto" />
-    <ModalSalida :objetoSalida="producto" @recargar-pagina="mostrar" ref="SalidaProducto" />
+    <VerProducto @regresar-listado="mostrar" ref="Informacion" />
+    <EditarProducto @regresar-listado="mostrar" @editar-producto="editar" ref="Editar" />
+    <ModalEntrada @crear-entrada="editar" ref="Entrada" />
+    <FormularioProducto @regresar-listado="mostrar" @guardar-producto="guardar" ref="Agregar" />
+    <ModalSalida @recargar-cambios="mostrar" ref="Salida" />
+
 
 </template>
 
 <style scoped>
+.btn-mas {
+    background-color: #28A745;
+    /* Color de fondo */
+    color: white;
+    /* Color del texto */
+}
+
+/* Elimina el margen derecho del último botón */
+.col-md-7 .btn:last-child {
+    margin-right: 0;
+}
+
+.titulo-seccion {
+    font-size: 3.4rem;
+    /* Puedes ajustar el tamaño según prefieras */
+    margin: 1.2rem;
+}
+
 .boton-container {
     display: flex;
     justify-content: center;
     gap: 10px;
 }
 
-.formulario {
-    background: white;
-    padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    width: 80%;
-    /* Ancho del 80% de la pantalla */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    /* Asegura que esté al frente de todo */
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    /* Espacio entre botones */
 }
 
-.contenidoPrincipal {
-    margin: 10px;
-    margin-top: 50px;
+.btn {
+    border-radius: 0;
+    /* Esquinas en punta */
+    margin-right: 27px;
+    /* Separación de 27px */
+    padding: 10px 20px;
+    /* Espaciado interno del botón */
+    text-align: center;
+    /* Alineación del texto */
+    display: inline-block;
+    /* Asegura que los botones estén en línea */
+    text-decoration: none;
+    /* Elimina el subrayado de los enlaces */
+    font-weight: bold;
+    /* Texto en negritas */
+    cursor: pointer;
+    /* Cursor en forma de mano */
+    font-size: 1rem
 }
 
-.botonCargar {
-    margin-top: 15px;
-    margin-left: 25px;
+thead tr {
+    font-size: 1.1rem;
 }
 
-.tablaP {
-    margin-left: 10px;
-    margin-right: 40px;
+.btn-redondo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
 }
 
-@media (max-width: 750px) {
-    .nvar {
-        width: 100%;
-    }
+.btn-anchura {
+    width: 400px;
+}
 
-    .contenidoPrincipal {
-        margin: 0px;
-    }
-    .contenidoPrincipal .titulo{
-        margin: 0;
-        padding: 0;
-    }
-
-    .contenidoPrincipal .titulo h1 {
-        font-size: 50px;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-    }
-
-    .contenidoPrincipal .buscador {
-        margin: 0
-    }
-
-    .input-container {
-        display: flex;
-        justify-content: center;
-    }
-
-    .botonCargar {
-        margin-top: 5px;
-        display: flex;
-        justify-content: center;
-
-    }
-
-    .categorias {
-        margin: 0;
-        display: flex;
-        justify-content: center;
-    }
-
-    .table {
-        width: 100%;
-        margin: 0;
-    }
-
-    .tablaP {
-        margin: 0;
-    }
-    .contenidoEnvuelto{
-        margin: 0;
-        margin-bottom: 20px;
-        padding: 0;
-    }
-
+/* Botón de Pendientes */
+.btn-servicios {
+    background-color: #bf9f3f;
+    /* Color de fondo */
+    color: rgb(255, 255, 255);
+    /* Color del texto */
 }
 </style>
 
 <script>
-import tabla from '../../components/tablainformacion.vue';
-import Nvar from '../../components/Nvar';
-import FormularioProducto from '@/components/Producto/FormularioProducto.vue';
-import ModalSuccess from '@/components/ModalSuccess.vue';
-import ModalError from '@/components/ModalError.vue';
+import Nvar from '@/components/Nvar.vue';
+import PrincipalProducto from './PrincipalProducto.js';
 import VerProducto from '@/components/Producto/VerProducto.vue';
 import EditarProducto from '@/components/Producto/EditarProducto.vue';
-import BusquedaGeneral from '@/components/BusquedaGeneral.vue';
 import ModalEntrada from '@/components/Entrada/ModalEntrada.vue';
 import ModalSalida from '@/components/Salida/ModalSalida.vue';
-import PrincipalProducto from './PrincipalProducto';
+import FormularioProducto from '@/components/Producto/FormularioProducto.vue';
 
 export default {
     ...PrincipalProducto,
     components: {
-        tabla,
         Nvar,
-        FormularioProducto,
-        ModalSuccess,
-        ModalError,
-        EditarProducto,
         VerProducto,
-        BusquedaGeneral,
+        EditarProducto,
         ModalEntrada,
+        FormularioProducto,
         ModalSalida,
-    },
+    }
 };
 </script>

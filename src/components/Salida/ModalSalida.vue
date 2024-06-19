@@ -3,38 +3,37 @@
         <div class="modal-content">
             <h3 class="modal-title">Salida</h3>
             <div class="alert alert-info" role="alert">
-                La cantidad actual del producto es de {{ objetoSalida.cantidad }} {{ objetoSalida.unidadMedida }}
+                La cantidad actual del producto es de {{ producto.cantidad }} {{ producto.unidadMedida }}
             </div>
             <div class="principal">
                 <form @submit.prevent="crearSalida">
                     <div class="mb-3 container-fluid">
                         <div class="row">
                             <div class="form-group">
-                                <label class="form-label label-left">Cantidad:</label>
-                                <div>
-                                    <div>
-                                        <input type="text" class="form-control" v-model="cantidadInicial" />
-                                    </div>
-                                </div>
+                                <label class="form-label mt-1">Ajuste de inventario:</label>
+                                <select v-model="esAjuste" class="form-control">
+                                    <option :value=0>No</option>
+                                    <option :value=1>Si</option>
+                                </select>
                             </div>
-                            <div v-if="!mostrarMotivo">
+                            <div class="form-group">
+                                <label class="form-label label-left">Cantidad:</label>
+
+                                <input type="text" class="form-control" v-model="solicitud.cantidad" />
+
+                            </div>
+                            <div class="form-group" v-if="esAjuste == 0">
                                 <label class="form-label mt-1">Nombre del solicitante:</label>
-                                <select v-model="objetoCorreo.idSolicitante" class="form-control">
-                                    <option v-for="usuario in usuarios" :key="usuario.idUsuario" :value="usuario.idUsuario">
+                                <select v-model="usuarioSeleccionado" class="form-control">
+                                    <option v-for="usuario in usuarios" :key="usuario.idUsuario" :value="usuario">
                                         {{
                                             usuario.nombre }}</option>
                                 </select>
-
-                                <label class="form-label mt-1">Correo:</label>
-                                <select v-model="objetoCorreo.correo.destinatario" class="form-control">
-                                    <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.correo">{{
-                                        usuario.correo }}</option>
-                                </select>
-                                <label class="form-label mt-1">Cuenta cargo o proyecto:</label>
-                                <input type="text" class="form-control" v-model="proyectoCuenta" required />
                             </div>
-                            <div v-if="permisos">
-                                <input type="checkbox" v-model="mostrarMotivo" /> Ajuste de inventario
+                            <div class="form-group" v-if="esAjuste == 0">
+                                <label class="form-label mt-1">Cuenta cargo o proyecto:</label>
+                                <input type="text" class="form-control" v-model="solicitud.proyectoCuenta" required />
+
                             </div>
                         </div>
                     </div>
@@ -45,25 +44,19 @@
             </div>
         </div>
     </div>
-    <ModalError :message="errorMessage" ref="modalError" />
-    <ModalSuccess :message="successMessage" ref="modalSuccess" />
 
 </template>
 
 <script>
-import ModalError from '@/components/ModalError.vue';
 import ModalSalidaScript from '@/components/Salida/ModalSalidaScript';
-import ModalSuccess from '../ModalSuccess.vue';
 
 export default {
     ...ModalSalidaScript,
     components: {
-        ModalError,
-        ModalSuccess,
     },
 };
 </script>
-  
+
 <style scoped>
 .modal-success {
     position: fixed;
@@ -87,21 +80,21 @@ export default {
     padding: 20px;
     text-align: center;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 30%;
+    width: 25%;
     border-radius: 10px;
 }
 
 button {
     margin-top: 10px;
 }
+
 @media (max-width: 750px) {
     .modal-content {
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    border-radius: 10px;
-}
+        padding: 10px;
+        text-align: center;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        width: 100%;
+        border-radius: 10px;
+    }
 }
 </style>
-  

@@ -1,300 +1,264 @@
-import axios from 'axios';
 import {
-    API_URL, ENDPOINT_LISTAR_PRODUCTOS, ENDPOINT_AGREGAR_PRODUCTO, ENDPOINT_CONSULTAR_PRODUCTO,
-    ENDPOINT_EDITAR_PRODUCTO, ENDPOINT_BUSCAR_PRODUCTO
-} from '../../keys';
+  API_URL,
+  ENDPOINT_AGREGAR_PRODUCTO,
+  ENDPOINT_CONSULTAR_PRODUCTO,
+  ENDPOINT_EDITAR_PRODUCTO,
+  ENDPOINT_ELIMINAR_PRODUCTO,
+  ENDPOINT_LISTAR_PRODUCTOS,
+} from "@/keys";
+import axios from "axios";
 
 export default {
-    name: 'InicioSubcategoria',
-    data() {
-        return {
-            currentPage: 1,
-            pageSize: 6,
-            producto: {
-                nombre: '',
-                numeroDeSerie: '',
-                idCategoria: 0,
-                idSubcategoria: 0,
-                marca: '',
-                modelo: '',
-                descripcion: '',
-                status: false,
-                unidadMedida: '',
-                cantidad: 0,
-                precioUnitario: 0,
-                consumible: false,
-                servicio: false,
-                idProveedor: 0,
-                localizacion: '',
-                cantidadMin: 0,
-                idCuenta: 0
-            },
-            permisos: 0,
-            productos: [],
-            proveedores: [],
-            categorias: [],
-            errorMessage: '',
-            successMessage: '',
-            cambioProductoServicio: false,
-        }
+  name: "UsuariosView",
+  data() {
+    return {
+      todosProductos: [],
+      productos: [],
+      enProductos: true,
+      showInput: false,
+      searchTerm: "",
+      show: true,
+      permisosAdmin: 0,
+
+      currentPage: 1,
+      pageSize: 8,
+    };
+  },
+  mounted() {
+    this.mostrar();
+    this.obtenerPermisos();
+  },
+  computed: {
+    // The above code is a method in a Vue component that calculates the total number of pages based on the
+    // number of users and the page size. It first checks if the `usuarios` array is defined, and if not,
+    // it returns 0. If the `usuarios` array is defined, it calculates the total number of pages by
+    // dividing the length of the `usuarios` array by the `pageSize` property and rounding up using the
+    // `Math.ceil()` function.
+    totalPages() {
+      if (!this.productos) return 0;
+      return Math.ceil(this.productos.length / this.pageSize);
+    },
+    // The above code is a method in a Vue component that is used for pagination.
+    paginated() {
+      if (!this.productos) return null;
+
+      const sortedproductos = this.productos.slice().reverse();
+
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+
+      return sortedproductos.slice(startIndex, endIndex);
+    },
+  },
+  methods: {
+    goToPage(page) {
+      if (page < 1) page = 1;
+      if (page > this.totalPages) page = this.totalPages;
+      this.currentPage = page;
     },
 
-    mounted() {
+    async mostrar() {
+      this.enProductos = true;
+      const url = `${API_URL}/${ENDPOINT_LISTAR_PRODUCTOS}`;
+      const token = this.$store.state.auth.token;
 
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.todosProductos = response.data;
+        this.productos = this.todosProductos.filter(
+          (producto) => producto.servicio == 0
+        );
+        this.show = true;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando los productos, intentelo nuevamente."
+        );
+      }
+    },
+
+    async guardar(objeto) {
+      const ID = this.$store.state.auth.userId;
+      const token = this.$store.state.auth.token;
+
+      const url = `${API_URL}/${ENDPOINT_AGREGAR_PRODUCTO}`;
+
+      try {
+        const objetoAenviar = {
+          producto: objeto,
+          solicitante: ID,
+        };
+
+        await axios.post(url, objetoAenviar, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("Se ha creado el producto con éxito");
         this.mostrar();
-        this.obtenerPermisos();
-
+      } catch (error) {
+        console.log(error);
+        if (error.response && error.response.status === 530) {
+          alert("Ya existe un producto con el mismo nombre registrado.");
+        } else {
+          alert(
+            "Ha ocurrido un problema creando el producto, inténtelo nuevamente."
+          );
+        }
+        this.mostrar();
+      }
     },
 
-    computed: {
-
-        totalPages() {
-            if (!this.productos) return 0;
-            return Math.ceil(this.productos.length / this.pageSize);
-        },
-
-        paginated() {
-            if (!Array.isArray(this.productos) || this.productos.length === 0) {
-
-                return null;
-            }
-
-            const sortedProductos = this.productos.slice().reverse();
-
-            const startIndex = (this.currentPage - 1) * this.pageSize;
-            const endIndex = startIndex + this.pageSize;
-
-            return sortedProductos.slice(startIndex, endIndex);
-        },
-
+    async abrirModalInformacion(id) {
+      let objeto = await this.consultarProducto(id);
+      this.show = false;
+      this.$refs.Informacion.openModal(objeto);
     },
 
-    methods: {
-
-        goToPage(page) {
-            if (page < 1) page = 1;
-            if (page > this.totalPages) page = this.totalPages;
-            this.currentPage = page;
-        },
-
-        obtenerPermisos() {
-            const idUsuario = this.$store.state.auth.userAdmin;
-
-            this.permisos = idUsuario;
-        },
-
-        async mostrar() {
-            await this.listarProductos();
-
-        },
-
-        listarProductos() {
-            const url = `${API_URL}/${ENDPOINT_LISTAR_PRODUCTOS}`;
-
-            return axios.get(url)
-                .then(response => {
-                    // Guardar una copia de respaldo de los productos originales
-                    this.productosOriginales = response.data;
-                    // Filtrar los productos para mostrar solo los que son productos (servicio = 0)
-                    this.productos = this.productosOriginales.filter(producto => producto.servicio === 0);
-                    this.cambioProductoServicio = true;
-                })
-                .catch(() => {
-                    console.log("Error al listar los productos existentes");
-                });
-        },
-
-        cambiarProductoServicio() {
-            if (this.cambioProductoServicio) {
-                // Mostrar solo productos
-                this.productos = this.productosOriginales.filter(producto => producto.servicio === 1);
-            } else {
-                // Mostrar solo servicios
-                this.productos = this.productosOriginales.filter(producto => producto.servicio === 0);
-            }
-            // Cambiar el estado de cambioProductoServicio para alternar entre productos y servicios
-            this.cambioProductoServicio = !this.cambioProductoServicio;
-        },
-
-        buscarProducto(termino) {
-            const url = `${API_URL}/${ENDPOINT_BUSCAR_PRODUCTO}?nombre=${termino}`;
-
-            axios.get(url)
-                .then(response => {
-                    this.productos = response.data;
-                }).catch(() => {
-                    console.log("No se ha encontrado ningún producto con esa caracteristica.")
-                });
-        },
-
-        async abrirAgregarProducto() {
-            await this.limpiarObjeto();
-            this.$refs.agregarProducto.openModal();
-        },
-
-        limpiarObjeto() {
-            return this.producto = {
-                nombre: '',
-                numeroDeSerie: '',
-                idCategoria: 0,
-                idSubcategoria: 0,
-                marca: '',
-                modelo: '',
-                descripcion: '',
-                status: false,
-                unidadMedida: '',
-                cantidad: 0,
-                precioUnitario: 0,
-                consumible: false,
-                servicio: false,
-                idProveedor: 0,
-                localizacion: '',
-                cantidadMin: 0,
-                idCuenta: 0
-            };
-        },
-
-        agregarProducto(objeto) {
-
-            const idUsuario = this.$store.state.auth.userId;
-
-            const url = `${API_URL}/${ENDPOINT_AGREGAR_PRODUCTO}?idSolicitante=${idUsuario}`;
-
-            if (objeto.servicio && objeto.localizacion != "100") {
-
-                this.errorMessage = 'Si registra un servicio seleccione en ubicacion "SERVICIO"';
-                this.$refs.modalError.openModal();
-                return;
-            }
-            if (!objeto.servicio && objeto.localizacion == "100") {
-
-                this.errorMessage = 'Si registra un producto seleccione alguna ubicacion difernte a SERVICIO';
-                this.$refs.modalError.openModal();
-                return;
-            }
-
-            var servicio = objeto.servicio ? "S" : "P";
-
-            if (objeto.marca == '') {
-                objeto.marca = 'S/M';
-            }
-            if (objeto.modelo == '') {
-                objeto.modelo = 'S/M';
-            }
-
-
-            objeto.numeroDeSerie = servicio;
-
-            if (objeto.servicio) {
-                objeto.servicio = 1;
-            } else {
-                objeto.servicio = 0;
-            }
-
-            objeto.consumible = 1;
-            objeto.status = 1;
-
-            const precioCadena = objeto.precioUnitario;
-            const precioNum = parseFloat(precioCadena);
-
-            objeto.precioUnitario = precioNum;
-
-            const cantidadCadena = objeto.cantidad;
-            const cantidadNum = parseFloat(cantidadCadena);
-
-            objeto.cantidad = cantidadNum;
-
-            objeto.cantidadMin = 0;
-
-
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-
-            axios.post(url, objeto, config)
-                .then(() => {
-                    this.successMessage = 'Producto agregado con éxito';
-                    this.$refs.modalSuccess.openModal();
-                    this.mostrar();
-                })
-                .catch(response => {
-                    if (response.status === 409) {
-                        this.errorMessage = 'El producto ya existe y no se pueden repetir';
-                        this.$refs.modalError.openModal();
-                        return;
-                    } else {
-                        this.errorMessage = 'Error al agregar el producto';
-                        this.$refs.modalError.openModal();
-                        return;
-                    }
-                });
-
-        },
-
-        async abrirEntrada(id) {
-            await this.consultarProductoPorID(id);
-            this.$refs.EntradaProducto.openModal();
-        },
-
-        async abrirSalida(id) {
-            await this.consultarProductoPorID(id);
-            this.$refs.SalidaProducto.openModal();
-        },
-
-        async mostrarInformacion(id) {
-            await this.consultarProductoPorID(id);
-            this.$refs.verProducto.openModal();
-        },
-
-        async mostrarEdicion(id) {
-            await this.consultarProductoPorID(id);
-            this.$refs.editarProducto.openModal();
-        },
-
-        consultarProductoPorID(id) {
-            const url = `${API_URL}/${ENDPOINT_CONSULTAR_PRODUCTO}/${id}`;
-            return axios.get(url)
-                .then(response => {
-                    this.producto = response.data;
-                }).catch(() => {
-                    console.log("Error al consultar el producto");
-                });
-        },
-
-        editarProducto(objeto) {
-
-            const idUsuario = this.$store.state.auth.userId;
-
-            const url = `${API_URL}/${ENDPOINT_EDITAR_PRODUCTO}?idSolicitante=${idUsuario}`;
-
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            if (objeto.marca == '') {
-                objeto.marca = 'S/M';
-            }
-            if (objeto.modelo == '') {
-                objeto.modelo = 'S/M';
-            }
-
-
-            axios.put(url, objeto, config)
-                .then(() => {
-                    this.successMessage = 'Producto editado correctamente.';
-                    this.$refs.modalSuccess.openModal();
-                    this.mostrar();
-                })
-                .catch(() => {
-                    this.errorMessage = 'Error al editar el producto';
-                    this.$refs.modalError.openModal();
-                    return;
-                });
-        },
-
-
+    abrirModalEdicion(objeto) {
+      this.show = false;
+      this.$refs.Editar.openModal(objeto);
     },
-}
+
+    abrirModalEntrada(objeto) {
+      this.$refs.Entrada.openModal(objeto);
+    },
+
+    abrirModalSalida(objeto) {
+      this.$refs.Salida.openModal(objeto);
+    },
+
+    abrirAgregar() {
+      this.show = false;
+      this.$refs.Agregar.openModal();
+    },
+
+    async consultarProducto(id) {
+      const url = `${API_URL}/${ENDPOINT_CONSULTAR_PRODUCTO}/${id}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando los productos, intentelo nuevamente."
+        );
+      }
+    },
+
+    async editar(objeto) {
+      try {
+        const url = `${API_URL}/${ENDPOINT_EDITAR_PRODUCTO}`;
+
+        const ID = this.$store.state.auth.userId;
+
+        const token = this.$store.state.auth.token;
+
+        const objetoAenviar = {
+          producto: objeto,
+          solicitante: ID,
+        };
+
+        await axios.put(url, objetoAenviar, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (objeto.esEntrada) {
+          alert("Se ha agregado cantidad a este producto.");
+        } else {
+          alert("Se ha editado el producto correctamente.");
+        }
+        this.mostrar();
+      } catch (error) {
+        if (error.response && error.response.status === 530) {
+          alert("Ya existe un producto con el mismo nombre registrado.");
+        } else {
+          alert(
+            "Ha ocurrido un problema editando el producto, inténtelo nuevamente."
+          );
+        }
+        this.mostrar();
+      }
+    },
+
+    async eliminar(producto) {
+      try {
+        const confirmacion = confirm(
+          "¿Estás seguro de que deseas eliminar este producto?"
+        );
+        if (confirmacion) {
+          const ID = this.$store.state.auth.userId;
+
+          const url = `${API_URL}/${ENDPOINT_ELIMINAR_PRODUCTO}`;
+          const token = this.$store.state.auth.token;
+
+          const objeto = {
+            producto: producto,
+            solicitante: ID,
+          };
+
+          await axios.post(url, objeto, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          alert("Se ha eliminado el producto correctamente.");
+          this.mostrar();
+        }
+      } catch (error) {
+        console.error(error);
+        alert(
+          "Ha surgido un problema eliminando el producto, intentelo nuevamente."
+        );
+      }
+    },
+
+    toggleSearchInput() {
+      this.showInput = !this.showInput;
+      if (!this.showInput) {
+        this.searchTerm = "";
+        this.mostrar();
+      }
+    },
+
+    buscar(cadena) {
+      let nuevaCadena = cadena.toLowerCase();
+      this.productos = this.todosProductos.filter(
+        (producto) =>
+          producto.nombre.toLowerCase().includes(nuevaCadena) ||
+          producto.numeroDeSerie.toLowerCase().includes(nuevaCadena)
+      );
+    },
+
+    cambioServicio() {
+      if (this.enProductos == true) {
+        this.productos = this.todosProductos.filter(
+          (producto) => producto.servicio == 1
+        );
+        this.enProductos = false;
+      } else {
+        this.productos = this.todosProductos.filter(
+          (producto) => producto.servicio == 0
+        );
+        this.enProductos = true;
+      }
+    },
+
+    obtenerPermisos() {
+      const permisos = this.$store.state.auth.userAdmin;
+      this.permisosAdmin = permisos;
+    },
+  },
+};

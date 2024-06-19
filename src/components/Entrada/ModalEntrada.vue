@@ -3,17 +3,17 @@
         <div class="modal-content">
             <h3 class="modal-title">Entrada</h3>
             <div class="alert alert-info" role="alert">
-                La cantidad actual del producto es de {{ cantidad }} {{ objetoEntrada.unidadMedida }}
+                La cantidad actual del producto es de {{ producto.cantidad }} {{ producto.unidadMedida }}
             </div>
             <div class="principal">
-                <form @submit.prevent="guardarEntrada">
+                <form @submit.prevent="guardar">
                     <div class="mb-3 container-fluid">
                         <div class="row">
                             <div class="form-group mb-3">
                                 <label class="form-label label-left">Cantidad:</label>
                                 <div>
                                     <div>
-                                        <input type="text" class="form-control" v-model="cantidadInicial" />
+                                        <input type="text" class="form-control" v-model="cantidad" />
                                     </div>
                                 </div>
                             </div>
@@ -34,19 +34,15 @@
             </div>
         </div>
     </div>
-    <ModalError :message="errorMessage" ref="modalError" />
-    <ModalSuccess :message="successMessage" ref="modalSuccess" />
+
 </template>
 
 <script>
 import ModalEntradaScript from './ModalEntradaScript';
-import ModalError from '../ModalError.vue';
-import ModalSuccess from '../ModalSuccess.vue';
+
 export default {
     ...ModalEntradaScript,
     components: {
-        ModalError,
-        ModalSuccess,
     },
 };
 </script>
