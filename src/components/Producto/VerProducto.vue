@@ -1,216 +1,198 @@
 <template>
-    <div class="principal" v-if="visible">
-        <form>
-            <div class="mb-3 modal-content">
-                <h3>Información del producto</h3>
-                <hr>
-                <div class="row mt-3">
-                    <div class="row">
-                        <div class="col-12 col-md-4">
-                            <label class="form-label label-left">Nombre</label>
-                            <input type="text" class="form-control" placeholder="Ingrese el nombre"
-                                v-model="objetoLocal.nombre" required>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label class="form-label label-left">Categoría.</label>
-                            <div class="row mb-3">
-                                <div class="col-10 col-md-9 m-0 p-0">
-                                    <select class="form-select" id="categorias" aria-label="categorias"
-                                        v-model="objetoLocal.idCategoria" @change="listarSubcategoriasPorCategoria"
-                                        required>
-                                        <option disabled value="">Selecciona una categoría.</option>
-                                        <option v-for="categoria in categorias" :key="categoria.idCategoria"
-                                            :value="categoria.idCategoria">
-                                            {{
-                                                categoria.nombre
-                                            }}</option>
-                                    </select>
-                                </div>
-                                <div class="col-2 col-md-2 m-0 p-0">
-                                    <a class="btn btn-primary" @click.prevent="mostrarAgregarCategoria">Agregar</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4">
-                            <label class="form-label label-left">Subcategoría.</label>
-                            <div class="row">
-                                <div class="col-10 col-md-4 m-0 p-0">
-                                    <select class="form-select" id="subcategorias" aria-label="subcategorias"
-                                        v-model="objetoLocal.idSubcategoria" required>
-                                        <option disabled value="">Selecciona una subcategoría.</option>
-                                        <option v-for="subcategoria in subcategorias" :key="subcategoria.idSubcategoria"
-                                            :value="subcategoria.idSubcategoria">
-                                            {{
-                                                subcategoria.nombre
-                                            }}</option>
-                                    </select>
-                                </div>
-                                <div class="col-2 col-md-2 m-0 p-0">
-                                    <a class="btn btn-primary" @click.prevent="mostrarAgregarSubcategoria">Agregar</a>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-12 col-md-2">
-                            <label class="form-label label-left">Cuentas de cargo.</label>
-                            <select class="form-select" id="cuentas" aria-label="cuentas" v-model="objetoLocal.idCuenta"
-                                required>
-                                <option disabled value="">Selecciona una cuenta de cargo.</option>
-                                <option v-for="cuenta in cuentas" :key="cuenta.idCuenta" :value="cuenta.idCuenta">
-                                    {{
-                                        cuenta.nombreCuenta
-                                    }}</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12 col-md-2">
-                            <label class="form-label label-left">Unidad de Medida. </label>
-                            <select class="form-select" v-model="objetoLocal.unidadMedida" required>
-                                <!-- Agrega v-bind:key con option.valor -->
-                                <option v-for="option in unidadMedidaOptions" :key="option.valor" :value="option.valor">
-                                    {{
-                                        option.etiqueta }}</option>
-                            </select>
-                        </div>
-                        <!-- <div class="col">
-                            <label class="form-label label-left">Cantidad</label>
-                            <input type="text" class="form-control" placeholder="Ingrese la cantidad"
-                                v-model="objetoLocal.cantidad" required>
-                        </div> -->
-                        <div class="col-12 col-md-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Marca</label>
-                            <input class="form-control" type="text" v-model="objetoLocal.marca">
-                        </div>
-
-                        <div class="col-12 col-md-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Modelo</label>
-                            <input class="form-control" type="text" v-model="objetoLocal.modelo">
-                        </div>
-
-                        <div class="col-12 col-md-2">
-                            <label class="form-label label-left">Precio</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control" placeholder="Ingrese el precio"
-                                    v-model="objetoLocal.precioUnitario" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-12 col-md-4 mb-3">
-                            <label class="form-label label-left">Proveedores.</label>
-                            <div class="row">
-                                <div class="col-10 col-md-9 m-0 p-0">
-                                    <select class="form-select" id="proveedores" aria-label="proveedores"
-                                        v-model="objetoLocal.idProveedor" required>
-                                        <option disabled value="">Selecciona un proveedor.</option>
-                                        <option v-for="proveedor in proveedores" :key="proveedor.idProveedor"
-                                            :value="proveedor.idProveedor">
-                                            {{
-                                                proveedor.nombre
-                                            }}</option>
-                                    </select>
-                                </div>
-                                <div class="col-2 col-md-2 m-0 p-0">
-                                    <a class="btn btn-primary" @click.prevent="mostrarAgregarProveedor">Agregar</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-3">
-                            <label class="form-label label-left">Localización. </label>
-                            <select class="form-select" v-model="objetoLocal.localizacion" required>
-                                <!-- Agrega v-bind:key con option.valor -->
-                                <option v-for="option in localizacionOptions" :key="option.valor" :value="option.valor">
-                                    {{
-                                        option.etiqueta }}</option>
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                placeholder="Ingrese la descripción del producto..."
-                                v-model="objetoLocal.descripcion"></textarea>
-                        </div>
-
-                        <div class="col-12 col-md-2 mt-3">
-                            <div class="form-check d-flex flex-column align-items-center">
-                                <label class="form-check-label mb-0" for="defaultCheck1">
-                                    ¿Es servicio?
-                                </label>
-                                <input class="form-check-input mt-0" type="checkbox" value="" id="defaultCheck1"
-                                    v-model="esServicio" @change="seleccionServicio">
-                            </div>
-                        </div>
-                    </div>
+    <div v-if="show" class="modal-success">
+        <div class="modal-content modal-left">
+            <div class="row align-items-center justify-content-between m-4">
+                <div class="col-auto">
+                    <a class="btn btn-regresar" @click="closeModal">Regresar</a>
                 </div>
-                <div class="row">
-                    <div class="button-container">
-                        <button @click="closeModal" class="btn m-1 btn-danger">Cancelar</button>
+                <div class="col text-center">
+                    <h1 class="modal-title">Información del producto</h1>
+                </div>
+            </div>
+            <hr>
+            <div class="m-3">
+
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Nombre.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.producto.nombre" readonly>
+                        </div>
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left etiqueta ">Número de serie.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.producto.numeroDeSerie"
+                                readonly>
+                        </div>
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Categoría.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.categoria.nombre" readonly>
+                        </div>
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Subcategoría.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.subcategoria.nombre" readonly>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Marca.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.producto.marca" readonly>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Modelo.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.producto.modelo" readonly>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left etiqueta ">Descripción.</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="4"
+                                v-model="objetoLocal.producto.descripcion"
+                                placeholder="Aquí se muestra la descripción agregada al producto..."
+                                readonly></textarea>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Cantidad.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.producto.cantidad" readonly>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Unidad de medida.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.producto.unidadMedida"
+                                readonly>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Proveedor.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.proveedor.nombre" readonly>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Precio unitario.</label>
+                            <input type="text" class="form-control"
+                                :value="formatCurrency(objetoLocal.producto.precioUnitario)" readonly>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Localización.</label>
+                            <select class="form-select" v-model="objetoLocal.producto.localizacion" required>
+                                <option v-for="localizacion in localizacionOptions" :key="localizacion.valor"
+                                    :value="localizacion.valor">{{
+                                        localizacion.etiqueta }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Cuenta.</label>
+                            <input type="text" class="form-control" v-model="objetoLocal.cuenta.NombreCuenta" readonly>
+                        </div>
+
+                        <div class="col-md-10 mb-3">
+                            <label class="form-label label-left mr-1 etiqueta">Es servicio.</label>
+                            <select class="form-select" v-model="objetoLocal.producto.servicio">
+                                <option v-for="servicio in servicioOptions" :key="servicio.valor"
+                                    :value="servicio.valor">{{
+                                        servicio.etiqueta }}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-
-        </form>
+        </div>
     </div>
+
+
 </template>
 
 <script>
-import VerProductoScript from './VerProductoScript';
+import VerProducto from './VerProductoScript.js';
+
 export default {
-    ...VerProductoScript,
+    ...VerProducto,
+    components: {
+    },
 };
 </script>
 
 <style scoped>
-.principal {
-    position: fixed;
-    top: 0;
-    left: 0;
+/* Botón Regresar */
+.btn-regresar {
+    background-color: #D9534F;
+    color: white;
+    border: none;
+    border-radius: 0;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Título */
+.modal-title {
+    font-size: 2.5rem;
+    /* Ajusta el tamaño según tus necesidades */
+    margin-bottom: 1.2rem;
+    /* Margen inferior para separación */
+    flex-grow: 1;
+    /* Permite que el título crezca para ocupar el espacio restante */
+}
+
+/* Asegura que el título esté centrado */
+.text-center {
+    text-align: center;
     width: 100%;
-    height: 100%;
+}
+
+/* Alineación vertical de los elementos en la fila */
+.align-items-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Distribuye espacio entre los elementos */
+.justify-content-between {
+    justify-content: space-between;
+}
+
+
+.etiqueta {
+    font-weight: bold;
+}
+
+.btn {
+    border-radius: 0;
+    /* Esquinas en punta */
+    margin-right: 27px;
+    /* Separación de 27px */
+    padding: 10px 20px;
+    /* Espaciado interno del botón */
+    text-align: center;
+    /* Alineación del texto */
+    display: inline-block;
+    /* Asegura que los botones estén en línea */
+    text-decoration: none;
+    /* Elimina el subrayado de los enlaces */
+    font-weight: bold;
+    /* Texto en negritas */
+    cursor: pointer;
+    /* Cursor en forma de mano */
+    font-size: 1rem
+}
+
+.btn-redondo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.modal-content {
-    background: white;
-    padding: 20px;
-    margin: 20px;
-    text-align: center;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    max-width: 95%;
-    /* Ajusta el ancho máximo del modal según sea necesario */
-}
-
-.modal-title {
-    margin-top: 0;
-}
-
-.button-container {
-    margin-top: 20px;
-}
-
-@media (max-width:750px) {
-    .principal {
-        margin: 0;
-
-    }
-
-    .modal-content {
-        margin: 10px;
-        padding: 20px;
-        /* Ajusta el padding para mantener un espacio interior adecuado */
-        overflow-y: auto;
-        /* Agrega desplazamiento vertical si el contenido excede la altura de la pantalla */
-        max-height: calc(100vh - 40px);
-    }
-
+    padding: 0;
 }
 </style>

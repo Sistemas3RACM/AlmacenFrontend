@@ -15,12 +15,13 @@ import { faHouse, faStore, faUsers, faBook, faWarehouse, faThLarge, faThList, fa
     faEye,
     faSyncAlt,
     faPlus,
-    faMinus} from '@fortawesome/free-solid-svg-icons'
+    faMinus,
+    faSearch} from '@fortawesome/free-solid-svg-icons'
 
 
 // Agrega los iconos a la biblioteca de Font Awesome
 library.add(faHouse, faStore, faUsers, faBook, faWarehouse, faThLarge, faThList, faUserTie,
-    faSignOutAlt,faTrash, faEdit, faEye, faSyncAlt, faPlus,faMinus)
+    faSignOutAlt,faTrash, faEdit, faEye, faSyncAlt, faPlus,faMinus, faSearch)
 
 const app = createApp(App)
 
