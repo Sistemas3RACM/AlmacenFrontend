@@ -27,7 +27,7 @@
                                 <button v-if="showInput" class="btn btn-danger m-1"
                                     @click="toggleSearchInput">Cancelar</button>
 
-                                <a class="btn btn-mas" @click="abrirAgregar">+</a>
+                                <a class="btn btn-mas" @click="abrirAgregar" v-if="permisosAdmin != 3">+</a>
 
                             </div>
                         </div>

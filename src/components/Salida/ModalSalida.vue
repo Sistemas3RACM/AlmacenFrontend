@@ -39,7 +39,7 @@
                     </div>
 
                     <button type="submit" class="btn m-1 btn-primary">Agregar</button>
-                    <button @click="closeModal" class="btn m-1 btn-danger">Cerrar</button>
+                    <button @click.prevent="closeModal" class="btn m-1 btn-danger">Cerrar</button>
                 </form>
             </div>
         </div>

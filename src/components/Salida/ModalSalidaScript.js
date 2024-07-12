@@ -83,6 +83,8 @@ export default {
 
         const url = `${API_URL}/${ENDPOINT_AGREGAR_SOLICITUD}`;
 
+        console.log(url);
+
         try {
           const objetoAenviar = {
             solicitud: this.solicitud,

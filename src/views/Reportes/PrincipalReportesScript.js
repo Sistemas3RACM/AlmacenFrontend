@@ -1,180 +1,490 @@
-import { API_REQUISICIONES_URL, API_URL, ENDPOINT_LISTAR_CUENTAS, ENDPOINT_LISTAR_ENTRADAS, ENDPOINT_LISTAR_PRODUCTOS, ENDPOINT_LISTAR_SALIDAS, ENDPOINT_LISTAR_SOLICITUDES } from "@/keys";
+import {
+  API_URL,
+  ENDPOINT_LISTAR_CATEGORIAS,
+  ENDPOINT_LISTAR_CUENTAS,
+  ENDPOINT_LISTAR_PROVEEDORES,
+  ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS,
+  ENDPOINT_LISTAR_USUARIOS,
+  ENDPOINT_REPORTE_ENTRADAS,
+  ENDPOINT_REPORTE_PRODUCTOS,
+  ENDPOINT_REPORTE_SALIDAS,
+} from "@/keys";
 import axios from "axios";
+import ExcelJS from "exceljs";
 
 export default {
-    name: 'PrincipalReportes',
-    data() {
-        return {
-            mostrarRegistros: false,
-            tipos: [
-                { valor: 1, etiqueta: 'Entrada' },
-                { valor: 2, etiqueta: 'Salida' }
-            ],
-            tipoSeleccionado: 0,
-            fechaInicial: '',
-            fechaFinal: '',
-            showTooltipFI: false,
-            showTooltipFF: false,
-            registros: [],
-            cuentas: [],
-            productos: [],
-            cuentaSeleccionada: 0,
-            esSalida: false,
-            cuentaEscrita: '',
+  name: "ReportesView",
+  data() {
+    return {
+      show: true,
+      tipos: [
+        { valor: 1, etiqueta: "Entrada" },
+        { valor: 2, etiqueta: "Salida" },
+        { valor: 3, etiqueta: "Producto" },
+      ],
+      tipoSeleccionado: {},
+      proveedores: [],
+      proveedorSeleccionado: 0,
+      fechaInicial: "",
+      fechaFinal: "",
+      solicitantes: [],
+      selectedSolicitante: {},
+      cuentaProyecto: "",
+      numSerie: "",
+      categorias: [],
+      categoriaSeleccionada: 0,
+      subcategorias: [],
+      subcategoriaSeleccionada: 0,
+      cuentas: [],
+      cuentaSeleccionada: 0,
+      servicios: [
+        { valor: 1, etiqueta: "Producto" },
+        { valor: 2, etiqueta: "Servicio" },
+      ],
+      servicioSeleccionado: 1,
+
+      solicitudes: [],
+      entradas: [],
+      currentPage: 1,
+      pageSize: 6,
+      registros: [],
+      productos: [],
+      modoEntrada: false,
+      modoSalida: false,
+      modoProducto: false,
+    };
+  },
+  mounted() {
+    this.mostrar();
+  },
+  computed: {
+    // The above code is a method in a Vue component that calculates the total number of pages based on the
+    // number of users and the page size. It first checks if the `usuarios` array is defined, and if not,
+    // it returns 0. If the `usuarios` array is defined, it calculates the total number of pages by
+    // dividing the length of the `usuarios` array by the `pageSize` property and rounding up using the
+    // `Math.ceil()` function.
+    totalPages() {
+      if (!this.registros) return 0;
+      return Math.ceil(this.registros.length / this.pageSize);
+    },
+    // The above code is a method in a Vue component that is used for pagination.
+    paginated() {
+      if (!this.registros) return null;
+
+      const sortedregistros = this.registros.slice().reverse();
+
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+
+      return sortedregistros.slice(startIndex, endIndex);
+    },
+  },
+
+  methods: {
+    goToPage(page) {
+      if (page < 1) page = 1;
+      if (page > this.totalPages) page = this.totalPages;
+      this.currentPage = page;
+    },
+
+    limpiarFiltros() {
+      this.tipoSeleccionado = 0;
+      this.proveedorSeleccionado = 0;
+      this.fechaInicial = "";
+      this.fechaFinal = "";
+      this.selectedSolicitante = {};
+      this.cuentaProyecto = "";
+      this.numSerie = "";
+      this.categoriaSeleccionada = 0;
+      this.subcategoriaSeleccionada = 0;
+      this.cuentaSeleccionada = 0;
+      this.servicioSeleccionado = 1;
+      this.registros = [];
+      this.modoEntrada = false;
+      this.modoSalida = false;
+      this.modoProducto = false;
+    },
+
+    async mostrar() {
+      await this.listarProveedores();
+      await this.listarUsuarios();
+      await this.listarCategorias();
+      await this.listarProveedores();
+      await this.listarCuentas();
+      this.registros = [];
+      this.modoEntrada = false;
+      this.modoSalida = false;
+      this.modoProducto = false;
+
+      this.show = true;
+    },
+
+    async cambioBusqueda() {
+      // BUSQUEDA POR ENTRADAS
+      if (this.tipoSeleccionado == 1) {
+        let objetoT1 = {};
+        if (this.fechaInicial != "") {
+          objetoT1.fechaInicio = this.fechaInicial;
         }
+        if (this.fechaFinal != "") {
+          objetoT1.fechaFin = this.fechaFinal;
+        }
+        if (this.proveedorSeleccionado != 0) {
+          objetoT1.idProveedor = this.proveedorSeleccionado;
+        }
+
+        await this.ReporteEntradas(objetoT1);
+        this.$refs.TablaEntradas.openModal(this.registros);
+        this.modoEntrada=true;
+      }
+
+      // BUSQUEDA POR SALIDAS
+      if (this.tipoSeleccionado == 2) {
+        let objetoT2 = {};
+
+        if (this.fechaInicial != "") {
+          objetoT2.fechaInicio = this.fechaInicial;
+        }
+
+        if (this.fechaFinal != "") {
+          objetoT2.fechaFin = this.fechaFinal;
+        }
+
+        if (this.numSerie != "") {
+          objetoT2.numeroDeSerie = this.numSerie;
+        }
+
+        if (this.selectedSolicitante != null) {
+          objetoT2.correo = this.selectedSolicitante.correo;
+        }
+
+        if (this.cuentaProyecto != "") {
+          objetoT2.proyectoCuenta = this.cuentaProyecto;
+        }
+        await this.ReporteSolicitudes(objetoT2);
+        this.modoSalida = true;
+        this.$refs.TablaSalidas.openModal(this.registros);
+      }
+      // BUSQUEDA POR PRODUCTO
+      if (this.tipoSeleccionado == 3) {
+        let objetoT3 = {};
+
+        if (this.numSerie != "") {
+          objetoT3.numeroDeSerie = this.numSerie;
+        }
+
+        if (this.categoriaSeleccionada != 0) {
+          objetoT3.idCategoria = this.categoriaSeleccionada;
+        }
+
+        if (this.subcategoriaSeleccionada != 0) {
+          objetoT3.idSubcategoria = this.subcategoriaSeleccionada;
+        }
+
+        if (this.servicioSeleccionado != 0) {
+          if (this.servicioSeleccionado == 1) {
+            objetoT3.servicio = 0;
+          } else {
+            objetoT3.servicio = 1;
+          }
+        }
+
+        if (this.proveedorSeleccionado != 0) {
+          objetoT3.idProveedor = this.proveedorSeleccionado;
+        }
+
+        if (this.cuentaSeleccionada != 0) {
+          objetoT3.idCuenta = this.cuentaSeleccionada;
+        }
+        await this.ReporteProductos(objetoT3);
+        this.modoProducto = true;
+        this.$refs.TablaProductos.openModal(this.registros);
+      }
     },
 
-    mounted() {
-        this.mostrar();
+    async listarProveedores() {
+      const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.proveedores = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando los proveedores, intentelo nuevamente."
+        );
+      }
     },
 
-    methods: {
-        async mostrar() {
-            try {
-                await this.listarCuentas();
-                await this.listarProductos();
-            } catch (error) {
+    async listarUsuarios() {
+      const url = `${API_URL}/${ENDPOINT_LISTAR_USUARIOS}`;
+      const token = this.$store.state.auth.token;
 
-            }
-        },
-
-        listarCuentas() {
-            const url = `${API_REQUISICIONES_URL}/${ENDPOINT_LISTAR_CUENTAS}`;
-
-            return axios.get(url)
-                .then(response => {
-                    this.cuentas = response.data;
-                })
-                .catch(() => {
-                    console.log("Error al listar las cuentas existentes");
-                });
-        },
-
-        listarProductos() {
-            const url = `${API_URL}/${ENDPOINT_LISTAR_PRODUCTOS}`;
-
-            return axios.get(url)
-                .then(response => {
-                    this.productos = response.data;
-                })
-                .catch(() => {
-                    console.log("Error al listar los productos.");
-                });
-        },
-
-        async buscarRegistros() {
-            if (this.tipoSeleccionado == 1) {
-                await this.generarRegistrosEntrada();
-                this.$refs.ReporteEntrada.openModal();
-            } else {
-                await this.generarRegistrosSalida();
-                this.$refs.ReporteSalida.openModal();
-            }
-
-            this.mostrarRegistros = true;
-        },
-
-        generarRegistrosEntrada() {
-            const url = `${API_URL}/${ENDPOINT_LISTAR_ENTRADAS}`;
-
-            return axios.get(url)
-                .then(response => {
-                    this.registros = response.data.filter(entrada => {
-                        if (this.fechaInicial && this.fechaFinal) {
-                            // Convertir las fechas de string a objetos Date
-                            const fechaInicialSeleccionada = new Date(this.fechaInicial);
-                            const fechaFinalSeleccionada = new Date(this.fechaFinal);
-                            // Convertir la fecha de entrada del registro a un objeto Date
-                            const fechaEntradaRegistro = new Date(entrada.fechaEntrada);
-                            // Verificar si la fecha de entrada del registro está dentro del rango seleccionado
-                            if (!(fechaEntradaRegistro >= fechaInicialSeleccionada && fechaEntradaRegistro <= fechaFinalSeleccionada)) {
-                                return false; // El registro no está en el rango de fechas, por lo tanto, no se incluye
-                            }
-                        } else if (this.fechaInicial && !this.fechaFinal) {
-                            // Si solo se ha seleccionado una fecha inicial
-                            const fechaInicialSeleccionada = new Date(this.fechaInicial);
-                            const fechaEntradaRegistro = new Date(entrada.fechaEntrada);
-                            // Verificar si la fecha de entrada del registro es posterior a la fecha inicial seleccionada
-                            if (fechaEntradaRegistro < fechaInicialSeleccionada) {
-                                return false; // El registro no está en el rango de fechas, por lo tanto, no se incluye
-                            }
-                        }
-
-                        if (this.cuentaSeleccionada) {
-                            // Obtener el ID del producto asociado a la entrada
-                            const idProducto = entrada.idProducto;
-                            // Buscar el producto en la lista de productos disponibles
-                            const producto = this.productos.find(producto => producto.idProducto === idProducto);
-                            // Verificar si se encontró el producto y si coincide con la cuenta seleccionada
-                            if (!producto || producto.idCuenta !== this.cuentaSeleccionada) {
-                                return false; // El producto no pertenece a la cuenta seleccionada, por lo tanto, no se incluye
-                            }
-                        }
-                        return true;
-                    });
-                })
-                .catch(() => {
-                    console.log("No se han podido listar las entradas.");
-                });
-        },
-
-        generarRegistrosSalida() {
-            const url = `${API_URL}/${ENDPOINT_LISTAR_SOLICITUDES}`;
-
-            return axios.get(url)
-                .then(response => {
-                    this.registros = response.data.filter(salida => {
-                        if (this.fechaInicial && this.fechaFinal) {
-                            // Convertir las fechas de string a objetos Date
-                            const fechaInicialSeleccionada = new Date(this.fechaInicial);
-                            const fechaFinalSeleccionada = new Date(this.fechaFinal);
-                            // Convertir la fecha de entrada del registro a un objeto Date
-                            const fechaSalidaRegistro = new Date(salida.fechaSolicitud);
-                            // Verificar si la fecha de entrada del registro está dentro del rango seleccionado
-                            if (!(fechaSalidaRegistro >= fechaInicialSeleccionada && fechaSalidaRegistro <= fechaFinalSeleccionada)) {
-                                return false; // El registro no está en el rango de fechas, por lo tanto, no se incluye
-                            }
-                        } else if (this.fechaInicial && !this.fechaFinal) {
-                            // Si solo se ha seleccionado una fecha inicial
-                            const fechaInicialSeleccionada = new Date(this.fechaInicial);
-                            const fechaSalidaRegistro = new Date(salida.fechaSolicitud);
-                            // Verificar si la fecha de entrada del registro es posterior a la fecha inicial seleccionada
-                            if (fechaSalidaRegistro < fechaInicialSeleccionada) {
-                                return false; // El registro no está en el rango de fechas, por lo tanto, no se incluye
-                            }
-                        }
-                        if (this.cuentaEscrita) {
-                            const cuentaEscritaLower = this.cuentaEscrita.toLowerCase(); // Convertir el texto ingresado a minúsculas
-                            const proyectoCuentaLower = salida.proyectoCuenta.toLowerCase(); // Convertir la cuenta del proyecto a minúsculas
-
-                            // Verificar si la cuenta escrita coincide con la cuenta del proyecto en alguna de las salidas
-                            if(cuentaEscritaLower === proyectoCuentaLower){
-                                return true;
-                            }else{
-                                return false; // La cuenta escrita no coincide con ninguna cuenta de proyecto, por lo tanto, no se incluye
-                            }
-
-                        }
-                        return true;
-
-                    });
-                })
-                .catch(() => {
-                    console.log("No se han podido listar las salidas.");
-                });
-        },
-
-        limpiarFiltros() {
-            this.$refs.ReporteEntrada.closeModal();
-            this.$refs.ReporteSalida.closeModal();
-        },
-
-        cambioSalida() {
-            if (this.tipoSeleccionado == 1) {
-                this.esSalida = false;
-            } else {
-                this.esSalida = true;
-            }
-        },
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.solicitantes = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando los usuarios, intentelo nuevamente."
+        );
+      }
     },
-}
+
+    async listarCategorias() {
+      const url = `${API_URL}/${ENDPOINT_LISTAR_CATEGORIAS}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.categorias = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando las categoría, intentelo nuevamente."
+        );
+      }
+    },
+
+    async listarSubcategorias() {
+      const url = `${API_URL}/${ENDPOINT_LISTAR_SUBCATEGORIAS_POR_CATEGORIAS}/${this.categoriaSeleccionada}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.subcategorias = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando las subcategorias, intentelo nuevamente."
+        );
+      }
+    },
+
+    async listarCuentas() {
+      const url = `${API_URL}/${ENDPOINT_LISTAR_CUENTAS}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.cuentas = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando las cuentas, intentelo nuevamente."
+        );
+      }
+    },
+
+    async ReporteEntradas(objeto) {
+      const url = `${API_URL}/${ENDPOINT_REPORTE_ENTRADAS}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.post(url, objeto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.registros = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema buscando los registros, intentelo nuevamente."
+        );
+      }
+    },
+
+    async ReporteSolicitudes(objeto) {
+      const url = `${API_URL}/${ENDPOINT_REPORTE_SALIDAS}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.post(url, objeto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.registros = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema buscando los registros, intentelo nuevamente."
+        );
+      }
+    },
+
+    async ReporteProductos(objeto) {
+      const url = `${API_URL}/${ENDPOINT_REPORTE_PRODUCTOS}`;
+      const token = this.$store.state.auth.token;
+
+      try {
+        const response = await axios.post(url, objeto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.registros = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema buscando los registros, intentelo nuevamente."
+        );
+      }
+    },
+
+    formatCurrency(amount) {
+      if (amount === undefined || amount === null) return "";
+      return amount.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+    },
+
+    async generarExcel() {
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("Requisiciones");
+
+      // Encabezados
+      sheet.addRow([
+        "Número de requisición",
+        "Estado",
+        "Solicitante",
+        "Fecha",
+        "Cuenta cargo",
+        "Subcuenta",
+        "Monto total",
+        "Método de pago",
+        "Nombre de los productos",
+        "Número de serie",
+        "Cantidad de productos",
+        "Monto unitario",
+      ]);
+
+      // Iterar sobre las requisiciones y agregar datos
+      for (const requisicion of this.requisiciones) {
+        const solicitante = requisicion.NombreSolicitante;
+        const cuenta = requisicion.NombreCuenta;
+        const fecha = new Date(requisicion.Fecha);
+        const fechaFormateada = fecha.toISOString().slice(0, 10);
+        const subcuenta = requisicion.NombreSubcuenta;
+        const productos = await this.consultarProductos(
+          requisicion.idRequisicion
+        ); // Esperar a que se completen las consultas de productos
+        const estado = requisicion.FiltroEscrito;
+
+        // Agregar fila para la requisición
+        sheet.addRow([
+          requisicion.NumRequisicion,
+          estado,
+          solicitante,
+          fechaFormateada,
+          cuenta,
+          subcuenta,
+          this.formatCurrency(requisicion.Total),
+          requisicion.MetodoPago,
+        ]);
+
+        // Construir una cadena con los detalles de los productos
+        let cantidadProductos = "";
+        let preciosUnitarios = "";
+        let nombreProducto = "";
+        let numeroDeSerieProducto = "";
+
+        for (const producto of productos) {
+          nombreProducto += `${producto.nombre}\n`;
+          numeroDeSerieProducto += `${producto.numeroDeSerie}\n`;
+          cantidadProductos += `${producto.Cantidad}\n`;
+          preciosUnitarios += `${this.formatCurrency(producto.pUnitario)}\n`;
+        }
+
+        sheet.getCell(`I${sheet.rowCount}`).value = nombreProducto;
+        sheet.getCell(`I${sheet.rowCount}`).alignment = { wrapText: true };
+        // Calcular la altura de la fila para mostrar todos los detalles
+        const numberOfRowsNeededNombre = nombreProducto.split("\n").length;
+        sheet.getRow(sheet.rowCount).height = numberOfRowsNeededNombre * 15; // Ajustar según la altura de la fila deseada
+
+        sheet.getCell(`J${sheet.rowCount}`).value = numeroDeSerieProducto;
+        sheet.getCell(`J${sheet.rowCount}`).alignment = { wrapText: true };
+        // Calcular la altura de la fila para mostrar todos los detalles
+        const numberOfRowsNeededNumDeSerie =
+          numeroDeSerieProducto.split("\n").length;
+        sheet.getRow(sheet.rowCount).height =
+          Math.max(numberOfRowsNeededNombre, numberOfRowsNeededNumDeSerie) * 15; // Ajustar según la altura de la fila deseada
+
+        // Agregar la cantidad de productos en la misma celda
+        sheet.getCell(`K${sheet.rowCount}`).value = cantidadProductos;
+        sheet.getCell(`K${sheet.rowCount}`).alignment = { wrapText: true };
+        // Calcular la altura de la fila para mostrar todos los detalles
+        const numberOfRowsNeededCantidad = cantidadProductos.split("\n").length;
+        sheet.getRow(sheet.rowCount).height =
+          Math.max(
+            numberOfRowsNeededNombre,
+            numberOfRowsNeededNumDeSerie,
+            numberOfRowsNeededCantidad
+          ) * 15; // Ajustar según la altura de la fila deseada
+
+        // Agregar los precios unitarios de los productos en la misma celda
+        sheet.getCell(`L${sheet.rowCount}`).value = preciosUnitarios;
+        sheet.getCell(`L${sheet.rowCount}`).alignment = { wrapText: true };
+        // Calcular la altura de la fila para mostrar todos los detalles
+        const numberOfRowsNeededPrecios = preciosUnitarios.split("\n").length;
+        sheet.getRow(sheet.rowCount).height =
+          Math.max(
+            numberOfRowsNeededNombre,
+            numberOfRowsNeededNumDeSerie,
+            numberOfRowsNeededCantidad,
+            numberOfRowsNeededPrecios
+          ) * 15; // Ajustar según la altura de la fila deseada
+      }
+
+      // Generar el archivo Excel
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const fileName = "requisiciones.xlsx";
+      if (window.navigator.msSaveOrOpenBlob) {
+        // Para IE
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+      } else {
+        // Para otros navegadores
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    },
+  },
+};

@@ -3,6 +3,7 @@ export default {
     return {
       isNavbarOpen: false,
       isDropdownOpen: false,
+      permisosAdmin: 0,
     };
   },
   mounted() {

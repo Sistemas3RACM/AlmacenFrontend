@@ -1,29 +1,22 @@
+import axios from "axios";
 import {
-  API_URL, ENDPOINT_LISTAR_PROVEEDORES, ENDPOINT_AGREGAR_MOVIMIENTO,
-  ENDPOINT_ELIMINAR_PROVEEDOR, ENDPOINT_EDITAR_PROVEEDOR, ENDPOINT_BUSCAR_PROVEEDOR, ENDPOINT_CONSULTAR_PROVEEDOR
-} from '../../keys';
+  API_URL,
+  ENDPOINT_LISTAR_PROVEEDORES,
+  ENDPOINT_ELIMINAR_PROVEEDOR,
+  ENDPOINT_EDITAR_PROVEEDOR,
+} from "../../keys";
 
 export default {
-  name: 'InicioProveedor',
+  name: "InicioProveedor",
   data() {
     return {
-      proveedores: null,
-      type: 'proveedores',
-      successMessage: '',
-      errorMessage: '',
-      TituloEditar: 'Editar Proveedor',
-      objetoEditar: [],
-      camposMostrados: ['nombre', 'direccion', 'telefono'],
-      id: 'idProveedor',
-      TituloVer: 'Información del Proveedor',
+      proveedores: [],
       currentPage: 1,
-      pageSize: 6,
-      permisos: false,
+      pageSize: 8,
     };
   },
   mounted() {
     this.mostrar();
-    this.obtenerPermisos();
   },
   computed: {
     // The above code is a method in a Vue component that calculates the total number of pages based on the
@@ -36,7 +29,7 @@ export default {
     },
     // The above code is a method in a Vue component that is used to paginate a list of "proveedores"
     // (suppliers).
-    paginatedProveedores() {
+    paginated() {
       if (!this.proveedores) return null;
 
       const sortedProveedores = this.proveedores.slice().reverse();
@@ -48,164 +41,107 @@ export default {
     },
   },
   methods: {
-    // The above code is defining a method called "goToPage" in a Vue component. This method takes a
-    // parameter called "page" and is used to navigate to a specific page.
     goToPage(page) {
       if (page < 1) page = 1;
       if (page > this.totalPages) page = this.totalPages;
       this.currentPage = page;
     },
-    // The above code is a method in a Vue component that is making an HTTP GET request to a specified API
-    // endpoint. It is using the `fetch` function to send the request and receive the response. Once the
-    // response is received, it is converted to JSON format using the `response.json()` method. The
-    // resulting data is then assigned to the `proveedores` property of the component. If there is an error
-    // during the request or response handling, the error is logged to the console.
-    mostrar() {
+
+    async mostrar() {
       const url = `${API_URL}/${ENDPOINT_LISTAR_PROVEEDORES}`;
+      const token = this.$store.state.auth.token;
 
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          this.proveedores = data;
-        })
-        .catch(error => console.log(error));
-    },
-    buscarProveedor(termino) {
-      const url = `${API_URL}/${ENDPOINT_BUSCAR_PROVEEDOR}?nombre=${termino}`;
-
-      fetch(url)
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error("Error en la solicitud.");
-          }
-        })
-        .then(data => {
-
-          this.proveedores = data;
-        })
-        .catch(error => {
-
-          console.error("Error:", error);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-    },
-    buscarProveedorID(id) {
-      const url = `${API_URL}/${ENDPOINT_CONSULTAR_PROVEEDOR}/${id}`;
-
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-        })
-        .then(proveedor => {
-          this.registroDeMovimientos(`Proveedor ${proveedor.nombre} eliminado`);
-        })
-        .catch(error => {
-          console.error('Error en la solicitud:', error);
-        });
-    },
-    eliminarProveedor(id) {
-      if (!id) {
-        this.errorMessage = 'Surgió un problema con el ID';
-        this.$refs.modalError.openModal();
-        return;
+        this.proveedores = response.data;
+      } catch (error) {
+        console.log(error);
+        alert(
+          "Ha surgido un problema listando los proveedores, intentelo nuevamente."
+        );
       }
-
-      const url = `${API_URL}/${ENDPOINT_ELIMINAR_PROVEEDOR}/${id}`;
-
-      this.buscarProveedorID(id);
-
-      fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(response => {
-          if (response.status === 200) {
-            this.successMessage = 'Proveedor eliminado con éxito';
-            this.$refs.modalSuccess.openModal();
-            this.mostrar();
-          } else if (response.status === 404) {
-            this.errorMessage = 'Proveedor no encontrado';
-            this.$refs.modalError.openModal();
-          } else {
-            this.errorMessage = 'Error al eliminar el proveedor';
-            this.$refs.modalError.openModal();
-          }
-        })
-        .catch(error => {
-          console.error('Error en la solicitud:', error);
-          this.errorMessage = 'Error en la solicitud';
-          this.$refs.modalError.openModal();
-        });
     },
-    mostrarEdicion(datos) {
-      this.objetoEditar = datos;
-      this.$refs.modalEditar.openModal();
+
+    async eliminar(proveedor) {
+      try {
+        const confirmacion = confirm(
+          "¿Estás seguro de que deseas eliminar este proveedor?"
+        );
+        if (confirmacion) {
+          const ID = this.$store.state.auth.userId;
+
+          const url = `${API_URL}/${ENDPOINT_ELIMINAR_PROVEEDOR}`;
+          const token = this.$store.state.auth.token;
+
+          const objeto = {
+            proveedor: proveedor,
+            solicitante: ID,
+          };
+
+          await axios.post(url, objeto, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          alert("Se ha eliminado el proveedor correctamente.");
+          this.mostrar();
+        }
+      } catch (error) {
+        console.error(error);
+        alert(
+          "Ha surgido un problema eliminando el proveedor, intentelo nuevamente."
+        );
+      }
     },
+
+    mostrarEdicion(objeto) {
+      this.$refs.modalEditar.openModal(objeto);
+    },
+
     mostrarInformacion(datos) {
-      this.objetoEditar = datos;
-      this.$refs.modalVer.openModal();
+      this.$refs.modalVer.openModal(datos);
     },
-    abrirAgregarProveedor(){
+
+    abrirAgregarProveedor() {
       this.$refs.formularioAgregar.openModal();
     },
-    // The above code is a method in a Vue component that is used to obtain permissions for a user. It
-    // first retrieves the user's ID from the Vuex store. If the user's ID is equal to 1, it sets the
-    // "permisos" data property to true.
-    obtenerPermisos() {
-      const idUsuario = this.$store.state.auth.userId;
 
-      if (idUsuario == 1) {
-        this.permisos = true;
-      }
-    },
+    async editar(objeto) {
+      try {
+        const url = `${API_URL}/${ENDPOINT_EDITAR_PROVEEDOR}`;
 
-    // The above code is defining a method called "registroDeMovimientos" in a Vue component. This method
-    // takes a parameter called "mensaje".
-    registroDeMovimientos(mensaje) {
-      const idUsuario = this.$store.state.auth.userId;
+        const ID = this.$store.state.auth.userId;
 
-      const JSONmovimientos = {
-        "tipoMovimiento": mensaje,
-        "encargado": idUsuario,
-        "fechaDeMovimiento": null
-      };
+        const token = this.$store.state.auth.token;
 
-      const url = `${API_URL}/${ENDPOINT_AGREGAR_MOVIMIENTO}`;
+        const objetoAenviar = {
+          proveedor: objeto,
+          solicitante: ID,
+        };
 
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(JSONmovimientos),
-      })
-        .then(response => {
-          if (response.status === 201) {
-            this.mostrar();
-          }
-          else {
-            if (response.status === 409) {
-              this.errorMessage = 'Error al agregar el movimiento';
-              this.$refs.modalError.openModal();
-            }
-          }
-        })
-        .catch(error => {
-          this.errorMessage = 'Error en la solicitud';
+        await axios.put(url, objetoAenviar, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
+        alert("Se ha editado el proveedor correctamente.");
+        this.mostrar();
+      } catch (error) {
+        if (error.response && error.response.status === 530) {
+          alert("Ya existe un proveedor con el mismo correo registrado.");
+        } else {
+          alert(
+            "Ha ocurrido un problema editando el proveedor, inténtelo nuevamente."
+          );
+        }
+        this.mostrar();
+      }
     },
   },
 };

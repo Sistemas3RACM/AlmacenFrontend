@@ -1,5 +1,7 @@
 import {
   API_URL,
+  ENDPOINT_AGREGAR_CATEGORIA,
+  ENDPOINT_AGREGAR_SUBCATEGORIA,
   ENDPOINT_LISTAR_CATEGORIAS,
   ENDPOINT_LISTAR_CUENTAS,
   ENDPOINT_LISTAR_PROVEEDORES,
@@ -69,6 +71,7 @@ export default {
       ocultarCampos: false,
     };
   },
+  emits: ["regresar-listado", "guardar-producto"],
   methods: {
     async openModal() {
       this.objetoLocal = {
@@ -248,6 +251,82 @@ export default {
         this.objetoLocal.unidadMedida = "Servicio";
         this.ocultarCampos = true;
       }
+    },
+
+    async agregarCategoria(categoria) {
+      const ID = this.$store.state.auth.userId;
+      const url = `${API_URL}/${ENDPOINT_AGREGAR_CATEGORIA}`;
+      const token = this.$store.state.auth.token;
+
+      const objetoAenviar = {
+        categoria: categoria,
+        solicitante: ID,
+      };
+
+      try {
+        await axios.post(url, objetoAenviar, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("Se ha agregado la categoría correctamente.");
+        this.listarCategorias();
+      } catch (error) {
+        console.log(error);
+        if (error.response && error.response.status === 530) {
+          alert(
+            "Ya existe una categoría con el mismo nombre, ingrese un nuevo nombre.."
+          );
+        } else {
+          alert(
+            "Ha surgido un problema agregando la categoría, intentelo nuevamente."
+          );
+        }
+      }
+    },
+
+    async agregarSubcategoria(subcategoria) {
+      const ID = this.$store.state.auth.userId;
+      const url = `${API_URL}/${ENDPOINT_AGREGAR_SUBCATEGORIA}`;
+      const token = this.$store.state.auth.token;
+
+      const objetoAenviar = {
+        subcategoria: subcategoria,
+        solicitante: ID,
+      };
+
+      try {
+        await axios.post(url, objetoAenviar, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("Se ha agregado la subcategoría correctamente.");
+        this.listarCategorias();
+      } catch (error) {
+        console.log(error);
+        if (error.response && error.response.status === 530) {
+          alert(
+            "Ya existe una subcategoría con el mismo nombre en esa categoria, ingrese un nuevo nombre.."
+          );
+        } else {
+          alert(
+            "Ha surgido un problema agregando la subcategoría, intentelo nuevamente."
+          );
+        }
+      }
+    },
+
+    abrirProveedor() {
+      this.$refs.AgregarProveedor.openModal();
+    },
+
+    abrirCategoria() {
+      this.$refs.AgregarCategoria.openModal();
+    },
+
+    abrirSubcategoria() {
+      this.$refs.AgregarSubcategoria.openModal(this.categorias);
     },
   },
 };

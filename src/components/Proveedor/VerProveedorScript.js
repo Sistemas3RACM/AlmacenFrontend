@@ -1,27 +1,18 @@
-
 export default {
-    props: {
-        objeto: {
-            type: Object,
-            required: true,
-        },
-    },
-
   data() {
     return {
       show: false,
-
+      objeto: {},
     };
   },
   methods: {
-    openModal() {
+    openModal(objeto) {
+      this.objeto = objeto;
       this.show = true;
     },
 
     closeModal() {
       this.show = false;
     },
-
-
   },
 };

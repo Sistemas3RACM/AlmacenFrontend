@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="button-container">
-                    <button @click="closeModal" class="btn m-1 btn-danger">Cancelar</button>
+                    <button @click.prevent="closeModal" class="btn m-1 btn-danger">Cancelar</button>
                 </div>
             </form>
         </div>

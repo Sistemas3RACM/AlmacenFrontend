@@ -15,23 +15,25 @@
               Productos
             </router-link>
           </li>
-          <!-- <li class="nav-item">
+          <li class="nav-item" v-if="permisosAdmin != 3">
             <router-link to="/principalReportes" class="nav-link">
               Reportes
             </router-link>
           </li>
-          <li class="nav-item dropdown" @mouseover="toggleDropdown(true)" @mouseleave="toggleDropdown(false)">
+          <li class="nav-item dropdown" @mouseover="toggleDropdown(true)" @mouseleave="toggleDropdown(false)"
+            v-if="permisosAdmin != 3">
             <a class="nav-link dropdown-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false">
               Administración
             </a>
             <div class="dropdown-menu" :class="{ show: isDropdownOpen }">
               <router-link to="/principalProveedor" class="dropdown-item"> Proveedores </router-link>
               <router-link to="/principalCategorias" class="dropdown-item">Categorías y Subcategorías</router-link>
-              <router-link to="/principalUsuario" class="dropdown-item">Usuarios</router-link>
-              <router-link to="/principalMovimientos" class="dropdown-item">Movimientos</router-link>
+              <router-link to="/principalUsuario" class="dropdown-item" v-if="permisosAdmin == 1">Usuarios</router-link>
+              <router-link to="/principalMovimientos" class="dropdown-item"
+                v-if="permisosAdmin == 1">Movimientos</router-link>
             </div>
           </li>
- -->
+
           <li class="nav-item">
             <a class="btn boton-salir" @click="logout">
               <strong>Salir</strong>

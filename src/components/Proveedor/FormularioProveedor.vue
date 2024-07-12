@@ -3,6 +3,7 @@
     <div class="modal-content">
       <h3>Agregar Proveedor</h3>
       <form @submit.prevent="guardarProveedor">
+        <hr>
         <div class="mb-3">
           <div class=".col-xl-12 ">
             <label class="form-label label-left">Nombre *</label>
@@ -31,26 +32,18 @@
 
         <div class="button-container">
           <button type="submit" class="btn m-1 btn-primary">Guardar</button>
-          <button @click="closeModal" class="btn m-1 btn-danger">Cancelar</button>
+          <button @click.prevent="closeModal" class="btn m-1 btn-danger">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
-  <ModalSuccess :message="mensajeCorrecto" ref="ModalCorrecto" />
-  <ModalError :message="mensajeError" ref="ModalError" />
 </template>
 
 <script>
 import FormularioProveedorScript from './FormularioProveedorScript';
-import ModalSuccess from '../ModalSuccess.vue';
-import ModalError from '../ModalError.vue';
 
 export default {
   ...FormularioProveedorScript,
-  components: {
-    ModalSuccess,
-    ModalError,
-  },
 
 };
 </script>
@@ -71,12 +64,17 @@ export default {
 }
 
 .modal-content {
-  width: 25%; /* Cambiar el ancho según lo necesites */
-  height: auto; /* Permitir que la altura se ajuste automáticamente */
-  padding: 20px; /* Añadir un espacio interno */
-  margin: 10px; /* Añadir un margen exterior */
+  width: 22%;
+  /* Cambiar el ancho según lo necesites */
+  height: auto;
+  /* Permitir que la altura se ajuste automáticamente */
+  padding: 20px;
+  /* Añadir un espacio interno */
+  margin: 10px;
+  /* Añadir un margen exterior */
   display: flex;
-  flex-direction: column; /* Alinear los elementos verticalmente */
+  flex-direction: column;
+  /* Alinear los elementos verticalmente */
   justify-content: center;
   align-items: center;
   background-color: white;
@@ -85,20 +83,25 @@ export default {
 
 @media screen and (max-width: 1000px) {
   .modal-content {
-    width: 45%; /* Cambiar el ancho según lo necesites */
+    width: 45%;
+    /* Cambiar el ancho según lo necesites */
   }
 }
+
 @media screen and (max-width: 620px) {
   .modal-content {
-    width: 55%; /* Cambiar el ancho según lo necesites */
+    width: 55%;
+    /* Cambiar el ancho según lo necesites */
   }
 }
 
 @media screen and (max-width: 480px) {
   .modal-content {
-    width: 70%; /* Cambiar el ancho según lo necesites */
+    width: 70%;
+    /* Cambiar el ancho según lo necesites */
   }
 }
+
 .button-container {
   text-align: center;
 }

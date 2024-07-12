@@ -3,6 +3,7 @@
     <div class="modal-content">
       <h3>Agregar Categoría</h3>
       <form @submit.prevent="agregarCategoria">
+        <hr>
         <div class="col mb-3">
           <label>Nombre</label>
           <input type="text" class="form-control" placeholder="Ingrese el nombre" v-model="categoria.nombre">
@@ -10,25 +11,17 @@
 
         <div class="button-container">
           <button type="submit" class="btn m-1 btn-primary">Guardar</button>
-          <button @click="cerrarFormulario" class="btn m-1 btn-danger">Cancelar</button>
+          <button @click.prevent="cerrarFormulario" class="btn m-1 btn-danger">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
-  <ModalSuccess :message="mensajeCorrecto" ref="ModalCorrecto" />
-  <ModalError :message="mensajeError" ref="ModalError" />
 </template>
 
 <script>
 import FormularioCategoriaScript from './FormularioCategoriaScript';
-import ModalSuccess from '../ModalSuccess.vue';
-import ModalError from '../ModalError.vue';
 export default {
   ...FormularioCategoriaScript,
-  components: {
-    ModalSuccess,
-    ModalError,
-  },
 };
 </script>
 
@@ -48,7 +41,7 @@ export default {
 }
 
 .modal-content {
-  width: 27%;
+  width: 23%;
   height: 30%;
   display: flex;
   justify-content: center;

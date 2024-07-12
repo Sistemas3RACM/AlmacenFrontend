@@ -19,21 +19,40 @@
                             <input type="text" class="form-control" v-model="objetoLocal.nombre">
                         </div>
                         <div class="col-md-10 mb-3">
-                            <label class="form-label label-left mr-1 etiqueta">Categoría.</label>
-                            <select class="form-select" v-model="objetoLocal.idCategoria" @change="listarSubcategorias"
-                                required>
-                                <option v-for="categoria in categorias" :key="categoria.idCategoria"
-                                    :value="categoria.idCategoria">{{
-                                        categoria.nombre }}</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <label class="form-label label-left mr-1 etiqueta">Categoría.</label>
+                                    <select class="form-select" v-model="objetoLocal.idCategoria"
+                                        @change="listarSubcategorias" required>
+                                        <option v-for="categoria in categorias" :key="categoria.idCategoria"
+                                            :value="categoria.idCategoria">{{
+                                                categoria.nombre }}</option>
+                                    </select>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a class="btn btn-mas" @click="abrirCategoria">+</a>
+
+                                </div>
+                            </div>
+
                         </div>
                         <div class="col-md-10 mb-3">
-                            <label class="form-label label-left mr-1 etiqueta">Subcategoría.</label>
-                            <select class="form-select" v-model="objetoLocal.idSubcategoria" required>
-                                <option v-for="subcategoria in subcategorias" :key="subcategoria.idSubcategoria"
-                                    :value="subcategoria.idSubcategoria">{{
-                                        subcategoria.nombre }}</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <label class="form-label label-left mr-1 etiqueta">Subcategoría.</label>
+                                    <select class="form-select" v-model="objetoLocal.idSubcategoria" required>
+                                        <option v-for="subcategoria in subcategorias" :key="subcategoria.idSubcategoria"
+                                            :value="subcategoria.idSubcategoria">{{
+                                                subcategoria.nombre }}</option>
+                                    </select>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a class="btn btn-mas" @click="abrirSubcategoria">+</a>
+
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-md-10 mb-3">
@@ -58,10 +77,10 @@
 
                         <div class="col-md-10 mb-3">
                             <label class="form-label label-left mr-1 etiqueta">Cantidad.</label>
-                            <input type="text" class="form-control" v-model="objetoLocal.cantidad" >
+                            <input type="text" class="form-control" v-model="objetoLocal.cantidad">
                         </div>
 
-                        <div class="col-md-10 mb-3" v-if="!ocultarCampos" >
+                        <div class="col-md-10 mb-3" v-if="!ocultarCampos">
                             <label class="form-label label-left mr-1 etiqueta">Unidad de medida.</label>
                             <select class="form-select" v-model="objetoLocal.unidadMedida" required>
                                 <option v-for="unidad in unidadMedidaOptions" :key="unidad.valor" :value="unidad.valor">
@@ -74,12 +93,23 @@
 
                     <div class="col-md-4">
                         <div class="col-md-10 mb-3">
-                            <label class="form-label label-left mr-1 etiqueta">Proveedor.</label>
-                            <select class="form-select" v-model="objetoLocal.idProveedor" required>
-                                <option v-for="proveedor in proveedores" :key="proveedor.idProveedor"
-                                    :value="proveedor.idProveedor">{{
-                                        proveedor.nombre }}</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <label class="form-label label-left mr-1 etiqueta">Proveedor.</label>
+                                    <select class="form-select" v-model="objetoLocal.idProveedor" required>
+                                        <option v-for="proveedor in proveedores" :key="proveedor.idProveedor"
+                                            :value="proveedor.idProveedor">{{
+                                                proveedor.nombre }}</option>
+                                    </select>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a class="btn btn-mas" @click="abrirProveedor">+</a>
+
+                                </div>
+                            </div>
+
+
                         </div>
 
                         <div class="col-md-10 mb-3">
@@ -87,7 +117,7 @@
                             <input type="text" class="form-control" v-model="objetoLocal.precioUnitario">
                         </div>
 
-                        <div class="col-md-10 mb-3" v-if="!ocultarCampos" >
+                        <div class="col-md-10 mb-3" v-if="!ocultarCampos">
                             <label class="form-label label-left mr-1 etiqueta">Localización.</label>
                             <select class="form-select" v-model="objetoLocal.localizacion" required>
                                 <option v-for="localizacion in localizacionOptions" :key="localizacion.valor"
@@ -106,7 +136,7 @@
 
                         <div class="col-md-10 mb-3">
                             <label class="form-label label-left mr-1 etiqueta">Es servicio.</label>
-                            <select class="form-select" v-model="objetoLocal.servicio" @change="cambioServicio" >
+                            <select class="form-select" v-model="objetoLocal.servicio" @change="cambioServicio">
                                 <option v-for="servicio in servicioOptions" :key="servicio.valor"
                                     :value="servicio.valor">{{
                                         servicio.etiqueta }}</option>
@@ -125,16 +155,25 @@
 
         </div>
     </div>
+    <FormularioCategoria @guardar-categoria="agregarCategoria" ref="AgregarCategoria" />
+    <FormularioSubcategoria @guardar-subcategoria="agregarSubcategoria" ref="AgregarSubcategoria" />
+    <FormularioProveedor @recargar-cambios="listarProveedores" ref="AgregarProveedor" />
 
 
 </template>
 
 <script>
 import FormularioProductoScript from './FormularioProductoScript.js';
+import FormularioCategoria from '../Categoria/FormularioCategoria.vue';
+import FormularioProveedor from '../Proveedor/FormularioProveedor.vue';
+import FormularioSubcategoria from '../Subcategoria/FormularioSubcategoria.vue';
 
 export default {
     ...FormularioProductoScript,
     components: {
+        FormularioCategoria,
+        FormularioProveedor,
+        FormularioSubcategoria,
     },
 };
 </script>
@@ -208,6 +247,15 @@ export default {
 .etiqueta {
     font-weight: bold;
 }
+
+.btn-mas {
+    background-color: #28A745;
+    /* Color de fondo */
+    color: white;
+    /* Color del texto */
+    margin-top: 27px;
+}
+
 
 .btn {
     border-radius: 0;

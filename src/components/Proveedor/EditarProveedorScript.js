@@ -1,24 +1,14 @@
-import { API_URL, ENDPOINT_EDITAR_PROVEEDOR } from '@/keys';
-import axios from 'axios';
-
 export default {
-  props: {
-    objeto: {
-      type: Object,
-      required: true,
-    },
-  },
-
   data() {
     return {
       show: false,
-      mensajeCorrecto: 'Proveedor editado con exito.',
-      mensajeError: 'Ha ocurrido un error al editar el proveedor...',
-
+      objeto: {},
     };
   },
+  emits: ["editar-proveedor"],
   methods: {
-    openModal() {
+    openModal(objeto) {
+      this.objeto = objeto;
       this.show = true;
     },
 
@@ -27,42 +17,26 @@ export default {
     },
 
     editarProveedor() {
-
-      if (!this.objeto.nombre) {
-        this.errorMessage = 'El campo nombre no puede estar vacío';
-        this.$refs.modalError.openModal();
-        this.mostrar();
-      } else {
-        if (this.objeto.telefono === "") {
-          this.objeto.telefono = "S/T";
-        }
-        if (this.objeto.direccion === "") {
-          this.objeto.direccion = "S/D";
-        }
-
-        if (this.objeto.infoContacto === "") {
-          this.objeto.infoContacto = "Sin Contacto";
-        }
-        if (this.objeto.descripcion === "") {
-          this.objeto.descripcion = "Sin descripción";
-        }
-
-
-        const url = `${API_URL}/${ENDPOINT_EDITAR_PROVEEDOR}`;
-
-        axios.put(url, this.objeto)
-          .then(() => {
-            this.$refs.ModalCorrecto.openModal();
-            this.$emit('proveedor-editado');
-            this.closeModal();
-          })
-          .catch(()=>{
-            this.$refs.ModalError.openModal();
-          });
-
+      if (!this.comprobarCampos()) {
+        this.$emit("editar-proveedor", this.objeto);
+        this.closeModal();
       }
-
     },
 
+    comprobarCampos() {
+      let mensaje = "Los siguentes campos no pueden estar vacios: \n";
+      let campos = [];
+
+      if (this.objeto.nombre == "") {
+        campos.push("-Nombre");
+      }
+
+      if (campos.length > 0) {
+        mensaje += campos.join(", \n");
+        alert(mensaje);
+        return true;
+      }
+      return false;
+    },
   },
 };

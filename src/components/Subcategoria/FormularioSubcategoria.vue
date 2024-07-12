@@ -3,7 +3,8 @@
     <div class="modal-content">
       <h3 class="mb-3">Agregar Subcategoría</h3>
       
-      <form @submit.prevent="guardarSubcategoria">
+      <form @submit.prevent="agregarSubcategoria">
+        <hr>
         <div class="mb-3">
           <div class="row">
             <div class="col mb-3">
@@ -30,26 +31,18 @@
 
         <div class="button-container">
           <button type="submit" class="btn m-1 btn-primary">Guardar</button>
-          <button @click="closeModal" class="btn m-1 btn-danger">Cancelar</button>
+          <button @click.prevent="closeModal" class="btn m-1 btn-danger">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
-  <ModalSuccess :message="mensajeCorrecto" ref="ModalCorrecto" />
-  <ModalError :message="mensajeError" ref="ModalError" />
 </template>
   
 <script>
 import FormularioSubcategoriaScript from './FormularioSubcategoriaScript';
-import ModalSuccess from '../ModalSuccess.vue';
-import ModalError from '../ModalError.vue';
 
 export default {
   ...FormularioSubcategoriaScript,
-  components: {
-    ModalSuccess,
-    ModalError,
-  },
 };
 </script>
   
@@ -70,8 +63,8 @@ export default {
 }
 
 .modal-content {
-  width: 28%;
-  height: 50%;
+  width: 21%;
+  height: 45%;
   display: flex;
   justify-content: center;
   align-items: center;

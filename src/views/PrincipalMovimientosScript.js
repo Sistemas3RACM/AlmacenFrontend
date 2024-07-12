@@ -1,18 +1,16 @@
+import axios from 'axios';
 import {
     API_URL,
-    ENDPOINT_BUSCAR_PRODUCTO,
     ENDPOINT_LISTAR_MOVIMIENTOS,
-    ENDPOINT_CONSULTAR_USUARIO,
 } from '../keys';
 
 export default {
     name: 'InicioSubcategoria',
     data() {
         return {
-            movimientos: null,
-            type: 'movimientos',
+            movimientos: [],
             currentPage: 1,
-            pageSize: 6,
+            pageSize: 11,
         };
     },
     mounted() {
@@ -46,91 +44,24 @@ export default {
             if (page > this.totalPages) page = this.totalPages;
             this.currentPage = page;
         },
-        async buscarNombreUsuario(id) {
-            const url = `${API_URL}/${ENDPOINT_CONSULTAR_USUARIO}/${id}`;
 
-            try {
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.ok) {
-                    const usuario = await response.json();
-                    return usuario.nombre || 'Nombre no encontrado';
-                } else {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Error en la solicitud:', error);
-                return 'Nombre no encontrado';
-            }
-        },
-        // The `updateMovimientosWithNames()` method is an asynchronous function that updates the `movimientos`
-        // data with the names of the responsible users.
-        async updateMovimientosWithNames() {
-            if (!this.movimientos) return;
-
-            const movimientosWithNames = await Promise.all(
-                this.movimientos.map(async (movimiento) => {
-                    const nombre = await this.buscarNombreUsuario(movimiento.encargado);
-                    return { ...movimiento, encargadoName: nombre };
-                })
-            );
-
-            this.movimientos = movimientosWithNames;
-        },
         async mostrar() {
             const url = `${API_URL}/${ENDPOINT_LISTAR_MOVIMIENTOS}`;
-
+            const token = this.$store.state.auth.token;
+      
             try {
-                const response = await fetch(url);
-                if (response.ok) {
-                    const data = await response.json();
-                    this.movimientos = data;
-                    this.currentPage = 1;
-                    await this.updateMovimientosWithNames();
-                } else {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+              const response = await axios.get(url, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              this.movimientos = response.data;
             } catch (error) {
-                console.error('Error:', error);
+              console.log(error);
+              alert(
+                "Ha surgido un problema listando los movimientos, intentelo nuevamente."
+              );
             }
-        },
-        async buscarProducto(termino) {
-            const url = `${API_URL}/${ENDPOINT_BUSCAR_PRODUCTO}?nombre=${termino}`;
-
-            try {
-                const response = await fetch(url);
-                if (response.ok) {
-                    const data = await response.json();
-                    this.movimientos = data;
-                    this.currentPage = 1;
-                    await this.updateMovimientosWithNames();
-                } else {
-                    throw new Error("Error en la solicitud.");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-            }
-        },
-        // The `obtenerFecha` method is a helper function that takes a `fechaCompleta` parameter, which
-        // represents a full date and time string.
-        obtenerFecha(fechaCompleta) {
-            if (fechaCompleta) {
-                return fechaCompleta.split('T')[0];
-            }
-            return '';
-        },
-        // The `obtenerHora` method is a helper function that takes a `fechaCompleta` parameter, which
-        // represents a full date and time string.
-        obtenerHora(fechaCompleta) {
-            if (fechaCompleta) {
-                return fechaCompleta.split('T')[1].substr(0, 5);
-            }
-            return '';
-        },
+              },
     },
 };

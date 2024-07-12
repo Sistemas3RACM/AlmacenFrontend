@@ -35,26 +35,19 @@
 
                 <div class="button-container">
                     <button type="submit" class="btn m-1 btn-primary">Actualizar</button>
-                    <button @click="closeModal" class="btn m-1 btn-danger">Cancelar</button>
+                    <button @click.prevent="closeModal" class="btn m-1 btn-danger">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
-    <ModalSuccess :message="mensajeCorrecto" ref="ModalCorrecto" />
-    <ModalError :message="mensajeError" ref="ModalError" />
 </template>
 
 <script>
 import EditarProveedorScript from './EditarProveedorScript.js';
-import ModalSuccess from '../ModalSuccess.vue';
-import ModalError from '../ModalError.vue';
 
 export default {
     ...EditarProveedorScript,
-    components: {
-        ModalSuccess,
-        ModalError,
-    },
+
 
 };
 </script>

@@ -2,154 +2,169 @@
   <section class="container-fluid">
     <div>
       <div class="row">
-        <div class="col-12 col-md-2 m-0 p-0">
-          <Nvar />
-        </div>
-        <div class="col-12 col-md-10 m-0 p-0">
-          <section class="container-fluid">
-            <div class="row contenidoEnvuelto">
-              <div class="tablaP">
-                <div class="row">
-                  <div class="col-12 col-md-3 titulo">
-                    <h1 class="h1 m-3">Proveedores</h1>
-                  </div>
-                  <div class="col botonCargar">
-                    <a class="btn m-1 btn-primary" @click="abrirAgregarProveedor">Agregar</a>
-                    <button @click="mostrar()" class="btn m-1 btn-warning">
-                      <font-awesome-icon :icon="['fas', 'sync-alt']" />
-                    </button>
-                  </div>
-                  <div class="col-12 col-md-4 mt-4">
-                    <BusquedaGeneral @busqueda="buscarProveedor" />
-                  </div>
-                </div>
-                <tabla v-if="paginatedProveedores" :type="type" :data="paginatedProveedores" :fields="['nombre']"
-                  :eliminar="eliminar">
-                  <template #default="{ item }">
-                    <button @click="eliminarProveedor(item.idProveedor)" class="btn m-1 btn-danger" v-if="permisos">
-                      <font-awesome-icon :icon="['fas', 'trash']" />
-                    </button>
-                    <button @click="mostrarEdicion(item)" class="btn m-1 btn-warning">
-                      <font-awesome-icon :icon="['fas', 'edit']" />
-                    </button>
-                    <button @click="mostrarInformacion(item)" class="btn m-1 btn-primary">
-                      <font-awesome-icon :icon="['fas', 'eye']" />
-                    </button>
-                  </template>
-                </tabla>
-                <!-- Botones de navegación -->
-                <div class="pagination-buttons boton-container">
-                  <button @click="goToPage(currentPage - 1)" class="btn btn-info"
-                    :disabled="currentPage === 1">Anterior</button>
-                  <button @click="goToPage(currentPage + 1)" class="btn btn-info"
-                    :disabled="currentPage === totalPages">Siguiente</button>
-                </div>
+        <Nvar />
+      </div>
+      <div class="row ">
+        <div class="col-md-12">
+          <div class="row">
+            <div class="row m-2 align-items-center">
+              <div class="col-md-5">
+                <h1 class="titulo-seccion">Proveedores</h1>
+              </div>
+              <div class="col-md-7 d-flex justify-content-end">
+                <a class="btn btn-mas" @click="abrirAgregarProveedor">+</a>
               </div>
             </div>
-          </section>
+
+            <hr>
+            <div class="col-md-12" v-if="proveedores.length > 0">
+              <table class="table table-striped justify-content-center text-center">
+                <thead>
+                  <tr class="table-active">
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="proveedor in paginated" :key="proveedor.idProveedor">
+                    <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.direccion }}</td>
+                    <td>{{ proveedor.telefono }}</td>
+                    <td class="button-container">
+                      <button @click="mostrarEdicion(proveedor)" class="btn btn-warning btn-redondo">
+                        <font-awesome-icon :icon="['fas', 'edit']" />
+                      </button>
+                      <button @click="mostrarInformacion(proveedor)" class="btn btn-primary btn-redondo">
+                        <font-awesome-icon :icon="['fas', 'eye']" />
+                      </button>
+                      <!-- <button @click="eliminar(proveedor)" class="btn btn-danger btn-redondo">
+                        <font-awesome-icon :icon="['fas', 'trash']" />
+                      </button> -->
+
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- Botones de navegación -->
+              <div class="pagination-buttons boton-container">
+                <button @click="goToPage(currentPage - 1)" class="btn btn-secondary"
+                  :disabled="currentPage === 1">&lt;</button>
+                <button @click="goToPage(currentPage + 1)" class="btn btn-secondary"
+                  :disabled="currentPage === totalPages">&gt;</button>
+              </div>
+            </div>
+            <div class="col-md-9" v-else>
+              <h1 class="text-center">No hay ningún proveedor registrado.</h1>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
-    <FormularioProveedor @recargar-Cambios="mostrar" ref="formularioAgregar" />
-    <!-- Modal de Éxito -->
-    <ModalSuccess :message="successMessage" ref="modalSuccess" />
-
-    <!-- Modal de Error -->
-    <ModalError :message="errorMessage" ref="modalError" />
-
-    <!-- Modal de Error -->
-    <EditarProveedor :objeto="objetoEditar" @proveedor-editado="mostrar" ref="modalEditar" />
-
-    <VerProveedor :objeto="objetoEditar" ref="modalVer" />
   </section>
+  <EditarProveedor @editar-proveedor="editar" ref="modalEditar" />
+  <VerProveedor ref="modalVer" />
+  <FormularioProveedor @recargar-cambios="mostrar" ref="formularioAgregar" />
+
 </template>
 
 <style scoped>
+.btn-mas {
+  background-color: #28A745;
+  /* Color de fondo */
+  color: white;
+  /* Color del texto */
+}
+
+/* Elimina el margen derecho del último botón */
+.col-md-7 .btn:last-child {
+  margin-right: 0;
+}
+
+.titulo-seccion {
+  font-size: 3.4rem;
+  /* Puedes ajustar el tamaño según prefieras */
+  margin: 1.2rem;
+}
+
 .boton-container {
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-.formulario {
-  background: white;
-  padding: 20px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  height: 70vh;
-  border-radius: 10px;
-  margin-top: 35%;
-  width: 100%;
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  /* Espacio entre botones */
 }
 
-.tablaP {
-  margin-left: 10px;
-  margin-right: 40px;
-  margin-top: 10px;
+.btn {
+  border-radius: 0;
+  /* Esquinas en punta */
+  margin-right: 27px;
+  /* Separación de 27px */
+  padding: 10px 20px;
+  /* Espaciado interno del botón */
+  text-align: center;
+  /* Alineación del texto */
+  display: inline-block;
+  /* Asegura que los botones estén en línea */
+  text-decoration: none;
+  /* Elimina el subrayado de los enlaces */
+  font-weight: bold;
+  /* Texto en negritas */
+  cursor: pointer;
+  /* Cursor en forma de mano */
+  font-size: 1rem
 }
 
-.botonCargar {
-  margin-top: 20px;
+thead tr {
+  font-size: 1.1rem;
 }
 
+.btn-redondo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
 
-@media (max-width: 750px) {
-  .container-fluid {
-    margin: 0;
-  }
+.btn-anchura {
+  width: 400px;
+}
 
-  .contenidoEnvuelto {
-    margin: 0;
-    margin-bottom: 20px;
-    padding: 0;
-  }
-
-  .tablaP {
-    margin: 0
-  }
-
-  .botonCargar {
-    margin-top: 5px;
-    display: flex;
-    justify-content: center;
-
-  }
-
-  .titulo h1 {
-    font-size: 45px;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-  }
-
-
+/* Botón de Pendientes */
+.btn-servicios {
+  background-color: #bf9f3f;
+  /* Color de fondo */
+  color: rgb(255, 255, 255);
+  /* Color del texto */
 }
 </style>
 
 <script>
-import tabla from '@/components/tablainformacion.vue';
 import Nvar from '@/components/Nvar.vue';
-import FormularioGeneral from '@/components/FormularioGeneral.vue';
-import ModalSuccess from '@/components/ModalSuccess.vue';
-import ModalError from '@/components/ModalError.vue';
+import PrincipalProveedorScript from './PrincipalProveedorScript';
 import EditarProveedor from '@/components/Proveedor/EditarProveedor.vue';
 import VerProveedor from '@/components/Proveedor/VerProveedor.vue';
-import BusquedaGeneral from '@/components/BusquedaGeneral.vue';
-import PrincipalProveedorScript from './PrincipalProveedorScript';
 import FormularioProveedor from '@/components/Proveedor/FormularioProveedor.vue';
 
 export default {
   ...PrincipalProveedorScript,
   components: {
-    tabla,
     Nvar,
-    FormularioGeneral,
-    ModalSuccess,
-    ModalError,
-    VerProveedor,
-    BusquedaGeneral,
-    FormularioProveedor,
     EditarProveedor,
-  },
+    VerProveedor,
+    FormularioProveedor,
+  }
 };
 </script>
